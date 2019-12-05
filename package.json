@@ -1,0 +1,24 @@
+{
+  "name": "scam",
+  "version": "1.0.0",
+  "description": "An AMM for Stable Coins",
+  "main": "truffle-config.js",
+  "directories": {
+    "test": "test"
+  },
+  "dependencies": {},
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hysz/SCAM.git"
+  },
+  "collabators": "dekz, hysz, jalextowle",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/hysz/SCAM/issues"
+  },
+  "homepage": "https://github.com/hysz/SCAM#readme"
+}
