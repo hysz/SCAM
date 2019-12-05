@@ -55,7 +55,7 @@ export default function Header() {
   return (
     <HeaderFrame>
       <HeaderElement>
-        <Title>
+        {/* <Title>
           <Nod>
             <Link id="link" href="https://scam.io">
               <span role="img" aria-label="unicorn">
@@ -66,7 +66,7 @@ export default function Header() {
           <Link id="link" href="https://scam.io">
             <h1 id="title">SCAM</h1>
           </Link>
-        </Title>
+        </Title> */}
       </HeaderElement>
       <HeaderElement>{/* <Web3Status /> */}</HeaderElement>
     </HeaderFrame>

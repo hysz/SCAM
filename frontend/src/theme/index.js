@@ -61,7 +61,7 @@ const theme = darkMode => ({
   modalBackground: darkMode ? 'rgba(0,0,0,0.6)' : 'rgba(0,0,0,0.3)',
   inputBackground: darkMode ? '#202124' : white,
   placeholderGray: darkMode ? '#5F5F5F' : '#E1E1E1',
-  shadowColor: darkMode ? '#000' : '#7373731f',
+  shadowColor: darkMode ? '#000' : '#FAFAFA',
 
   // grays
   concreteGray: darkMode ? '#292C2F' : '#FAFAFA',
@@ -73,11 +73,11 @@ const theme = darkMode => ({
   buttonOutlineGrey: darkMode ? '#FAFAFA' : '#F2F2F2',
   tokenRowHover: darkMode ? '#404040' : '#F2F2F2',
   //blacks
-  charcoalBlack: darkMode ? '#F2F2F2' : '#404040',
+  charcoalBlack: darkMode ? '#fb5d81' : '#000000',
   // blues
-  zumthorBlue: darkMode ? '#212529' : '#7373731f',
+  zumthorBlue: darkMode ? '#212529' : '#FAFAFA',
   malibuBlue: darkMode ? '#E67AEF' : '#737373',
-  royalBlue: darkMode ? '#fb5d81' : '#737373',
+  royalBlue: darkMode ? '#fb5d81' : '#000000',
   loadingBlue: darkMode ? '#e4f0ff' : '#e4f0ff',
 
   // purples

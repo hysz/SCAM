@@ -7,6 +7,8 @@ import { transparentize, darken } from 'polished'
 import { useBodyKeyDown } from '../../hooks'
 import { useBetaMessageManager } from '../../contexts/LocalStorage'
 
+import { ReactComponent as Scam } from '../../assets/images/scam.svg'
+
 const tabOrder = [
   {
     path: '/swap',
@@ -97,6 +99,53 @@ const StyledNavLink = styled(NavLink).attrs({
     color: ${({ theme }) => darken(0.1, theme.royalBlue)};
   }
 `
+const Image = styled.img`
+  width: ${({ size }) => size};
+  height: ${({ size }) => size};
+  background-color: white;
+  border-radius: 1rem;
+  cursor: pointer;
+  flex: 1 0 auto;
+  align-items: center;
+  position: relative;
+  padding: 0.5rem 1rem;
+  padding-right: 2rem;
+  margin-bottom: 1rem;
+  font-size: 0.75rem;
+  line-height: 1rem;
+  text-align: left;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+`
+
+const Hero = styled.div`
+  ${({ theme }) => theme.flexRowNoWrap}
+  cursor: pointer;
+  flex: 1 0 auto;
+  align-items: center;
+  position: relative;
+  padding: 0.5rem 1rem;
+  padding-right: 2rem;
+  margin-bottom: 1rem;
+  font-size: 0.75rem;
+  line-height: 1rem;
+  text-align: left;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+`
+
+const WrappedScam = ({ isError, highSlippageWarning, ...rest }) => <Scam {...rest} />
+const ColoredScam = styled(WrappedScam)`
+  flex: 1 0 auto;
+  align-items: center;
+  position: relative;
+  path {
+    stroke: ${({ theme }) => theme.charcoalBlack};
+    fill: ${({ theme }) => theme.charcoalBlack};
+  }
+`
 
 function NavigationTabs({ location: { pathname }, history }) {
   const { t } = useTranslation()
@@ -122,7 +171,9 @@ function NavigationTabs({ location: { pathname }, history }) {
 
   return (
     <>
-      <p> sup</p>
+      <Hero>
+        <ColoredScam />
+      </Hero>
       <Tabs>
         {tabOrder.map(({ path, textKey, regex }) => (
           <StyledNavLink key={path} to={path} isActive={(_, { pathname }) => pathname.match(regex)}>
