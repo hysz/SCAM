@@ -1,9 +1,9 @@
 pragma solidity ^0.5.9;
 pragma experimental ABIEncoderV2;
 
-import "../contracts/interfaces/IStructs.sol";
-import "../contracts/Scam.sol";
-import "../contracts/libs/LibFixedMath.sol";
+import "../interfaces/IStructs.sol";
+import "../Scam.sol";
+import "../libs/LibFixedMath.sol";
 
 
 contract TestScam is

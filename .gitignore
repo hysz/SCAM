@@ -3,3 +3,4 @@ generated-artifacts/*
 generated-wrappers/*
 lib/*
 node_modules/*
+ganache.log

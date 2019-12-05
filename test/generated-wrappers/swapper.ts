@@ -7,7 +7,7 @@ import {
     ContractTxFunctionObj,
     SendTransactionOpts,
     BaseContract,
-    PromiseWithTransactionHash,
+    SubscriptionManager,PromiseWithTransactionHash,
     methodAbiToFunctionSignature,
 } from '@0x/base-contract';
 import { schemas } from '@0x/json-schemas';
@@ -19,6 +19,7 @@ import {
     ContractAbi,
     ContractArtifact,
     DecodedLogArgs,
+    LogWithDecodedArgs,
     MethodAbi,
     TransactionReceiptWithDecodedLogs,
     TxData,
@@ -33,6 +34,21 @@ import * as ethers from 'ethers';
 // tslint:enable:no-unused-variable
 
 
+export type SwapperEventArgs =
+    | SwapperFillEventArgs;
+
+export enum SwapperEvents {
+    Fill = 'Fill',
+}
+
+export interface SwapperFillEventArgs extends DecodedLogArgs {
+    from: string;
+    fromToken: string;
+    toToken: string;
+    amountSpent: BigNumber;
+    amountReceived: BigNumber;
+}
+
 
 /* istanbul ignore next */
 // tslint:disable:no-parameter-reassignment
@@ -44,6 +60,7 @@ export class SwapperContract extends BaseContract {
 public static deployedBytecode: string | undefined;
 public static contractName = 'Swapper';
     private readonly _methodABIIndex: { [name: string]: number } = {};
+private readonly _subscriptionManager: SubscriptionManager<SwapperEventArgs, SwapperEvents>;
 public static async deployFrom0xArtifactAsync(
         artifact: ContractArtifact | SimpleContractArtifact,
         supportedProvider: SupportedProvider,
@@ -115,15 +132,49 @@ public static async deployFrom0xArtifactAsync(
      */
     public static ABI(): ContractAbi {
         const abi = [
-            {
+            { 
+                anonymous: false,
+                inputs: [
+                    {
+                        name: 'from',
+                        type: 'address',
+                        indexed: false,
+                    },
+                    {
+                        name: 'fromToken',
+                        type: 'address',
+                        indexed: false,
+                    },
+                    {
+                        name: 'toToken',
+                        type: 'address',
+                        indexed: false,
+                    },
+                    {
+                        name: 'amountSpent',
+                        type: 'uint256',
+                        indexed: false,
+                    },
+                    {
+                        name: 'amountReceived',
+                        type: 'uint256',
+                        indexed: false,
+                    },
+                ],
+                name: 'Fill',
+                outputs: [
+                ],
+                type: 'event',
+            },
+            { 
                 constant: false,
                 inputs: [
                     {
-                        name: 'fromAddress',
+                        name: 'fromToken',
                         type: 'address',
                     },
                     {
-                        name: 'toAddress',
+                        name: 'toToken',
                         type: 'address',
                     },
                     {
@@ -170,14 +221,14 @@ public static async deployFrom0xArtifactAsync(
     }
 
     public swap(
-            fromAddress: string,
-            toAddress: string,
+            fromToken: string,
+            toToken: string,
             amount: BigNumber,
     ): ContractTxFunctionObj<void
 > {
         const self = this as any as SwapperContract;
-            assert.isString('fromAddress', fromAddress);
-            assert.isString('toAddress', toAddress);
+            assert.isString('fromToken', fromToken);
+            assert.isString('toToken', toToken);
             assert.isBigNumber('amount', amount);
         const functionSignature = 'swap(address,address,uint256)';
 
@@ -221,14 +272,82 @@ public static async deployFrom0xArtifactAsync(
             >(rawCallResult);
             },
             getABIEncodedTransactionData(): string {
-                return self._strictEncodeArguments(functionSignature, [fromAddress.toLowerCase(),
-            toAddress.toLowerCase(),
+                return self._strictEncodeArguments(functionSignature, [fromToken.toLowerCase(),
+            toToken.toLowerCase(),
             amount
             ]);
             },
         }
     };
 
+    /**
+     * Subscribe to an event type emitted by the Swapper contract.
+     * @param eventName The Swapper contract event you would like to subscribe to.
+     * @param indexFilterValues An object where the keys are indexed args returned by the event and
+     * the value is the value you are interested in. E.g `{maker: aUserAddressHex}`
+     * @param callback Callback that gets called when a log is added/removed
+     * @param isVerbose Enable verbose subscription warnings (e.g recoverable network issues encountered)
+     * @return Subscription token used later to unsubscribe
+     */
+    public subscribe<ArgsType extends SwapperEventArgs>(
+        eventName: SwapperEvents,
+        indexFilterValues: IndexedFilterValues,
+        callback: EventCallback<ArgsType>,
+        isVerbose: boolean = false,
+        blockPollingIntervalMs?: number,
+    ): string {
+        assert.doesBelongToStringEnum('eventName', eventName, SwapperEvents);
+        assert.doesConformToSchema('indexFilterValues', indexFilterValues, schemas.indexFilterValuesSchema);
+        assert.isFunction('callback', callback);
+        const subscriptionToken = this._subscriptionManager.subscribe<ArgsType>(
+            this.address,
+            eventName,
+            indexFilterValues,
+            SwapperContract.ABI(),
+            callback,
+            isVerbose,
+            blockPollingIntervalMs,
+        );
+        return subscriptionToken;
+    }
+    /**
+     * Cancel a subscription
+     * @param subscriptionToken Subscription token returned by `subscribe()`
+     */
+    public unsubscribe(subscriptionToken: string): void {
+        this._subscriptionManager.unsubscribe(subscriptionToken);
+    }
+    /**
+     * Cancels all existing subscriptions
+     */
+    public unsubscribeAll(): void {
+        this._subscriptionManager.unsubscribeAll();
+    }
+    /**
+     * Gets historical logs without creating a subscription
+     * @param eventName The Swapper contract event you would like to subscribe to.
+     * @param blockRange Block range to get logs from.
+     * @param indexFilterValues An object where the keys are indexed args returned by the event and
+     * the value is the value you are interested in. E.g `{_from: aUserAddressHex}`
+     * @return Array of logs that match the parameters
+     */
+    public async getLogsAsync<ArgsType extends SwapperEventArgs>(
+        eventName: SwapperEvents,
+        blockRange: BlockRange,
+        indexFilterValues: IndexedFilterValues,
+    ): Promise<Array<LogWithDecodedArgs<ArgsType>>> {
+        assert.doesBelongToStringEnum('eventName', eventName, SwapperEvents);
+        assert.doesConformToSchema('blockRange', blockRange, schemas.blockRangeSchema);
+        assert.doesConformToSchema('indexFilterValues', indexFilterValues, schemas.indexFilterValuesSchema);
+        const logs = await this._subscriptionManager.getLogsAsync<ArgsType>(
+            this.address,
+            eventName,
+            blockRange,
+            indexFilterValues,
+            SwapperContract.ABI(),
+        );
+        return logs;
+    }
     constructor(
         address: string,
         supportedProvider: SupportedProvider,
@@ -238,6 +357,10 @@ public static async deployFrom0xArtifactAsync(
     ) {
         super('Swapper', SwapperContract.ABI(), address, supportedProvider, txDefaults, logDecodeDependencies, deployedBytecode);
         classUtils.bindAll(this, ['_abiEncoderByFunctionSignature', 'address', '_web3Wrapper']);
+this._subscriptionManager = new SubscriptionManager<SwapperEventArgs, SwapperEvents>(
+            SwapperContract.ABI(),
+            this._web3Wrapper,
+        );
 SwapperContract.ABI().forEach((item, index) => {
             if (item.type === 'function') {
                 const methodAbi = item as MethodAbi;

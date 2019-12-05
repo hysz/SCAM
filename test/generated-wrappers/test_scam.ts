@@ -34,14 +34,14 @@ import * as ethers from 'ethers';
 // tslint:enable:no-unused-variable
 
 
-export type ScamEventArgs =
-    | ScamFillEventArgs;
+export type TestScamEventArgs =
+    | TestScamFillEventArgs;
 
-export enum ScamEvents {
+export enum TestScamEvents {
     Fill = 'Fill',
 }
 
-export interface ScamFillEventArgs extends DecodedLogArgs {
+export interface TestScamFillEventArgs extends DecodedLogArgs {
     from: string;
     fromToken: string;
     toToken: string;
@@ -53,20 +53,20 @@ export interface ScamFillEventArgs extends DecodedLogArgs {
 /* istanbul ignore next */
 // tslint:disable:no-parameter-reassignment
 // tslint:disable-next-line:class-name
-export class ScamContract extends BaseContract {
+export class TestScamContract extends BaseContract {
     /**
      * @ignore
      */
 public static deployedBytecode: string | undefined;
-public static contractName = 'Scam';
+public static contractName = 'TestScam';
     private readonly _methodABIIndex: { [name: string]: number } = {};
-private readonly _subscriptionManager: SubscriptionManager<ScamEventArgs, ScamEvents>;
+private readonly _subscriptionManager: SubscriptionManager<TestScamEventArgs, TestScamEvents>;
 public static async deployFrom0xArtifactAsync(
         artifact: ContractArtifact | SimpleContractArtifact,
         supportedProvider: SupportedProvider,
         txDefaults: Partial<TxData>,
         logDecodeDependencies: { [contractName: string]: (ContractArtifact | SimpleContractArtifact) },
-    ): Promise<ScamContract> {
+    ): Promise<TestScamContract> {
         assert.doesConformToSchema('txDefaults', txDefaults, schemas.txDataSchema, [
             schemas.addressSchema,
             schemas.numberSchema,
@@ -84,7 +84,7 @@ public static async deployFrom0xArtifactAsync(
                 logDecodeDependenciesAbiOnly[key] = logDecodeDependencies[key].compilerOutput.abi;
             }
         }
-        return ScamContract.deployAsync(bytecode, abi, provider, txDefaults, logDecodeDependenciesAbiOnly, );
+        return TestScamContract.deployAsync(bytecode, abi, provider, txDefaults, logDecodeDependenciesAbiOnly, );
     }
     public static async deployAsync(
         bytecode: string,
@@ -92,7 +92,7 @@ public static async deployFrom0xArtifactAsync(
         supportedProvider: SupportedProvider,
         txDefaults: Partial<TxData>,
         logDecodeDependencies: { [contractName: string]: ContractAbi },
-    ): Promise<ScamContract> {
+    ): Promise<TestScamContract> {
         assert.isHexString('bytecode', bytecode);
         assert.doesConformToSchema('txDefaults', txDefaults, schemas.txDataSchema, [
             schemas.addressSchema,
@@ -120,8 +120,8 @@ public static async deployFrom0xArtifactAsync(
         const txHash = await web3Wrapper.sendTransactionAsync(txDataWithDefaults);
         logUtils.log(`transactionHash: ${txHash}`);
         const txReceipt = await web3Wrapper.awaitTransactionSuccessAsync(txHash);
-        logUtils.log(`Scam successfully deployed at ${txReceipt.contractAddress}`);
-        const contractInstance = new ScamContract(txReceipt.contractAddress as string, provider, txDefaults, logDecodeDependencies);
+        logUtils.log(`TestScam successfully deployed at ${txReceipt.contractAddress}`);
+        const contractInstance = new TestScamContract(txReceipt.contractAddress as string, provider, txDefaults, logDecodeDependencies);
         contractInstance.constructorArgs = [];
         return contractInstance;
     }
@@ -132,15 +132,6 @@ public static async deployFrom0xArtifactAsync(
      */
     public static ABI(): ContractAbi {
         const abi = [
-            { 
-                inputs: [
-                ],
-                outputs: [
-                ],
-                payable: false,
-                stateMutability: 'nonpayable',
-                type: 'constructor',
-            },
             { 
                 anonymous: false,
                 inputs: [
@@ -227,6 +218,17 @@ public static async deployFrom0xArtifactAsync(
             { 
                 constant: false,
                 inputs: [
+                ],
+                name: 'runBasicTest',
+                outputs: [
+                ],
+                payable: false,
+                stateMutability: 'nonpayable',
+                type: 'function',
+            },
+            { 
+                constant: false,
+                inputs: [
                     {
                         name: 'fromToken',
                         type: 'address',
@@ -253,27 +255,27 @@ public static async deployFrom0xArtifactAsync(
 
     public getFunctionSignature(methodName: string): string {
         const index = this._methodABIIndex[methodName];
-        const methodAbi = ScamContract.ABI()[index] as MethodAbi; // tslint:disable-line:no-unnecessary-type-assertion
+        const methodAbi = TestScamContract.ABI()[index] as MethodAbi; // tslint:disable-line:no-unnecessary-type-assertion
         const functionSignature = methodAbiToFunctionSignature(methodAbi);
         return functionSignature;
     }
     public getABIDecodedTransactionData<T>(methodName: string, callData: string): T {
         const functionSignature = this.getFunctionSignature(methodName);
-        const self = (this as any) as ScamContract;
+        const self = (this as any) as TestScamContract;
         const abiEncoder = self._lookupAbiEncoder(functionSignature);
         const abiDecodedCallData = abiEncoder.strictDecode<T>(callData);
         return abiDecodedCallData;
     }
     public getABIDecodedReturnData<T>(methodName: string, callData: string): T {
         const functionSignature = this.getFunctionSignature(methodName);
-        const self = (this as any) as ScamContract;
+        const self = (this as any) as TestScamContract;
         const abiEncoder = self._lookupAbiEncoder(functionSignature);
         const abiDecodedCallData = abiEncoder.strictDecodeReturnValue<T>(callData);
         return abiDecodedCallData;
     }
     public getSelector(methodName: string): string {
         const functionSignature = this.getFunctionSignature(methodName);
-        const self = (this as any) as ScamContract;
+        const self = (this as any) as TestScamContract;
         const abiEncoder = self._lookupAbiEncoder(functionSignature);
         return abiEncoder.getSelector();
     }
@@ -282,7 +284,7 @@ public static async deployFrom0xArtifactAsync(
             amount: BigNumber,
     ): ContractTxFunctionObj<void
 > {
-        const self = this as any as ScamContract;
+        const self = this as any as TestScamContract;
             assert.isBigNumber('amount', amount);
         const functionSignature = 'addLiquidity(uint256)';
 
@@ -336,7 +338,7 @@ public static async deployFrom0xArtifactAsync(
             rhoDenominator: BigNumber,
     ): ContractTxFunctionObj<void
 > {
-        const self = this as any as ScamContract;
+        const self = this as any as TestScamContract;
             assert.isBigNumber('rhoNumerator', rhoNumerator);
             assert.isBigNumber('rhoDenominator', rhoDenominator);
         const functionSignature = 'init(uint256,uint256)';
@@ -391,7 +393,7 @@ public static async deployFrom0xArtifactAsync(
             amount: BigNumber,
     ): ContractTxFunctionObj<void
 > {
-        const self = this as any as ScamContract;
+        const self = this as any as TestScamContract;
             assert.isBigNumber('amount', amount);
         const functionSignature = 'removeLiquidity(uint256)';
 
@@ -440,13 +442,63 @@ public static async deployFrom0xArtifactAsync(
             },
         }
     };
+    public runBasicTest(
+    ): ContractTxFunctionObj<void
+> {
+        const self = this as any as TestScamContract;
+        const functionSignature = 'runBasicTest()';
+
+        return {
+            async sendTransactionAsync(
+                txData?: Partial<TxData> | undefined,
+                opts: SendTransactionOpts = { shouldValidate: true },
+            ): Promise<string> {
+                const txDataWithDefaults = await self._applyDefaultsToTxDataAsync(
+                    { ...txData, data: this.getABIEncodedTransactionData() },
+                    this.estimateGasAsync.bind(this),
+                );
+                if (opts.shouldValidate !== false) {
+                    await this.callAsync(txDataWithDefaults);
+                }
+                return self._web3Wrapper.sendTransactionAsync(txDataWithDefaults);
+            },
+            awaitTransactionSuccessAsync(
+                txData?: Partial<TxData>,
+                opts: AwaitTransactionSuccessOpts = { shouldValidate: true },
+            ): PromiseWithTransactionHash<TransactionReceiptWithDecodedLogs> {
+                return self._promiseWithTransactionHash(this.sendTransactionAsync(txData, opts), opts);
+            },
+            async estimateGasAsync(
+                txData?: Partial<TxData> | undefined,
+            ): Promise<number> {
+                const txDataWithDefaults = await self._applyDefaultsToTxDataAsync(
+                    { ...txData, data: this.getABIEncodedTransactionData() }
+                );
+                return self._web3Wrapper.estimateGasAsync(txDataWithDefaults);
+            },
+            async callAsync(
+                callData: Partial<CallData> = {},
+                defaultBlock?: BlockParam,
+            ): Promise<void
+            > {
+                BaseContract._assertCallParams(callData, defaultBlock);
+                const rawCallResult = await self._performCallAsync({ ...callData, data: this.getABIEncodedTransactionData() }, defaultBlock);
+                const abiEncoder = self._lookupAbiEncoder(functionSignature);
+                return abiEncoder.strictDecodeReturnValue<void
+            >(rawCallResult);
+            },
+            getABIEncodedTransactionData(): string {
+                return self._strictEncodeArguments(functionSignature, []);
+            },
+        }
+    };
     public swap(
             fromToken: string,
             toToken: string,
             amount: BigNumber,
     ): ContractTxFunctionObj<void
 > {
-        const self = this as any as ScamContract;
+        const self = this as any as TestScamContract;
             assert.isString('fromToken', fromToken);
             assert.isString('toToken', toToken);
             assert.isBigNumber('amount', amount);
@@ -501,29 +553,29 @@ public static async deployFrom0xArtifactAsync(
     };
 
     /**
-     * Subscribe to an event type emitted by the Scam contract.
-     * @param eventName The Scam contract event you would like to subscribe to.
+     * Subscribe to an event type emitted by the TestScam contract.
+     * @param eventName The TestScam contract event you would like to subscribe to.
      * @param indexFilterValues An object where the keys are indexed args returned by the event and
      * the value is the value you are interested in. E.g `{maker: aUserAddressHex}`
      * @param callback Callback that gets called when a log is added/removed
      * @param isVerbose Enable verbose subscription warnings (e.g recoverable network issues encountered)
      * @return Subscription token used later to unsubscribe
      */
-    public subscribe<ArgsType extends ScamEventArgs>(
-        eventName: ScamEvents,
+    public subscribe<ArgsType extends TestScamEventArgs>(
+        eventName: TestScamEvents,
         indexFilterValues: IndexedFilterValues,
         callback: EventCallback<ArgsType>,
         isVerbose: boolean = false,
         blockPollingIntervalMs?: number,
     ): string {
-        assert.doesBelongToStringEnum('eventName', eventName, ScamEvents);
+        assert.doesBelongToStringEnum('eventName', eventName, TestScamEvents);
         assert.doesConformToSchema('indexFilterValues', indexFilterValues, schemas.indexFilterValuesSchema);
         assert.isFunction('callback', callback);
         const subscriptionToken = this._subscriptionManager.subscribe<ArgsType>(
             this.address,
             eventName,
             indexFilterValues,
-            ScamContract.ABI(),
+            TestScamContract.ABI(),
             callback,
             isVerbose,
             blockPollingIntervalMs,
@@ -545,18 +597,18 @@ public static async deployFrom0xArtifactAsync(
     }
     /**
      * Gets historical logs without creating a subscription
-     * @param eventName The Scam contract event you would like to subscribe to.
+     * @param eventName The TestScam contract event you would like to subscribe to.
      * @param blockRange Block range to get logs from.
      * @param indexFilterValues An object where the keys are indexed args returned by the event and
      * the value is the value you are interested in. E.g `{_from: aUserAddressHex}`
      * @return Array of logs that match the parameters
      */
-    public async getLogsAsync<ArgsType extends ScamEventArgs>(
-        eventName: ScamEvents,
+    public async getLogsAsync<ArgsType extends TestScamEventArgs>(
+        eventName: TestScamEvents,
         blockRange: BlockRange,
         indexFilterValues: IndexedFilterValues,
     ): Promise<Array<LogWithDecodedArgs<ArgsType>>> {
-        assert.doesBelongToStringEnum('eventName', eventName, ScamEvents);
+        assert.doesBelongToStringEnum('eventName', eventName, TestScamEvents);
         assert.doesConformToSchema('blockRange', blockRange, schemas.blockRangeSchema);
         assert.doesConformToSchema('indexFilterValues', indexFilterValues, schemas.indexFilterValuesSchema);
         const logs = await this._subscriptionManager.getLogsAsync<ArgsType>(
@@ -564,7 +616,7 @@ public static async deployFrom0xArtifactAsync(
             eventName,
             blockRange,
             indexFilterValues,
-            ScamContract.ABI(),
+            TestScamContract.ABI(),
         );
         return logs;
     }
@@ -573,15 +625,15 @@ public static async deployFrom0xArtifactAsync(
         supportedProvider: SupportedProvider,
         txDefaults?: Partial<TxData>,
         logDecodeDependencies?: { [contractName: string]: ContractAbi },
-        deployedBytecode: string | undefined = ScamContract.deployedBytecode,
+        deployedBytecode: string | undefined = TestScamContract.deployedBytecode,
     ) {
-        super('Scam', ScamContract.ABI(), address, supportedProvider, txDefaults, logDecodeDependencies, deployedBytecode);
+        super('TestScam', TestScamContract.ABI(), address, supportedProvider, txDefaults, logDecodeDependencies, deployedBytecode);
         classUtils.bindAll(this, ['_abiEncoderByFunctionSignature', 'address', '_web3Wrapper']);
-this._subscriptionManager = new SubscriptionManager<ScamEventArgs, ScamEvents>(
-            ScamContract.ABI(),
+this._subscriptionManager = new SubscriptionManager<TestScamEventArgs, TestScamEvents>(
+            TestScamContract.ABI(),
             this._web3Wrapper,
         );
-ScamContract.ABI().forEach((item, index) => {
+TestScamContract.ABI().forEach((item, index) => {
             if (item.type === 'function') {
                 const methodAbi = item as MethodAbi;
                 this._methodABIIndex[methodAbi.name] = index;

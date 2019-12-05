@@ -9,27 +9,27 @@
 		"evm": {
 			"bytecode": {
 				"linkReferences": {},
-				"object": "0x6080604052348015600f57600080fd5b50604c80601d6000396000f3fe6080604052600080fdfea365627a7a72315820edfafaa04b6dc7ae52277c43d23a087f6fd4068cc75da710efa9a953f29e1e1d6c6578706572696d656e74616cf564736f6c634300050d0040",
-				"opcodes": "PUSH1 0x80 PUSH1 0x40 MSTORE CALLVALUE DUP1 ISZERO PUSH1 0xF JUMPI PUSH1 0x0 DUP1 REVERT JUMPDEST POP PUSH1 0x4C DUP1 PUSH1 0x1D PUSH1 0x0 CODECOPY PUSH1 0x0 RETURN INVALID PUSH1 0x80 PUSH1 0x40 MSTORE PUSH1 0x0 DUP1 REVERT INVALID LOG3 PUSH6 0x627A7A723158 KECCAK256 0xED STATICCALL STATICCALL LOG0 0x4B PUSH14 0xC7AE52277C43D23A087F6FD4068C 0xC7 0x5D 0xA7 LT 0xEF 0xA9 0xA9 MSTORE8 CALLCODE SWAP15 0x1E SAR PUSH13 0x6578706572696D656E74616CF5 PUSH5 0x736F6C6343 STOP SDIV 0xD STOP BLOCKHASH ",
-				"sourceMap": "60:568:7:-;;;;8:9:-1;5:2;;;30:1;27;20:12;5:2;60:568:7;;;;;;;"
+				"object": "0x6080604052348015600f57600080fd5b50604c80601d6000396000f3fe6080604052600080fdfea365627a7a723158209ab36a7e0190d3f6998126a3603df70bef20449be908096d119ca29d9647e63d6c6578706572696d656e74616cf564736f6c634300050d0040",
+				"opcodes": "PUSH1 0x80 PUSH1 0x40 MSTORE CALLVALUE DUP1 ISZERO PUSH1 0xF JUMPI PUSH1 0x0 DUP1 REVERT JUMPDEST POP PUSH1 0x4C DUP1 PUSH1 0x1D PUSH1 0x0 CODECOPY PUSH1 0x0 RETURN INVALID PUSH1 0x80 PUSH1 0x40 MSTORE PUSH1 0x0 DUP1 REVERT INVALID LOG3 PUSH6 0x627A7A723158 KECCAK256 SWAP11 0xB3 PUSH11 0x7E0190D3F6998126A3603D 0xF7 SIGNEXTEND 0xEF KECCAK256 DIFFICULTY SWAP12 0xE9 ADDMOD MULMOD PUSH14 0x119CA29D9647E63D6C6578706572 PUSH10 0x6D656E74616CF564736F PUSH13 0x634300050D0040000000000000 ",
+				"sourceMap": "60:1014:6:-;;;;8:9:-1;5:2;;;30:1;27;20:12;5:2;60:1014:6;;;;;;;"
 			},
 			"deployedBytecode": {
 				"linkReferences": {},
-				"object": "0x6080604052600080fdfea365627a7a72315820edfafaa04b6dc7ae52277c43d23a087f6fd4068cc75da710efa9a953f29e1e1d6c6578706572696d656e74616cf564736f6c634300050d0040",
-				"opcodes": "PUSH1 0x80 PUSH1 0x40 MSTORE PUSH1 0x0 DUP1 REVERT INVALID LOG3 PUSH6 0x627A7A723158 KECCAK256 0xED STATICCALL STATICCALL LOG0 0x4B PUSH14 0xC7AE52277C43D23A087F6FD4068C 0xC7 0x5D 0xA7 LT 0xEF 0xA9 0xA9 MSTORE8 CALLCODE SWAP15 0x1E SAR PUSH13 0x6578706572696D656E74616CF5 PUSH5 0x736F6C6343 STOP SDIV 0xD STOP BLOCKHASH ",
-				"sourceMap": "60:568:7:-;;;;;"
+				"object": "0x6080604052600080fdfea365627a7a723158209ab36a7e0190d3f6998126a3603df70bef20449be908096d119ca29d9647e63d6c6578706572696d656e74616cf564736f6c634300050d0040",
+				"opcodes": "PUSH1 0x80 PUSH1 0x40 MSTORE PUSH1 0x0 DUP1 REVERT INVALID LOG3 PUSH6 0x627A7A723158 KECCAK256 SWAP11 0xB3 PUSH11 0x7E0190D3F6998126A3603D 0xF7 SIGNEXTEND 0xEF KECCAK256 DIFFICULTY SWAP12 0xE9 ADDMOD MULMOD PUSH14 0x119CA29D9647E63D6C6578706572 PUSH10 0x6D656E74616CF564736F PUSH13 0x634300050D0040000000000000 ",
+				"sourceMap": "60:1014:6:-;;;;;"
 			}
 		}
 	},
 	"sources": {
 		"interfaces/IStructs.sol": {
-			"id": 7
+			"id": 6
 		}
 	},
 	"sourceCodes": {
-		"interfaces/IStructs.sol": "pragma solidity ^0.5.9;\npragma experimental ABIEncoderV2;\n\n\ninterface IStructs {\n\n    struct State {\n        uint256 x;                                          // contract's balance of token x\n        uint256 y;                                          // contract's balance of token y\n        uint256 pHatX;                                      // expected future price of x in terms of y\n        uint256 t;                                          // most recent block\n        mapping (address => uint256) liquidityBalance;\n        uint256 l;                                          // total liquidity token balance\n    }\n\n}\n"
+		"interfaces/IStructs.sol": "pragma solidity ^0.5.9;\npragma experimental ABIEncoderV2;\n\n\ninterface IStructs {\n\n    struct State {\n        address xAddress;                                   // address of token x\n        address yAddress;                                   // address of token y\n        int256 x;                                           // contract's balance of token x (fixed point)\n        int256 y;                                           // contract's balance of token y (fixed point)\n        int256 pBarX;                                       // expected future price of x in terms of y (fixed point)\n        int256 pBarXInverted;                               // inverted expected future price of x in terms of y (fixed point)\n        uint256 rhoNumerator;\n        int256 rhoRatio;\n        int256 fee;\n        uint256 bisectionIterations;\n        uint256 t;                                          // most recent block\n        mapping (address => uint256) liquidityBalance;\n        uint256 l;                                          // total liquidity token balance\n\n    }\n\n}\n"
 	},
-	"sourceTreeHashHex": "0x9aef08a2765f7e1c6ae9cad07d9f84f1b01f72b36fb244ff965ac7299319613f",
+	"sourceTreeHashHex": "0xef6be8b08ebc6c2eef9883e5bc88c596d2df9b042ccc46575d8c6f2a1763a94a",
 	"compiler": {
 		"name": "solc",
 		"version": "soljson-v0.5.13+commit.5b0b510c.js",

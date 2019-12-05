@@ -115,6 +115,17 @@ public static async deployFrom0xArtifactAsync(
      */
     public static ABI(): ContractAbi {
         const abi = [
+            { 
+                constant: false,
+                inputs: [
+                ],
+                name: 'transferFrom',
+                outputs: [
+                ],
+                payable: false,
+                stateMutability: 'nonpayable',
+                type: 'function',
+            },
         ] as ContractAbi;
         return abi;
     }
@@ -146,6 +157,56 @@ public static async deployFrom0xArtifactAsync(
         return abiEncoder.getSelector();
     }
 
+    public transferFrom(
+    ): ContractTxFunctionObj<void
+> {
+        const self = this as any as IERC20Contract;
+        const functionSignature = 'transferFrom()';
+
+        return {
+            async sendTransactionAsync(
+                txData?: Partial<TxData> | undefined,
+                opts: SendTransactionOpts = { shouldValidate: true },
+            ): Promise<string> {
+                const txDataWithDefaults = await self._applyDefaultsToTxDataAsync(
+                    { ...txData, data: this.getABIEncodedTransactionData() },
+                    this.estimateGasAsync.bind(this),
+                );
+                if (opts.shouldValidate !== false) {
+                    await this.callAsync(txDataWithDefaults);
+                }
+                return self._web3Wrapper.sendTransactionAsync(txDataWithDefaults);
+            },
+            awaitTransactionSuccessAsync(
+                txData?: Partial<TxData>,
+                opts: AwaitTransactionSuccessOpts = { shouldValidate: true },
+            ): PromiseWithTransactionHash<TransactionReceiptWithDecodedLogs> {
+                return self._promiseWithTransactionHash(this.sendTransactionAsync(txData, opts), opts);
+            },
+            async estimateGasAsync(
+                txData?: Partial<TxData> | undefined,
+            ): Promise<number> {
+                const txDataWithDefaults = await self._applyDefaultsToTxDataAsync(
+                    { ...txData, data: this.getABIEncodedTransactionData() }
+                );
+                return self._web3Wrapper.estimateGasAsync(txDataWithDefaults);
+            },
+            async callAsync(
+                callData: Partial<CallData> = {},
+                defaultBlock?: BlockParam,
+            ): Promise<void
+            > {
+                BaseContract._assertCallParams(callData, defaultBlock);
+                const rawCallResult = await self._performCallAsync({ ...callData, data: this.getABIEncodedTransactionData() }, defaultBlock);
+                const abiEncoder = self._lookupAbiEncoder(functionSignature);
+                return abiEncoder.strictDecodeReturnValue<void
+            >(rawCallResult);
+            },
+            getABIEncodedTransactionData(): string {
+                return self._strictEncodeArguments(functionSignature, []);
+            },
+        }
+    };
 
 
     constructor(
