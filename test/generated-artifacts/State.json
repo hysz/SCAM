@@ -1,0 +1,68 @@
+{
+	"schemaVersion": "2.0.0",
+	"contractName": "State",
+	"compilerOutput": {
+		"abi": [],
+		"devdoc": {
+			"methods": {}
+		},
+		"evm": {
+			"bytecode": {
+				"linkReferences": {},
+				"object": "0x6080604052348015600f57600080fd5b50604c80601d6000396000f3fe6080604052600080fdfea365627a7a723158205debd9b9f2bff916cb7d879997bdc411f336352fa515c0295ca8ffca317eef9e6c6578706572696d656e74616cf564736f6c634300050d0040",
+				"opcodes": "PUSH1 0x80 PUSH1 0x40 MSTORE CALLVALUE DUP1 ISZERO PUSH1 0xF JUMPI PUSH1 0x0 DUP1 REVERT JUMPDEST POP PUSH1 0x4C DUP1 PUSH1 0x1D PUSH1 0x0 CODECOPY PUSH1 0x0 RETURN INVALID PUSH1 0x80 PUSH1 0x40 MSTORE PUSH1 0x0 DUP1 REVERT INVALID LOG3 PUSH6 0x627A7A723158 KECCAK256 0x5D 0xEB 0xD9 0xB9 CALLCODE 0xBF 0xF9 AND 0xCB PUSH30 0x879997BDC411F336352FA515C0295CA8FFCA317EEF9E6C6578706572696D PUSH6 0x6E74616CF564 PUSH20 0x6F6C634300050D00400000000000000000000000 ",
+				"sourceMap": "98:47:4:-;;;;8:9:-1;5:2;;;30:1;27;20:12;5:2;98:47:4;;;;;;;"
+			},
+			"deployedBytecode": {
+				"linkReferences": {},
+				"object": "0x6080604052600080fdfea365627a7a723158205debd9b9f2bff916cb7d879997bdc411f336352fa515c0295ca8ffca317eef9e6c6578706572696d656e74616cf564736f6c634300050d0040",
+				"opcodes": "PUSH1 0x80 PUSH1 0x40 MSTORE PUSH1 0x0 DUP1 REVERT INVALID LOG3 PUSH6 0x627A7A723158 KECCAK256 0x5D 0xEB 0xD9 0xB9 CALLCODE 0xBF 0xF9 AND 0xCB PUSH30 0x879997BDC411F336352FA515C0295CA8FFCA317EEF9E6C6578706572696D PUSH6 0x6E74616CF564 PUSH20 0x6F6C634300050D00400000000000000000000000 ",
+				"sourceMap": "98:47:4:-;;;;;"
+			}
+		}
+	},
+	"sources": {
+		"core/State.sol": {
+			"id": 4
+		},
+		"interfaces/IStructs.sol": {
+			"id": 7
+		}
+	},
+	"sourceCodes": {
+		"core/State.sol": "pragma solidity ^0.5.9;\npragma experimental ABIEncoderV2;\n\nimport \"../interfaces/IStructs.sol\";\n\n\ncontract State {\n\n    IStructs.State gState;\n\n}\n",
+		"interfaces/IStructs.sol": "pragma solidity ^0.5.9;\npragma experimental ABIEncoderV2;\n\n\ninterface IStructs {\n\n    struct State {\n        uint256 x;                                          // contract's balance of token x\n        uint256 y;                                          // contract's balance of token y\n        uint256 pHatX;                                      // expected future price of x in terms of y\n        uint256 t;                                          // most recent block\n        mapping (address => uint256) liquidityBalance;\n        uint256 l;                                          // total liquidity token balance\n    }\n\n}\n"
+	},
+	"sourceTreeHashHex": "0xb00a431d6599ba8772055b80d03813dd021d9fbd0fea3662ab400139f3fc1339",
+	"compiler": {
+		"name": "solc",
+		"version": "soljson-v0.5.13+commit.5b0b510c.js",
+		"settings": {
+			"optimizer": {
+				"enabled": true,
+				"runs": 1000000,
+				"details": {
+					"yul": true,
+					"deduplicate": true,
+					"cse": true,
+					"constantOptimizer": true
+				}
+			},
+			"outputSelection": {
+				"*": {
+					"*": [
+						"abi",
+						"devdoc",
+						"evm.bytecode.object",
+						"evm.bytecode.sourceMap",
+						"evm.deployedBytecode.object",
+						"evm.deployedBytecode.sourceMap"
+					]
+				}
+			},
+			"evmVersion": "constantinople",
+			"remappings": []
+		}
+	},
+	"chains": {}
+}

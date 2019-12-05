@@ -1,0 +1,64 @@
+{
+	"schemaVersion": "2.0.0",
+	"contractName": "IERC20",
+	"compilerOutput": {
+		"abi": [],
+		"devdoc": {
+			"methods": {}
+		},
+		"evm": {
+			"bytecode": {
+				"linkReferences": {},
+				"object": "0x6080604052348015600f57600080fd5b50604c80601d6000396000f3fe6080604052600080fdfea365627a7a72315820f4d792efa2063b0462c21e1f9ff87767e73a82437d36c6170eacda8e1b4e9aaf6c6578706572696d656e74616cf564736f6c634300050d0040",
+				"opcodes": "PUSH1 0x80 PUSH1 0x40 MSTORE CALLVALUE DUP1 ISZERO PUSH1 0xF JUMPI PUSH1 0x0 DUP1 REVERT JUMPDEST POP PUSH1 0x4C DUP1 PUSH1 0x1D PUSH1 0x0 CODECOPY PUSH1 0x0 RETURN INVALID PUSH1 0x80 PUSH1 0x40 MSTORE PUSH1 0x0 DUP1 REVERT INVALID LOG3 PUSH6 0x627A7A723158 KECCAK256 DELEGATECALL 0xD7 SWAP3 0xEF LOG2 MOD EXTCODESIZE DIV PUSH3 0xC21E1F SWAP16 0xF8 PUSH24 0x67E73A82437D36C6170EACDA8E1B4E9AAF6C657870657269 PUSH14 0x656E74616CF564736F6C63430005 0xD STOP BLOCKHASH ",
+				"sourceMap": "60:23:6:-;;;;8:9:-1;5:2;;;30:1;27;20:12;5:2;60:23:6;;;;;;;"
+			},
+			"deployedBytecode": {
+				"linkReferences": {},
+				"object": "0x6080604052600080fdfea365627a7a72315820f4d792efa2063b0462c21e1f9ff87767e73a82437d36c6170eacda8e1b4e9aaf6c6578706572696d656e74616cf564736f6c634300050d0040",
+				"opcodes": "PUSH1 0x80 PUSH1 0x40 MSTORE PUSH1 0x0 DUP1 REVERT INVALID LOG3 PUSH6 0x627A7A723158 KECCAK256 DELEGATECALL 0xD7 SWAP3 0xEF LOG2 MOD EXTCODESIZE DIV PUSH3 0xC21E1F SWAP16 0xF8 PUSH24 0x67E73A82437D36C6170EACDA8E1B4E9AAF6C657870657269 PUSH14 0x656E74616CF564736F6C63430005 0xD STOP BLOCKHASH ",
+				"sourceMap": "60:23:6:-;;;;;"
+			}
+		}
+	},
+	"sources": {
+		"interfaces/IERC20.sol": {
+			"id": 6
+		}
+	},
+	"sourceCodes": {
+		"interfaces/IERC20.sol": "pragma solidity ^0.5.9;\npragma experimental ABIEncoderV2;\n\n\ninterface IERC20 {\n\n\n\n}\n"
+	},
+	"sourceTreeHashHex": "0xdeb5a0fe6409be7fc0999b0527442d8b4a992a5f18cf4065747d37343d9e3eba",
+	"compiler": {
+		"name": "solc",
+		"version": "soljson-v0.5.13+commit.5b0b510c.js",
+		"settings": {
+			"optimizer": {
+				"enabled": true,
+				"runs": 1000000,
+				"details": {
+					"yul": true,
+					"deduplicate": true,
+					"cse": true,
+					"constantOptimizer": true
+				}
+			},
+			"outputSelection": {
+				"*": {
+					"*": [
+						"abi",
+						"devdoc",
+						"evm.bytecode.object",
+						"evm.bytecode.sourceMap",
+						"evm.deployedBytecode.object",
+						"evm.deployedBytecode.sourceMap"
+					]
+				}
+			},
+			"evmVersion": "constantinople",
+			"remappings": []
+		}
+	},
+	"chains": {}
+}

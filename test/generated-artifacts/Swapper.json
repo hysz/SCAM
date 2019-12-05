@@ -1,0 +1,94 @@
+{
+	"schemaVersion": "2.0.0",
+	"contractName": "Swapper",
+	"compilerOutput": {
+		"abi": [
+			{
+				"constant": false,
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "fromAddress",
+						"type": "address"
+					},
+					{
+						"internalType": "address",
+						"name": "toAddress",
+						"type": "address"
+					},
+					{
+						"internalType": "uint256",
+						"name": "amount",
+						"type": "uint256"
+					}
+				],
+				"name": "swap",
+				"outputs": [],
+				"payable": false,
+				"stateMutability": "nonpayable",
+				"type": "function"
+			}
+		],
+		"devdoc": {
+			"methods": {}
+		},
+		"evm": {
+			"bytecode": {
+				"linkReferences": {},
+				"object": "0x608060405234801561001057600080fd5b5060e58061001f6000396000f3fe6080604052348015600f57600080fd5b506004361060285760003560e01c8063df791e5014602d575b600080fd5b603c60383660046043565b603e565b005b505050565b6000806000606084860312156056578283fd5b8335605f81607e565b92506020840135606d81607e565b929592945050506040919091013590565b73ffffffffffffffffffffffffffffffffffffffff81168114609f57600080fd5b5056fea365627a7a72315820d67896747bd86084287f5f11157d976f6a521981512b1b1a410fddc635926d776c6578706572696d656e74616cf564736f6c634300050d0040",
+				"opcodes": "PUSH1 0x80 PUSH1 0x40 MSTORE CALLVALUE DUP1 ISZERO PUSH2 0x10 JUMPI PUSH1 0x0 DUP1 REVERT JUMPDEST POP PUSH1 0xE5 DUP1 PUSH2 0x1F PUSH1 0x0 CODECOPY PUSH1 0x0 RETURN INVALID PUSH1 0x80 PUSH1 0x40 MSTORE CALLVALUE DUP1 ISZERO PUSH1 0xF JUMPI PUSH1 0x0 DUP1 REVERT JUMPDEST POP PUSH1 0x4 CALLDATASIZE LT PUSH1 0x28 JUMPI PUSH1 0x0 CALLDATALOAD PUSH1 0xE0 SHR DUP1 PUSH4 0xDF791E50 EQ PUSH1 0x2D JUMPI JUMPDEST PUSH1 0x0 DUP1 REVERT JUMPDEST PUSH1 0x3C PUSH1 0x38 CALLDATASIZE PUSH1 0x4 PUSH1 0x43 JUMP JUMPDEST PUSH1 0x3E JUMP JUMPDEST STOP JUMPDEST POP POP POP JUMP JUMPDEST PUSH1 0x0 DUP1 PUSH1 0x0 PUSH1 0x60 DUP5 DUP7 SUB SLT ISZERO PUSH1 0x56 JUMPI DUP3 DUP4 REVERT JUMPDEST DUP4 CALLDATALOAD PUSH1 0x5F DUP2 PUSH1 0x7E JUMP JUMPDEST SWAP3 POP PUSH1 0x20 DUP5 ADD CALLDATALOAD PUSH1 0x6D DUP2 PUSH1 0x7E JUMP JUMPDEST SWAP3 SWAP6 SWAP3 SWAP5 POP POP POP PUSH1 0x40 SWAP2 SWAP1 SWAP2 ADD CALLDATALOAD SWAP1 JUMP JUMPDEST PUSH20 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF DUP2 AND DUP2 EQ PUSH1 0x9F JUMPI PUSH1 0x0 DUP1 REVERT JUMPDEST POP JUMP INVALID LOG3 PUSH6 0x627A7A723158 KECCAK256 0xD6 PUSH25 0x96747BD86084287F5F11157D976F6A521981512B1B1A410FDD 0xC6 CALLDATALOAD SWAP3 PUSH14 0x776C6578706572696D656E74616C CREATE2 PUSH5 0x736F6C6343 STOP SDIV 0xD STOP BLOCKHASH ",
+				"sourceMap": "98:125:5:-;;;;8:9:-1;5:2;;;30:1;27;20:12;5:2;98:125:5;;;;;;;"
+			},
+			"deployedBytecode": {
+				"linkReferences": {},
+				"object": "0x6080604052348015600f57600080fd5b506004361060285760003560e01c8063df791e5014602d575b600080fd5b603c60383660046043565b603e565b005b505050565b6000806000606084860312156056578283fd5b8335605f81607e565b92506020840135606d81607e565b929592945050506040919091013590565b73ffffffffffffffffffffffffffffffffffffffff81168114609f57600080fd5b5056fea365627a7a72315820d67896747bd86084287f5f11157d976f6a521981512b1b1a410fddc635926d776c6578706572696d656e74616cf564736f6c634300050d0040",
+				"opcodes": "PUSH1 0x80 PUSH1 0x40 MSTORE CALLVALUE DUP1 ISZERO PUSH1 0xF JUMPI PUSH1 0x0 DUP1 REVERT JUMPDEST POP PUSH1 0x4 CALLDATASIZE LT PUSH1 0x28 JUMPI PUSH1 0x0 CALLDATALOAD PUSH1 0xE0 SHR DUP1 PUSH4 0xDF791E50 EQ PUSH1 0x2D JUMPI JUMPDEST PUSH1 0x0 DUP1 REVERT JUMPDEST PUSH1 0x3C PUSH1 0x38 CALLDATASIZE PUSH1 0x4 PUSH1 0x43 JUMP JUMPDEST PUSH1 0x3E JUMP JUMPDEST STOP JUMPDEST POP POP POP JUMP JUMPDEST PUSH1 0x0 DUP1 PUSH1 0x0 PUSH1 0x60 DUP5 DUP7 SUB SLT ISZERO PUSH1 0x56 JUMPI DUP3 DUP4 REVERT JUMPDEST DUP4 CALLDATALOAD PUSH1 0x5F DUP2 PUSH1 0x7E JUMP JUMPDEST SWAP3 POP PUSH1 0x20 DUP5 ADD CALLDATALOAD PUSH1 0x6D DUP2 PUSH1 0x7E JUMP JUMPDEST SWAP3 SWAP6 SWAP3 SWAP5 POP POP POP PUSH1 0x40 SWAP2 SWAP1 SWAP2 ADD CALLDATALOAD SWAP1 JUMP JUMPDEST PUSH20 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF DUP2 AND DUP2 EQ PUSH1 0x9F JUMPI PUSH1 0x0 DUP1 REVERT JUMPDEST POP JUMP INVALID LOG3 PUSH6 0x627A7A723158 KECCAK256 0xD6 PUSH25 0x96747BD86084287F5F11157D976F6A521981512B1B1A410FDD 0xC6 CALLDATALOAD SWAP3 PUSH14 0x776C6578706572696D656E74616C CREATE2 PUSH5 0x736F6C6343 STOP SDIV 0xD STOP BLOCKHASH ",
+				"sourceMap": "98:125:5:-;;;;8:9:-1;5:2;;;30:1;27;20:12;5:2;98:125:5;;;;;;;;;;;;;;;;;;;122:99;;;;;;;;;:::i;:::-;;;;;;:::o;279:491:-1:-;;;;417:2;405:9;396:7;392:23;388:32;385:2;;;-1:-1;;423:12;385:2;85:6;72:20;97:33;124:5;97:33;;;475:63;-1:-1;575:2;614:22;;72:20;97:33;72:20;97:33;;;379:391;;583:63;;-1:-1;;;683:2;722:22;;;;209:20;;379:391;1082:117;948:42;1169:5;937:54;1144:5;1141:35;1131:2;;1190:1;;1180:12;1131:2;1125:74;"
+			}
+		}
+	},
+	"sources": {
+		"core/Swapper.sol": {
+			"id": 5
+		},
+		"interfaces/IStructs.sol": {
+			"id": 7
+		}
+	},
+	"sourceCodes": {
+		"core/Swapper.sol": "pragma solidity ^0.5.9;\npragma experimental ABIEncoderV2;\n\nimport \"../interfaces/IStructs.sol\";\n\n\ncontract Swapper {\n\n    function swap(address fromAddress, address toAddress, uint256 amount)\n        external\n    {\n\n    }\n}\n",
+		"interfaces/IStructs.sol": "pragma solidity ^0.5.9;\npragma experimental ABIEncoderV2;\n\n\ninterface IStructs {\n\n    struct State {\n        uint256 x;                                          // contract's balance of token x\n        uint256 y;                                          // contract's balance of token y\n        uint256 pHatX;                                      // expected future price of x in terms of y\n        uint256 t;                                          // most recent block\n        mapping (address => uint256) liquidityBalance;\n        uint256 l;                                          // total liquidity token balance\n    }\n\n}\n"
+	},
+	"sourceTreeHashHex": "0x4cc78501f7e3b6890716dafe0941dffb28b5488aa8921ebc54c71f97b5939cd5",
+	"compiler": {
+		"name": "solc",
+		"version": "soljson-v0.5.13+commit.5b0b510c.js",
+		"settings": {
+			"optimizer": {
+				"enabled": true,
+				"runs": 1000000,
+				"details": {
+					"yul": true,
+					"deduplicate": true,
+					"cse": true,
+					"constantOptimizer": true
+				}
+			},
+			"outputSelection": {
+				"*": {
+					"*": [
+						"abi",
+						"devdoc",
+						"evm.bytecode.object",
+						"evm.bytecode.sourceMap",
+						"evm.deployedBytecode.object",
+						"evm.deployedBytecode.sourceMap"
+					]
+				}
+			},
+			"evmVersion": "constantinople",
+			"remappings": []
+		}
+	},
+	"chains": {}
+}

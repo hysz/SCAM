@@ -1,0 +1,103 @@
+{
+	"schemaVersion": "2.0.0",
+	"contractName": "Liquidity",
+	"compilerOutput": {
+		"abi": [
+			{
+				"constant": false,
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "amount",
+						"type": "uint256"
+					}
+				],
+				"name": "addLiquidity",
+				"outputs": [],
+				"payable": false,
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"constant": false,
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "amount",
+						"type": "uint256"
+					}
+				],
+				"name": "removeLiquidity",
+				"outputs": [],
+				"payable": false,
+				"stateMutability": "nonpayable",
+				"type": "function"
+			}
+		],
+		"devdoc": {
+			"methods": {}
+		},
+		"evm": {
+			"bytecode": {
+				"linkReferences": {},
+				"object": "0x6080604052348015600f57600080fd5b5060a58061001e6000396000f3fe6080604052348015600f57600080fd5b506004361060325760003560e01c806351c6590a1460375780639c8f9f23146037575b600080fd5b60466042366004604b565b6048565b005b50565b600060208284031215605b578081fd5b503591905056fea365627a7a723158200dc657f1caf1f6a47f1b2f2ab61bd57e4288454bab0b192b430155392c17a8596c6578706572696d656e74616cf564736f6c634300050d0040",
+				"opcodes": "PUSH1 0x80 PUSH1 0x40 MSTORE CALLVALUE DUP1 ISZERO PUSH1 0xF JUMPI PUSH1 0x0 DUP1 REVERT JUMPDEST POP PUSH1 0xA5 DUP1 PUSH2 0x1E PUSH1 0x0 CODECOPY PUSH1 0x0 RETURN INVALID PUSH1 0x80 PUSH1 0x40 MSTORE CALLVALUE DUP1 ISZERO PUSH1 0xF JUMPI PUSH1 0x0 DUP1 REVERT JUMPDEST POP PUSH1 0x4 CALLDATASIZE LT PUSH1 0x32 JUMPI PUSH1 0x0 CALLDATALOAD PUSH1 0xE0 SHR DUP1 PUSH4 0x51C6590A EQ PUSH1 0x37 JUMPI DUP1 PUSH4 0x9C8F9F23 EQ PUSH1 0x37 JUMPI JUMPDEST PUSH1 0x0 DUP1 REVERT JUMPDEST PUSH1 0x46 PUSH1 0x42 CALLDATASIZE PUSH1 0x4 PUSH1 0x4B JUMP JUMPDEST PUSH1 0x48 JUMP JUMPDEST STOP JUMPDEST POP JUMP JUMPDEST PUSH1 0x0 PUSH1 0x20 DUP3 DUP5 SUB SLT ISZERO PUSH1 0x5B JUMPI DUP1 DUP2 REVERT JUMPDEST POP CALLDATALOAD SWAP2 SWAP1 POP JUMP INVALID LOG3 PUSH6 0x627A7A723158 KECCAK256 0xD 0xC6 JUMPI CALL 0xCA CALL 0xF6 LOG4 PUSH32 0x1B2F2AB61BD57E4288454BAB0B192B430155392C17A8596C6578706572696D65 PUSH15 0x74616CF564736F6C634300050D0040 ",
+				"sourceMap": "133:188:3:-;;;;8:9:-1;5:2;;;30:1;27;20:12;5:2;133:188:3;;;;;;;"
+			},
+			"deployedBytecode": {
+				"linkReferences": {},
+				"object": "0x6080604052348015600f57600080fd5b506004361060325760003560e01c806351c6590a1460375780639c8f9f23146037575b600080fd5b60466042366004604b565b6048565b005b50565b600060208284031215605b578081fd5b503591905056fea365627a7a723158200dc657f1caf1f6a47f1b2f2ab61bd57e4288454bab0b192b430155392c17a8596c6578706572696d656e74616cf564736f6c634300050d0040",
+				"opcodes": "PUSH1 0x80 PUSH1 0x40 MSTORE CALLVALUE DUP1 ISZERO PUSH1 0xF JUMPI PUSH1 0x0 DUP1 REVERT JUMPDEST POP PUSH1 0x4 CALLDATASIZE LT PUSH1 0x32 JUMPI PUSH1 0x0 CALLDATALOAD PUSH1 0xE0 SHR DUP1 PUSH4 0x51C6590A EQ PUSH1 0x37 JUMPI DUP1 PUSH4 0x9C8F9F23 EQ PUSH1 0x37 JUMPI JUMPDEST PUSH1 0x0 DUP1 REVERT JUMPDEST PUSH1 0x46 PUSH1 0x42 CALLDATASIZE PUSH1 0x4 PUSH1 0x4B JUMP JUMPDEST PUSH1 0x48 JUMP JUMPDEST STOP JUMPDEST POP JUMP JUMPDEST PUSH1 0x0 PUSH1 0x20 DUP3 DUP5 SUB SLT ISZERO PUSH1 0x5B JUMPI DUP1 DUP2 REVERT JUMPDEST POP CALLDATALOAD SWAP2 SWAP1 POP JUMP INVALID LOG3 PUSH6 0x627A7A723158 KECCAK256 0xD 0xC6 JUMPI CALL 0xCA CALL 0xF6 LOG4 PUSH32 0x1B2F2AB61BD57E4288454BAB0B192B430155392C17A8596C6578706572696D65 PUSH15 0x74616CF564736F6C634300050D0040 ",
+				"sourceMap": "133:188:3:-;;;;8:9:-1;5:2;;;30:1;27;20:12;5:2;133:188:3;;;;;;;;;;;;;;;;;;;;;;;;175:67;;;;;;;;;:::i;:::-;;;;:::o;142:241:-1:-;;246:2;234:9;225:7;221:23;217:32;214:2;;;-1:-1;;252:12;214:2;-1:-1;72:20;;208:175;-1:-1;208:175"
+			}
+		}
+	},
+	"sources": {
+		"core/Liquidity.sol": {
+			"id": 3
+		},
+		"interfaces/IERC20.sol": {
+			"id": 6
+		},
+		"interfaces/IStructs.sol": {
+			"id": 7
+		}
+	},
+	"sourceCodes": {
+		"core/Liquidity.sol": "pragma solidity ^0.5.9;\npragma experimental ABIEncoderV2;\n\nimport \"../interfaces/IERC20.sol\";\nimport \"../interfaces/IStructs.sol\";\n\n\ncontract Liquidity is\n    IStructs\n{\n\n    function addLiquidity(uint256 amount)\n        external\n    {\n\n    }\n\n    function removeLiquidity(uint256 amount)\n        external\n    {\n\n    }\n\n}\n",
+		"interfaces/IERC20.sol": "pragma solidity ^0.5.9;\npragma experimental ABIEncoderV2;\n\n\ninterface IERC20 {\n\n\n\n}\n",
+		"interfaces/IStructs.sol": "pragma solidity ^0.5.9;\npragma experimental ABIEncoderV2;\n\n\ninterface IStructs {\n\n    struct State {\n        uint256 x;                                          // contract's balance of token x\n        uint256 y;                                          // contract's balance of token y\n        uint256 pHatX;                                      // expected future price of x in terms of y\n        uint256 t;                                          // most recent block\n        mapping (address => uint256) liquidityBalance;\n        uint256 l;                                          // total liquidity token balance\n    }\n\n}\n"
+	},
+	"sourceTreeHashHex": "0xaec3a6c781461c156fe728f96ab0d27c588689cf97065df9ce71eb104d5a6751",
+	"compiler": {
+		"name": "solc",
+		"version": "soljson-v0.5.13+commit.5b0b510c.js",
+		"settings": {
+			"optimizer": {
+				"enabled": true,
+				"runs": 1000000,
+				"details": {
+					"yul": true,
+					"deduplicate": true,
+					"cse": true,
+					"constantOptimizer": true
+				}
+			},
+			"outputSelection": {
+				"*": {
+					"*": [
+						"abi",
+						"devdoc",
+						"evm.bytecode.object",
+						"evm.bytecode.sourceMap",
+						"evm.deployedBytecode.object",
+						"evm.deployedBytecode.sourceMap"
+					]
+				}
+			},
+			"evmVersion": "constantinople",
+			"remappings": []
+		}
+	},
+	"chains": {}
+}

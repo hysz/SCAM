@@ -1,0 +1,146 @@
+{
+	"schemaVersion": "2.0.0",
+	"contractName": "Scam",
+	"compilerOutput": {
+		"abi": [
+			{
+				"inputs": [],
+				"payable": false,
+				"stateMutability": "nonpayable",
+				"type": "constructor"
+			},
+			{
+				"constant": false,
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "amount",
+						"type": "uint256"
+					}
+				],
+				"name": "addLiquidity",
+				"outputs": [],
+				"payable": false,
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"constant": false,
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "amount",
+						"type": "uint256"
+					}
+				],
+				"name": "removeLiquidity",
+				"outputs": [],
+				"payable": false,
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"constant": false,
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "fromAddress",
+						"type": "address"
+					},
+					{
+						"internalType": "address",
+						"name": "toAddress",
+						"type": "address"
+					},
+					{
+						"internalType": "uint256",
+						"name": "amount",
+						"type": "uint256"
+					}
+				],
+				"name": "swap",
+				"outputs": [],
+				"payable": false,
+				"stateMutability": "nonpayable",
+				"type": "function"
+			}
+		],
+		"devdoc": {
+			"methods": {}
+		},
+		"evm": {
+			"bytecode": {
+				"linkReferences": {},
+				"object": "0x608060405234801561001057600080fd5b5061011f806100206000396000f3fe6080604052348015600f57600080fd5b5060043610603c5760003560e01c806351c6590a1460415780639c8f9f23146041578063df791e50146052575b600080fd5b6050604c36600460a4565b6061565b005b6050605d3660046069565b6064565b50565b505050565b600080600060608486031215607c578283fd5b833560858160bb565b9250602084013560938160bb565b929592945050506040919091013590565b60006020828403121560b4578081fd5b5035919050565b73ffffffffffffffffffffffffffffffffffffffff81168114606157600080fdfea365627a7a723158208dc2d00bc343aba9ecc04e45f47d965c3bdc42cd637fa96cd3879ada4f20650a6c6578706572696d656e74616cf564736f6c634300050d0040",
+				"opcodes": "PUSH1 0x80 PUSH1 0x40 MSTORE CALLVALUE DUP1 ISZERO PUSH2 0x10 JUMPI PUSH1 0x0 DUP1 REVERT JUMPDEST POP PUSH2 0x11F DUP1 PUSH2 0x20 PUSH1 0x0 CODECOPY PUSH1 0x0 RETURN INVALID PUSH1 0x80 PUSH1 0x40 MSTORE CALLVALUE DUP1 ISZERO PUSH1 0xF JUMPI PUSH1 0x0 DUP1 REVERT JUMPDEST POP PUSH1 0x4 CALLDATASIZE LT PUSH1 0x3C JUMPI PUSH1 0x0 CALLDATALOAD PUSH1 0xE0 SHR DUP1 PUSH4 0x51C6590A EQ PUSH1 0x41 JUMPI DUP1 PUSH4 0x9C8F9F23 EQ PUSH1 0x41 JUMPI DUP1 PUSH4 0xDF791E50 EQ PUSH1 0x52 JUMPI JUMPDEST PUSH1 0x0 DUP1 REVERT JUMPDEST PUSH1 0x50 PUSH1 0x4C CALLDATASIZE PUSH1 0x4 PUSH1 0xA4 JUMP JUMPDEST PUSH1 0x61 JUMP JUMPDEST STOP JUMPDEST PUSH1 0x50 PUSH1 0x5D CALLDATASIZE PUSH1 0x4 PUSH1 0x69 JUMP JUMPDEST PUSH1 0x64 JUMP JUMPDEST POP JUMP JUMPDEST POP POP POP JUMP JUMPDEST PUSH1 0x0 DUP1 PUSH1 0x0 PUSH1 0x60 DUP5 DUP7 SUB SLT ISZERO PUSH1 0x7C JUMPI DUP3 DUP4 REVERT JUMPDEST DUP4 CALLDATALOAD PUSH1 0x85 DUP2 PUSH1 0xBB JUMP JUMPDEST SWAP3 POP PUSH1 0x20 DUP5 ADD CALLDATALOAD PUSH1 0x93 DUP2 PUSH1 0xBB JUMP JUMPDEST SWAP3 SWAP6 SWAP3 SWAP5 POP POP POP PUSH1 0x40 SWAP2 SWAP1 SWAP2 ADD CALLDATALOAD SWAP1 JUMP JUMPDEST PUSH1 0x0 PUSH1 0x20 DUP3 DUP5 SUB SLT ISZERO PUSH1 0xB4 JUMPI DUP1 DUP2 REVERT JUMPDEST POP CALLDATALOAD SWAP2 SWAP1 POP JUMP JUMPDEST PUSH20 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF DUP2 AND DUP2 EQ PUSH1 0x61 JUMPI PUSH1 0x0 DUP1 REVERT INVALID LOG3 PUSH6 0x627A7A723158 KECCAK256 DUP14 0xC2 0xD0 SIGNEXTEND 0xC3 NUMBER 0xAB 0xA9 0xEC 0xC0 0x4E GASLIMIT DELEGATECALL PUSH30 0x965C3BDC42CD637FA96CD3879ADA4F20650A6C6578706572696D656E7461 PUSH13 0xF564736F6C634300050D004000 ",
+				"sourceMap": "148:162:2:-;;;210:98;8:9:-1;5:2;;;30:1;27;20:12;5:2;210:98:2;148:162;;;;;;"
+			},
+			"deployedBytecode": {
+				"linkReferences": {},
+				"object": "0x6080604052348015600f57600080fd5b5060043610603c5760003560e01c806351c6590a1460415780639c8f9f23146041578063df791e50146052575b600080fd5b6050604c36600460a4565b6061565b005b6050605d3660046069565b6064565b50565b505050565b600080600060608486031215607c578283fd5b833560858160bb565b9250602084013560938160bb565b929592945050506040919091013590565b60006020828403121560b4578081fd5b5035919050565b73ffffffffffffffffffffffffffffffffffffffff81168114606157600080fdfea365627a7a723158208dc2d00bc343aba9ecc04e45f47d965c3bdc42cd637fa96cd3879ada4f20650a6c6578706572696d656e74616cf564736f6c634300050d0040",
+				"opcodes": "PUSH1 0x80 PUSH1 0x40 MSTORE CALLVALUE DUP1 ISZERO PUSH1 0xF JUMPI PUSH1 0x0 DUP1 REVERT JUMPDEST POP PUSH1 0x4 CALLDATASIZE LT PUSH1 0x3C JUMPI PUSH1 0x0 CALLDATALOAD PUSH1 0xE0 SHR DUP1 PUSH4 0x51C6590A EQ PUSH1 0x41 JUMPI DUP1 PUSH4 0x9C8F9F23 EQ PUSH1 0x41 JUMPI DUP1 PUSH4 0xDF791E50 EQ PUSH1 0x52 JUMPI JUMPDEST PUSH1 0x0 DUP1 REVERT JUMPDEST PUSH1 0x50 PUSH1 0x4C CALLDATASIZE PUSH1 0x4 PUSH1 0xA4 JUMP JUMPDEST PUSH1 0x61 JUMP JUMPDEST STOP JUMPDEST PUSH1 0x50 PUSH1 0x5D CALLDATASIZE PUSH1 0x4 PUSH1 0x69 JUMP JUMPDEST PUSH1 0x64 JUMP JUMPDEST POP JUMP JUMPDEST POP POP POP JUMP JUMPDEST PUSH1 0x0 DUP1 PUSH1 0x0 PUSH1 0x60 DUP5 DUP7 SUB SLT ISZERO PUSH1 0x7C JUMPI DUP3 DUP4 REVERT JUMPDEST DUP4 CALLDATALOAD PUSH1 0x85 DUP2 PUSH1 0xBB JUMP JUMPDEST SWAP3 POP PUSH1 0x20 DUP5 ADD CALLDATALOAD PUSH1 0x93 DUP2 PUSH1 0xBB JUMP JUMPDEST SWAP3 SWAP6 SWAP3 SWAP5 POP POP POP PUSH1 0x40 SWAP2 SWAP1 SWAP2 ADD CALLDATALOAD SWAP1 JUMP JUMPDEST PUSH1 0x0 PUSH1 0x20 DUP3 DUP5 SUB SLT ISZERO PUSH1 0xB4 JUMPI DUP1 DUP2 REVERT JUMPDEST POP CALLDATALOAD SWAP2 SWAP1 POP JUMP JUMPDEST PUSH20 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF DUP2 AND DUP2 EQ PUSH1 0x61 JUMPI PUSH1 0x0 DUP1 REVERT INVALID LOG3 PUSH6 0x627A7A723158 KECCAK256 DUP14 0xC2 0xD0 SIGNEXTEND 0xC3 NUMBER 0xAB 0xA9 0xEC 0xC0 0x4E GASLIMIT DELEGATECALL PUSH30 0x965C3BDC42CD637FA96CD3879ADA4F20650A6C6578706572696D656E7461 PUSH13 0xF564736F6C634300050D004000 ",
+				"sourceMap": "148:162:2:-;;;;8:9:-1;5:2;;;30:1;27;20:12;5:2;148:162:2;;;;;;;;;;;;;;;;;;;;;;;;;;;;;175:67:3;;;;;;;;;:::i;:::-;;122:99:5;;;;;;;;;:::i;175:67:3:-;;:::o;122:99:5:-;;;;:::o;279:491:-1:-;;;;417:2;405:9;396:7;392:23;388:32;385:2;;;-1:-1;;423:12;385:2;85:6;72:20;97:33;124:5;97:33;;;475:63;-1:-1;575:2;614:22;;72:20;97:33;72:20;97:33;;;379:391;;583:63;;-1:-1;;;683:2;722:22;;;;209:20;;379:391;777:241;;881:2;869:9;860:7;856:23;852:32;849:2;;;-1:-1;;887:12;849:2;-1:-1;209:20;;843:175;-1:-1;843:175;1330:117;1196:42;1417:5;1185:54;1392:5;1389:35;1379:2;;1438:1;;1428:12"
+			}
+		}
+	},
+	"sources": {
+		"Scam.sol": {
+			"id": 2
+		},
+		"core/State.sol": {
+			"id": 4
+		},
+		"interfaces/IStructs.sol": {
+			"id": 7
+		},
+		"core/Liquidity.sol": {
+			"id": 3
+		},
+		"interfaces/IERC20.sol": {
+			"id": 6
+		},
+		"core/Swapper.sol": {
+			"id": 5
+		}
+	},
+	"sourceCodes": {
+		"Scam.sol": "pragma solidity ^0.5.9;\npragma experimental ABIEncoderV2;\n\nimport \"./core/State.sol\";\nimport \"./core/Liquidity.sol\";\nimport \"./core/Swapper.sol\";\n\n\ncontract Scam is\n    State,\n    Liquidity,\n    Swapper\n{\n\n    constructor()\n        // State()\n        // Liquidity()\n        // Swapper()\n        public\n    {}\n}\n",
+		"core/State.sol": "pragma solidity ^0.5.9;\npragma experimental ABIEncoderV2;\n\nimport \"../interfaces/IStructs.sol\";\n\n\ncontract State {\n\n    IStructs.State gState;\n\n}\n",
+		"interfaces/IStructs.sol": "pragma solidity ^0.5.9;\npragma experimental ABIEncoderV2;\n\n\ninterface IStructs {\n\n    struct State {\n        uint256 x;                                          // contract's balance of token x\n        uint256 y;                                          // contract's balance of token y\n        uint256 pHatX;                                      // expected future price of x in terms of y\n        uint256 t;                                          // most recent block\n        mapping (address => uint256) liquidityBalance;\n        uint256 l;                                          // total liquidity token balance\n    }\n\n}\n",
+		"core/Liquidity.sol": "pragma solidity ^0.5.9;\npragma experimental ABIEncoderV2;\n\nimport \"../interfaces/IERC20.sol\";\nimport \"../interfaces/IStructs.sol\";\n\n\ncontract Liquidity is\n    IStructs\n{\n\n    function addLiquidity(uint256 amount)\n        external\n    {\n\n    }\n\n    function removeLiquidity(uint256 amount)\n        external\n    {\n\n    }\n\n}\n",
+		"interfaces/IERC20.sol": "pragma solidity ^0.5.9;\npragma experimental ABIEncoderV2;\n\n\ninterface IERC20 {\n\n\n\n}\n",
+		"core/Swapper.sol": "pragma solidity ^0.5.9;\npragma experimental ABIEncoderV2;\n\nimport \"../interfaces/IStructs.sol\";\n\n\ncontract Swapper {\n\n    function swap(address fromAddress, address toAddress, uint256 amount)\n        external\n    {\n\n    }\n}\n"
+	},
+	"sourceTreeHashHex": "0x6cab71bfb40838e4ce18550c51dde2a908ed788b03e713ec610b47c15ec190cb",
+	"compiler": {
+		"name": "solc",
+		"version": "soljson-v0.5.13+commit.5b0b510c.js",
+		"settings": {
+			"optimizer": {
+				"enabled": true,
+				"runs": 1000000,
+				"details": {
+					"yul": true,
+					"deduplicate": true,
+					"cse": true,
+					"constantOptimizer": true
+				}
+			},
+			"outputSelection": {
+				"*": {
+					"*": [
+						"abi",
+						"devdoc",
+						"evm.bytecode.object",
+						"evm.bytecode.sourceMap",
+						"evm.deployedBytecode.object",
+						"evm.deployedBytecode.sourceMap"
+					]
+				}
+			},
+			"evmVersion": "constantinople",
+			"remappings": []
+		}
+	},
+	"chains": {}
+}

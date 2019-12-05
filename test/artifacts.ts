@@ -5,18 +5,18 @@
  */
 import {ContractArtifact} from 'ethereum-types';
 
-import * as ConvertLib from '../generated-artifacts/ConvertLib.json';
-import * as IERC20 from '../generated-artifacts/IERC20.json';
-import * as IStructs from '../generated-artifacts/IStructs.json';
-import * as LibFixedMath from '../generated-artifacts/LibFixedMath.json';
-import * as LibSafeMath from '../generated-artifacts/LibSafeMath.json';
-import * as LibScamMath from '../generated-artifacts/LibScamMath.json';
-import * as Liquidity from '../generated-artifacts/Liquidity.json';
-import * as Migrations from '../generated-artifacts/Migrations.json';
-import * as Scam from '../generated-artifacts/Scam.json';
-import * as State from '../generated-artifacts/State.json';
-import * as Swapper from '../generated-artifacts/Swapper.json';
-import * as TestLibScamMath from '../generated-artifacts/TestLibScamMath.json';
+import * as ConvertLib from '../test/generated-artifacts/ConvertLib.json';
+import * as IERC20 from '../test/generated-artifacts/IERC20.json';
+import * as IStructs from '../test/generated-artifacts/IStructs.json';
+import * as LibFixedMath from '../test/generated-artifacts/LibFixedMath.json';
+import * as LibSafeMath from '../test/generated-artifacts/LibSafeMath.json';
+import * as LibScamMath from '../test/generated-artifacts/LibScamMath.json';
+import * as Liquidity from '../test/generated-artifacts/Liquidity.json';
+import * as Migrations from '../test/generated-artifacts/Migrations.json';
+import * as Scam from '../test/generated-artifacts/Scam.json';
+import * as State from '../test/generated-artifacts/State.json';
+import * as Swapper from '../test/generated-artifacts/Swapper.json';
+import * as TestLibScamMath from '../test/generated-artifacts/TestLibScamMath.json';
 export const artifacts = {
     ConvertLib: ConvertLib as ContractArtifact,
     Migrations: Migrations as ContractArtifact,

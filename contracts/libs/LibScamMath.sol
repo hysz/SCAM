@@ -57,4 +57,21 @@ library LibScamMath {
         int256 baseToNinetyNine = baseToNinetySix.mul(baseCubed);
         return baseToNinetyNine;
     }
+
+    function fastExponentiation(uint256 x, uint256 y)
+        internal
+        pure
+        returns (uint256)
+    {
+
+        if (y == 0) {
+            return 1;
+        } else if (y == 1) {
+            return x;
+        } else if (y % 2 == 0) {
+            return fastExponentiation(x * x, y / 2);
+        } else {
+            return x * fastExponentiation(x * x, (y - 1) / 2);
+        }
+    }
 }
