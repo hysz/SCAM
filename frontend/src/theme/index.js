@@ -61,7 +61,7 @@ const theme = darkMode => ({
   modalBackground: darkMode ? 'rgba(0,0,0,0.6)' : 'rgba(0,0,0,0.3)',
   inputBackground: darkMode ? '#202124' : white,
   placeholderGray: darkMode ? '#5F5F5F' : '#E1E1E1',
-  shadowColor: darkMode ? '#000' : '#2F80ED',
+  shadowColor: darkMode ? '#000' : '#7373731f',
 
   // grays
   concreteGray: darkMode ? '#292C2F' : '#FAFAFA',
@@ -75,13 +75,13 @@ const theme = darkMode => ({
   //blacks
   charcoalBlack: darkMode ? '#F2F2F2' : '#404040',
   // blues
-  zumthorBlue: darkMode ? '#212529' : '#EBF4FF',
-  malibuBlue: darkMode ? '#E67AEF' : '#5CA2FF',
-  royalBlue: darkMode ? '#fb5d81' : '#2F80ED',
+  zumthorBlue: darkMode ? '#212529' : '#7373731f',
+  malibuBlue: darkMode ? '#E67AEF' : '#737373',
+  royalBlue: darkMode ? '#fb5d81' : '#737373',
   loadingBlue: darkMode ? '#e4f0ff' : '#e4f0ff',
 
   // purples
-  wisteriaPurple: '#fb5d81',
+  wisteriaPurple: darkMode ? '#fb5d81' : '#404040',
   // reds
   salmonRed: '#FF6871',
   // orange
@@ -89,7 +89,7 @@ const theme = darkMode => ({
   // yellows
   warningYellow: '#FFE270',
   // pink
-  uniswapPink: '#fb5d81',
+  uniswapPink: darkMode ? '#FF8F05' : '#737373',
   connectedGreen: '#27AE60',
 
   //specific
@@ -108,14 +108,14 @@ export const GlobalStyle = createGlobalStyle`
   @supports (font-variation-settings: normal) {
     html { font-family: 'Inter var', sans-serif; }
   }
-  
+
   html,
   body {
     margin: 0;
     padding: 0;
     width: 100%;
     height: 100%;
-    overflow: hidden;    
+    overflow: hidden;
   }
 
   body > div {

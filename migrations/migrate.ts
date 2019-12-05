@@ -8,24 +8,19 @@ import * as ScamArtifact from '../generated-artifacts/Scam.json';
 import { ScamContract } from '../generated-wrappers/scam';
 
 (async () => {
-  let providerConfigs;
-  let provider: Web3ProviderEngine;
-  let txDefaults;
+    let providerConfigs;
+    let provider: Web3ProviderEngine;
+    let txDefaults;
 
-  providerConfigs = { shouldUseInProcessGanache: false };
-  provider = web3Factory.getRpcProvider(providerConfigs);
-  txDefaults = {
-    from: devConstants.TESTRPC_FIRST_ADDRESS,
-  };
-  await runMigrationsAsync(provider, txDefaults);
-  await ScamContract.deployFrom0xArtifactAsync(
-    ScamArtifact as any,
-    provider,
-    txDefaults,
-    {},
-  );
-  process.exit(0);
+    providerConfigs = { shouldUseInProcessGanache: false };
+    provider = web3Factory.getRpcProvider(providerConfigs);
+    txDefaults = {
+        from: devConstants.TESTRPC_FIRST_ADDRESS,
+    };
+    await runMigrationsAsync(provider, txDefaults);
+    const scamContract = await ScamContract.deployFrom0xArtifactAsync(ScamArtifact as any, provider, txDefaults, {});
+    process.exit(0);
 })().catch(err => {
-  logUtils.log(err);
-  process.exit(1);
+    logUtils.log(err);
+    process.exit(1);
 });

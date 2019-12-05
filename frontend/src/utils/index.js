@@ -4,8 +4,9 @@ import FACTORY_ABI from '../constants/abis/factory'
 import EXCHANGE_ABI from '../constants/abis/exchange'
 import ERC20_ABI from '../constants/abis/erc20'
 import ERC20_BYTES32_ABI from '../constants/abis/erc20_bytes32'
-import { FACTORY_ADDRESSES, SUPPORTED_THEMES } from '../constants'
+import { FACTORY_ADDRESSES, SUPPORTED_THEMES, SCAM_ADDRESSES } from '../constants'
 import { formatFixed } from '@uniswap/sdk'
+import { ScamContract } from '../generated-wrappers/scam'
 
 import UncheckedJsonRpcSigner from './signer'
 
@@ -173,6 +174,10 @@ export function getFactoryContract(networkId, library, account) {
   return getContract(FACTORY_ADDRESSES[networkId], FACTORY_ABI, library, account)
 }
 
+export function getScamContract(scamAddress, library, account) {
+  return new ScamContract(scamAddress, library, { from: account })
+}
+
 // account is optional
 export function getExchangeContract(exchangeAddress, library, account) {
   return getContract(exchangeAddress, EXCHANGE_ABI, library, account)
@@ -283,7 +288,7 @@ export async function getTokenAllowance(address, tokenAddress, spenderAddress, l
 
 // amount must be a BigNumber, {base,display}Decimals must be Numbers
 export function amountFormatter(amount, baseDecimals = 18, displayDecimals = 3, useLessThan = true) {
-  return amount.toString();
+  return amount.toString()
   // if (baseDecimals > 18 || displayDecimals > 18 || displayDecimals > baseDecimals) {
   //   throw Error(`Invalid combination of baseDecimals '${baseDecimals}' and displayDecimals '${displayDecimals}.`)
   // }

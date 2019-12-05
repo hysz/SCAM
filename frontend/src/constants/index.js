@@ -5,6 +5,12 @@ export const FACTORY_ADDRESSES = {
   42: '0xD3E51Ef092B2845f10401a0159B2B96e8B6c3D30'
 }
 
+export const SCAM_ADDRESSES = {
+  1: '0xb48e1b16829c7f5bd62b76cb878a6bb1c4625d7a',
+  1337: '0xb48e1b16829c7f5bd62b76cb878a6bb1c4625d7a',
+  50: '0xb48e1b16829c7f5bd62b76cb878a6bb1c4625d7a'
+}
+
 export const SUPPORTED_THEMES = {
   DARK: 'DARK',
   LIGHT: 'LIGHT'

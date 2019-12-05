@@ -13,6 +13,11 @@ const tabOrder = [
     textKey: 'swap',
     regex: /\/swap/
   },
+  {
+    path: 'add-liquidity',
+    textKey: 'pool',
+    regex: /\/add-liquidity|\/remove-liquidity|\/create-exchange.*/
+  }
 ]
 
 const BetaMessage = styled.div`
@@ -117,6 +122,7 @@ function NavigationTabs({ location: { pathname }, history }) {
 
   return (
     <>
+      <p> sup</p>
       <Tabs>
         {tabOrder.map(({ path, textKey, regex }) => (
           <StyledNavLink key={path} to={path} isActive={(_, { pathname }) => pathname.match(regex)}>

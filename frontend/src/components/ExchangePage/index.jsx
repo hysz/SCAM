@@ -16,12 +16,13 @@ import OversizedPanel from '../OversizedPanel'
 import TransactionDetails from '../TransactionDetails'
 import ArrowDown from '../../assets/svg/SVGArrowDown'
 import { amountFormatter, calculateGasMargin } from '../../utils'
-import { useExchangeContract } from '../../hooks'
+import { useExchangeContract, useScamContract } from '../../hooks'
 import { useTokenDetails } from '../../contexts/Tokens'
 import { useTransactionAdder } from '../../contexts/Transactions'
 import { useAddressBalance, useExchangeReserves } from '../../contexts/Balances'
 import { useFetchAllBalances } from '../../contexts/AllBalances'
 import { useAddressAllowance } from '../../contexts/Allowances'
+import { SCAM_ADDRESSES } from '../../constants/index'
 
 const INPUT = 0
 const OUTPUT = 1
@@ -250,7 +251,7 @@ function getMarketRate(
 
 export default function ExchangePage({ initialCurrency, sending = false, params }) {
   const { t } = useTranslation()
-  const { account } = useWeb3Context()
+  const { account, library, networkId } = useWeb3Context()
 
   const addTransaction = useTransactionAdder()
 
@@ -314,6 +315,7 @@ export default function ExchangePage({ initialCurrency, sending = false, params 
 
   const inputExchangeContract = useExchangeContract(inputExchangeAddress)
   const outputExchangeContract = useExchangeContract(outputExchangeAddress)
+  const scamContract = useScamContract(SCAM_ADDRESSES[networkId])
   const contract = swapType === ETH_TO_TOKEN ? outputExchangeContract : inputExchangeContract
 
   // get input allowance

@@ -10,6 +10,7 @@ import NavigationTabs from '../components/NavigationTabs'
 import { isAddress, getAllQueryParams } from '../utils'
 
 const Swap = lazy(() => import('./Swap'))
+const Pool = lazy(() => import('./Pool'))
 
 const AppWrapper = styled.div`
   display: flex;
@@ -62,8 +63,17 @@ export default function App() {
                   {/* this Suspense is for route code-splitting */}
                   <Suspense fallback={null}>
                     <Switch>
-                      <Route exact strict path="/" component={() => <Swap params={params} />} />
-                      <Redirect to="/" />
+                      <Route exact strict path="/swap" component={() => <Swap params={params} />} />
+                      <Route
+                        path={[
+                          '/add-liquidity',
+                          '/remove-liquidity',
+                          '/create-exchange',
+                          '/create-exchange/:tokenAddress?'
+                        ]}
+                        component={() => <Pool params={params} />}
+                      />
+                      <Redirect to="/swap" />
                     </Switch>
                   </Suspense>
                 </BrowserRouter>
