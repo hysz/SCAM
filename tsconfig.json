@@ -1,0 +1,50 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "target": "es5",
+    "lib": ["es2017", "dom"],
+    "experimentalDecorators": true,
+    "downlevelIteration": true,
+    "noImplicitReturns": true,
+    "pretty": true,
+    "skipLibCheck": true,
+    "typeRoots": [
+      "node_modules/@0x/typescript-typings/types",
+      "node_modules/@types"
+    ],
+    "strict": true,
+    "composite": true,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "outDir": "lib",
+    "rootDir": ".",
+    "resolveJsonModule": true
+  },
+  "exclude": ["./contracts/extensions/**/*"],
+  "include": ["./src/**/*", "./test/**/*", "./generated-wrappers/**/*"],
+  "files": [
+    "generated-artifacts/ConvertLib.json",
+    "generated-artifacts/ConvertLib.json",
+    "generated-artifacts/IERC20.json",
+    "generated-artifacts/IERC20.json",
+    "generated-artifacts/IStructs.json",
+    "generated-artifacts/IStructs.json",
+    "generated-artifacts/LibFixedMath.json",
+    "generated-artifacts/LibFixedMath.json",
+    "generated-artifacts/LibSafeMath.json",
+    "generated-artifacts/LibSafeMath.json",
+    "generated-artifacts/LibScamMath.json",
+    "generated-artifacts/LibScamMath.json",
+    "generated-artifacts/Liquidity.json",
+    "generated-artifacts/Liquidity.json",
+    "generated-artifacts/Migrations.json",
+    "generated-artifacts/Migrations.json",
+    "generated-artifacts/Scam.json",
+    "generated-artifacts/Scam.json",
+    "generated-artifacts/State.json",
+    "generated-artifacts/State.json",
+    "generated-artifacts/Swapper.json",
+    "generated-artifacts/Swapper.json"
+  ]
+}
