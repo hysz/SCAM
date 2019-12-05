@@ -13,8 +13,9 @@ contract Scam is
 {
 
     constructor()
-        State()
-        Liquidity()
-        Swapper()
+        // State()
+        // Liquidity()
+        // Swapper()
+        public
     {}
 }

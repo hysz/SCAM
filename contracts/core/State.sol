@@ -6,8 +6,6 @@ import "../interfaces/IStructs.sol";
 
 contract State {
 
-
-
-    State gState;
+    IStructs.State gState;
 
 }

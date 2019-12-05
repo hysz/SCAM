@@ -6,7 +6,7 @@ import "../interfaces/IStructs.sol";
 
 
 contract Liquidity is
-    State
+    IStructs
 {
 
     function addLiquidity(uint256 amount)
