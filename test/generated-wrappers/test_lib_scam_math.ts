@@ -115,7 +115,7 @@ public static async deployFrom0xArtifactAsync(
      */
     public static ABI(): ContractAbi {
         const abi = [
-            { 
+            {
                 constant: true,
                 inputs: [
                     {
@@ -196,8 +196,8 @@ public static async deployFrom0xArtifactAsync(
             y
             ]);
             },
-        }
-    };
+        };
+    }
 
 
     constructor(

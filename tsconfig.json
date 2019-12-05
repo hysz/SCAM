@@ -19,7 +19,7 @@
         "resolveJsonModule": true
     },
     "exclude": ["./contracts/extensions/**/*"],
-    "include": ["./src/**/*", "./test/**/*", "./generated-wrappers/**/*"],
+    "include": ["./src/**/*", "./test/**/*", "./generated-wrappers/**/*", "./migrations/**/*"],
     "files": [
         "generated-artifacts/IERC20.json",
         "generated-artifacts/IEvents.json",
