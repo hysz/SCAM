@@ -54,6 +54,8 @@ contract Swapper is
             state
         );
 
+        revert('greg');
+
         // Compute about of `tokenB`
         int256 deltaB = deltaA
         .mul(price)
