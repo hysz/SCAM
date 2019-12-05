@@ -79,8 +79,11 @@ contract Swapper is
         //
         for (uint256 i = 0; i < state.bisectionIterations; ++i) {
             int256 mid = LibScamMath.computeMidpoint(lowerBound, upperBound);
+
+
+            int256 lhs1 = LibScamMath.computeBaseToNinetyNine(mid.div(pBarA));
             int256 lhs = aPlusAmount
-                .mul(LibScamMath.computeBaseToNinetyNine(mid.div(pBarA)))
+                .mul(lhs1)
                 .mul(mid)
                 .add(amount.mul(mid));
             if (lhs > b) {
