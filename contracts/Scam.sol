@@ -18,4 +18,17 @@ contract Scam is
         // Swapper()
         public
     {}
+
+    function init(uint256 rhoNumerator, uint256 rhoDenominator)
+        external
+        // onlyOwner
+    {
+        // We require this for fast multiplication.
+        require(
+            rhoDenominator == (rhoNumerator + 1),
+            "Invalid value for rho"
+        );
+
+        gState.rhoRatio = LibFixedMath.toFixed(rhoNumerator, rhoDenominator);
+    }
 }

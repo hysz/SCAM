@@ -5,4 +5,5 @@ pragma experimental ABIEncoderV2;
 library LibScamMath {
 
 
+
 }

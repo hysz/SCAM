@@ -5,12 +5,17 @@ pragma experimental ABIEncoderV2;
 interface IStructs {
 
     struct State {
-        uint256 x;                                          // contract's balance of token x
-        uint256 y;                                          // contract's balance of token y
-        uint256 pHatX;                                      // expected future price of x in terms of y
+        address xAddress;                                   // address of token x
+        address yAddress;                                   // address of token y
+        int256 x;                                           // contract's balance of token x (fixed point)
+        int256 y;                                           // contract's balance of token y (fixed point)
+        int256 pBarX;                                       // expected future price of x in terms of y (fixed point)
+        int256 pBarXInverted;                               // inverted expected future price of x in terms of y (fixed point)
+        int256 rhoRatio;                                    //
         uint256 t;                                          // most recent block
         mapping (address => uint256) liquidityBalance;
         uint256 l;                                          // total liquidity token balance
+
     }
 
 }
