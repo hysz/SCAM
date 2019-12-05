@@ -11,7 +11,9 @@ interface IStructs {
         int256 y;                                           // contract's balance of token y (fixed point)
         int256 pBarX;                                       // expected future price of x in terms of y (fixed point)
         int256 pBarXInverted;                               // inverted expected future price of x in terms of y (fixed point)
-        int256 rhoRatio;                                    //
+        uint256 rhoNumerator;
+        int256 rhoRatio;
+        uint256 bisectionIterations;
         uint256 t;                                          // most recent block
         mapping (address => uint256) liquidityBalance;
         uint256 l;                                          // total liquidity token balance
