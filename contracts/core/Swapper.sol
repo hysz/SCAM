@@ -53,6 +53,7 @@ contract Swapper is
             state
         );
 
+        // Compute about of `tokenB`
         int256 deltaB = deltaA
         .mul(price)
         .mul(
@@ -146,11 +147,4 @@ contract Swapper is
 
         return lowerBound;
     }
-
-    function _()
-        internal
-    {
-
-    }
-
 }
