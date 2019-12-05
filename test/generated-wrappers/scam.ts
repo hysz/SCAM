@@ -115,7 +115,7 @@ public static async deployFrom0xArtifactAsync(
      */
     public static ABI(): ContractAbi {
         const abi = [
-            { 
+            {
                 inputs: [
                 ],
                 outputs: [
@@ -124,7 +124,7 @@ public static async deployFrom0xArtifactAsync(
                 stateMutability: 'nonpayable',
                 type: 'constructor',
             },
-            { 
+            {
                 constant: false,
                 inputs: [
                     {
@@ -139,7 +139,7 @@ public static async deployFrom0xArtifactAsync(
                 stateMutability: 'nonpayable',
                 type: 'function',
             },
-            { 
+            {
                 constant: false,
                 inputs: [
                     {
@@ -154,7 +154,7 @@ public static async deployFrom0xArtifactAsync(
                 stateMutability: 'nonpayable',
                 type: 'function',
             },
-            { 
+            {
                 constant: false,
                 inputs: [
                     {
@@ -373,7 +373,6 @@ public static async deployFrom0xArtifactAsync(
             },
         }
     };
-
 
     constructor(
         address: string,

@@ -21,7 +21,8 @@ contract Swapper is
         address toToken,
         uint256 amount
     )
-        external
+        //external
+        public
     {
         IStructs.State memory state = gState;
 
