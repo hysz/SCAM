@@ -40,18 +40,6 @@ library LibScamMath {
         );
 
         return result;
-
-
-
-        /*
-        return pBarA.mul(
-            LibFixedMath.one().sub(rhoRatio)
-            .mul(b.div(pBarA.mul(a)).ln())
-            .exp()
-        );
-        */
-
-
     }
 
     function computeMidpoint(

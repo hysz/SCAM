@@ -35,10 +35,20 @@ import * as ethers from 'ethers';
 
 
 export type SwapperEventArgs =
-    | SwapperFillEventArgs;
+    | SwapperBisectEventArgs
+    | SwapperFillEventArgs
+    | SwapperPriceEventArgs;
 
 export enum SwapperEvents {
+    Bisect = 'Bisect',
     Fill = 'Fill',
+    Price = 'Price',
+}
+
+export interface SwapperBisectEventArgs extends DecodedLogArgs {
+    lhs1: BigNumber;
+    mid: BigNumber;
+    lhs: BigNumber;
 }
 
 export interface SwapperFillEventArgs extends DecodedLogArgs {
@@ -47,6 +57,10 @@ export interface SwapperFillEventArgs extends DecodedLogArgs {
     toToken: string;
     amountSpent: BigNumber;
     amountReceived: BigNumber;
+}
+
+export interface SwapperPriceEventArgs extends DecodedLogArgs {
+    price: BigNumber;
 }
 
 
@@ -136,6 +150,30 @@ public static async deployFrom0xArtifactAsync(
                 anonymous: false,
                 inputs: [
                     {
+                        name: 'lhs1',
+                        type: 'int256',
+                        indexed: false,
+                    },
+                    {
+                        name: 'mid',
+                        type: 'int256',
+                        indexed: false,
+                    },
+                    {
+                        name: 'lhs',
+                        type: 'int256',
+                        indexed: false,
+                    },
+                ],
+                name: 'Bisect',
+                outputs: [
+                ],
+                type: 'event',
+            },
+            { 
+                anonymous: false,
+                inputs: [
+                    {
                         name: 'from',
                         type: 'address',
                         indexed: false,
@@ -162,6 +200,20 @@ public static async deployFrom0xArtifactAsync(
                     },
                 ],
                 name: 'Fill',
+                outputs: [
+                ],
+                type: 'event',
+            },
+            { 
+                anonymous: false,
+                inputs: [
+                    {
+                        name: 'price',
+                        type: 'int256',
+                        indexed: false,
+                    },
+                ],
+                name: 'Price',
                 outputs: [
                 ],
                 type: 'event',

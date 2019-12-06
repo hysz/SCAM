@@ -140,6 +140,10 @@ library LibFixedMath {
         return f / FIXED_1;
     }
 
+    function getDecimalAsInteger(int256 f) internal pure returns (int256 n) {
+       return 0;// return f & (FIXED_1 - 1));   //(f - ) * FIXED_1;//(f * FIXED_1) / FIXED_1;//f & (FIXED_1 - 1);
+    }
+
     /// @dev Get the natural logarithm of a fixed-point number 0 < `x` <= LN_MAX_VAL
     function ln(int256 x) internal pure returns (int256 r) {
         if (x > LN_MAX_VAL) {

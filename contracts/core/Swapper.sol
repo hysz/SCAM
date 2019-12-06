@@ -16,6 +16,8 @@ contract Swapper is
 
     using LibFixedMath for int256;
 
+    event Price(int256 price);
+
     function swap(
         address fromToken,
         address toToken,
@@ -53,6 +55,8 @@ contract Swapper is
             deltaA,
             state
         );
+
+        emit Price(price);
 
         return;
 
@@ -109,6 +113,12 @@ contract Swapper is
         );
     }
 
+    event Bisect(
+        int256 lhs1,
+        int256 mid,
+        int256 lhs
+    );
+
     function _bisect(
         int256 a,
         int256 b,
@@ -127,8 +137,6 @@ contract Swapper is
             state.rhoRatio
         );
 
-        return int256(0);
-
         // Compute initial bounds.
         int256 lowerBound = 0;
         int256 upperBound = pA;
@@ -137,13 +145,18 @@ contract Swapper is
         int256 aPlusAmount = a.add(deltaA);
 
         //
-        for (uint256 i = 0; i < state.bisectionIterations; ++i) {
+        for (uint256 i = 0; i < /*state.bisectionIterations*/ 1; ++i) {
             int256 mid = LibScamMath.computeMidpoint(lowerBound, upperBound);
             int256 lhs1 = LibScamMath.computeBaseToNinetyNine(mid.div(pBarA));
             int256 lhs = aPlusAmount
                 .mul(lhs1)
                 .mul(mid)
                 .add(deltaA.mul(mid));
+            emit Bisect(
+                lhs1,
+                mid,
+                lhs
+            );
             if (lhs > b) {
                 upperBound = mid;
             } else {
