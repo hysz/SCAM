@@ -80,7 +80,11 @@ var assert_1 = require("@0x/assert");
 var ethers = require("ethers");
 var SwapperEvents;
 (function (SwapperEvents) {
+    SwapperEvents["Bisect"] = "Bisect";
     SwapperEvents["Fill"] = "Fill";
+    SwapperEvents["FillInternal"] = "FillInternal";
+    SwapperEvents["OwnershipTransferred"] = "OwnershipTransferred";
+    SwapperEvents["Price"] = "Price";
 })(SwapperEvents = exports.SwapperEvents || (exports.SwapperEvents = {}));
 /* istanbul ignore next */
 // tslint:disable:no-parameter-reassignment
@@ -182,6 +186,29 @@ var SwapperContract = /** @class */ (function (_super) {
                 anonymous: false,
                 inputs: [
                     {
+                        name: 'lhs1',
+                        type: 'int256',
+                        indexed: false,
+                    },
+                    {
+                        name: 'mid',
+                        type: 'int256',
+                        indexed: false,
+                    },
+                    {
+                        name: 'lhs',
+                        type: 'int256',
+                        indexed: false,
+                    },
+                ],
+                name: 'Bisect',
+                outputs: [],
+                type: 'event',
+            },
+            {
+                anonymous: false,
+                inputs: [
+                    {
                         name: 'from',
                         type: 'address',
                         indexed: false,
@@ -212,10 +239,83 @@ var SwapperContract = /** @class */ (function (_super) {
                 type: 'event',
             },
             {
+                anonymous: false,
+                inputs: [
+                    {
+                        name: 'from',
+                        type: 'address',
+                        indexed: false,
+                    },
+                    {
+                        name: 'amountSpent',
+                        type: 'int256',
+                        indexed: false,
+                    },
+                    {
+                        name: 'amountReceived',
+                        type: 'int256',
+                        indexed: false,
+                    },
+                ],
+                name: 'FillInternal',
+                outputs: [],
+                type: 'event',
+            },
+            {
+                anonymous: false,
+                inputs: [
+                    {
+                        name: 'oldOwner',
+                        type: 'address',
+                        indexed: false,
+                    },
+                    {
+                        name: 'newOwner',
+                        type: 'address',
+                        indexed: false,
+                    },
+                ],
+                name: 'OwnershipTransferred',
+                outputs: [],
+                type: 'event',
+            },
+            {
+                anonymous: false,
+                inputs: [
+                    {
+                        name: 'price',
+                        type: 'int256',
+                        indexed: false,
+                    },
+                    {
+                        name: 'deltaB',
+                        type: 'int256',
+                        indexed: false,
+                    },
+                    {
+                        name: 'newPBarX',
+                        type: 'int256',
+                        indexed: false,
+                    },
+                    {
+                        name: 'pA',
+                        type: 'int256',
+                        indexed: false,
+                    },
+                ],
+                name: 'Price',
+                outputs: [],
+                type: 'event',
+            },
+            {
                 constant: true,
                 inputs: [],
                 name: 'gState',
                 outputs: [
+                    {
+                        name: 'isInitialized',
+                        type: 'bool',
+                    },
                     {
                         name: 'xAddress',
                         type: 'address',
@@ -241,10 +341,6 @@ var SwapperContract = /** @class */ (function (_super) {
                         type: 'int256',
                     },
                     {
-                        name: 'pBarXInverted',
-                        type: 'int256',
-                    },
-                    {
                         name: 'rhoNumerator',
                         type: 'uint256',
                     },
@@ -257,12 +353,48 @@ var SwapperContract = /** @class */ (function (_super) {
                         type: 'int256',
                     },
                     {
-                        name: 'bisectionIterations',
+                        name: 't',
                         type: 'uint256',
                     },
                     {
-                        name: 't',
-                        type: 'uint256',
+                        name: 'beta',
+                        type: 'int256',
+                    },
+                    {
+                        name: 'eToKappa',
+                        type: 'int256',
+                    },
+                ],
+                payable: false,
+                stateMutability: 'view',
+                type: 'function',
+            },
+            {
+                constant: false,
+                inputs: [
+                    {
+                        name: 'xAddress',
+                        type: 'address',
+                    },
+                    {
+                        name: 'yAddress',
+                        type: 'address',
+                    },
+                ],
+                name: 'initState',
+                outputs: [],
+                payable: false,
+                stateMutability: 'nonpayable',
+                type: 'function',
+            },
+            {
+                constant: true,
+                inputs: [],
+                name: 'owner',
+                outputs: [
+                    {
+                        name: '',
+                        type: 'address',
                     },
                 ],
                 payable: false,
@@ -286,6 +418,25 @@ var SwapperContract = /** @class */ (function (_super) {
                     },
                 ],
                 name: 'swap',
+                outputs: [
+                    {
+                        name: 'amountReceived',
+                        type: 'uint256',
+                    },
+                ],
+                payable: false,
+                stateMutability: 'nonpayable',
+                type: 'function',
+            },
+            {
+                constant: false,
+                inputs: [
+                    {
+                        name: 'newOwner',
+                        type: 'address',
+                    },
+                ],
+                name: 'transferOwnership',
                 outputs: [],
                 payable: false,
                 stateMutability: 'nonpayable',
@@ -323,6 +474,100 @@ var SwapperContract = /** @class */ (function (_super) {
     SwapperContract.prototype.gState = function () {
         var self = this;
         var functionSignature = 'gState()';
+        return {
+            callAsync: function (callData, defaultBlock) {
+                if (callData === void 0) { callData = {}; }
+                return __awaiter(this, void 0, void 0, function () {
+                    var rawCallResult, abiEncoder;
+                    return __generator(this, function (_a) {
+                        switch (_a.label) {
+                            case 0:
+                                base_contract_1.BaseContract._assertCallParams(callData, defaultBlock);
+                                return [4 /*yield*/, self._performCallAsync(__assign({}, callData, { data: this.getABIEncodedTransactionData() }), defaultBlock)];
+                            case 1:
+                                rawCallResult = _a.sent();
+                                abiEncoder = self._lookupAbiEncoder(functionSignature);
+                                return [2 /*return*/, abiEncoder.strictDecodeReturnValue(rawCallResult)];
+                        }
+                    });
+                });
+            },
+            getABIEncodedTransactionData: function () {
+                return self._strictEncodeArguments(functionSignature, []);
+            },
+        };
+    };
+    ;
+    SwapperContract.prototype.initState = function (xAddress, yAddress) {
+        var self = this;
+        assert_1.assert.isString('xAddress', xAddress);
+        assert_1.assert.isString('yAddress', yAddress);
+        var functionSignature = 'initState(address,address)';
+        return {
+            sendTransactionAsync: function (txData, opts) {
+                if (opts === void 0) { opts = { shouldValidate: true }; }
+                return __awaiter(this, void 0, void 0, function () {
+                    var txDataWithDefaults;
+                    return __generator(this, function (_a) {
+                        switch (_a.label) {
+                            case 0: return [4 /*yield*/, self._applyDefaultsToTxDataAsync(__assign({}, txData, { data: this.getABIEncodedTransactionData() }), this.estimateGasAsync.bind(this))];
+                            case 1:
+                                txDataWithDefaults = _a.sent();
+                                if (!(opts.shouldValidate !== false)) return [3 /*break*/, 3];
+                                return [4 /*yield*/, this.callAsync(txDataWithDefaults)];
+                            case 2:
+                                _a.sent();
+                                _a.label = 3;
+                            case 3: return [2 /*return*/, self._web3Wrapper.sendTransactionAsync(txDataWithDefaults)];
+                        }
+                    });
+                });
+            },
+            awaitTransactionSuccessAsync: function (txData, opts) {
+                if (opts === void 0) { opts = { shouldValidate: true }; }
+                return self._promiseWithTransactionHash(this.sendTransactionAsync(txData, opts), opts);
+            },
+            estimateGasAsync: function (txData) {
+                return __awaiter(this, void 0, void 0, function () {
+                    var txDataWithDefaults;
+                    return __generator(this, function (_a) {
+                        switch (_a.label) {
+                            case 0: return [4 /*yield*/, self._applyDefaultsToTxDataAsync(__assign({}, txData, { data: this.getABIEncodedTransactionData() }))];
+                            case 1:
+                                txDataWithDefaults = _a.sent();
+                                return [2 /*return*/, self._web3Wrapper.estimateGasAsync(txDataWithDefaults)];
+                        }
+                    });
+                });
+            },
+            callAsync: function (callData, defaultBlock) {
+                if (callData === void 0) { callData = {}; }
+                return __awaiter(this, void 0, void 0, function () {
+                    var rawCallResult, abiEncoder;
+                    return __generator(this, function (_a) {
+                        switch (_a.label) {
+                            case 0:
+                                base_contract_1.BaseContract._assertCallParams(callData, defaultBlock);
+                                return [4 /*yield*/, self._performCallAsync(__assign({}, callData, { data: this.getABIEncodedTransactionData() }), defaultBlock)];
+                            case 1:
+                                rawCallResult = _a.sent();
+                                abiEncoder = self._lookupAbiEncoder(functionSignature);
+                                return [2 /*return*/, abiEncoder.strictDecodeReturnValue(rawCallResult)];
+                        }
+                    });
+                });
+            },
+            getABIEncodedTransactionData: function () {
+                return self._strictEncodeArguments(functionSignature, [xAddress.toLowerCase(),
+                    yAddress.toLowerCase()
+                ]);
+            },
+        };
+    };
+    ;
+    SwapperContract.prototype.owner = function () {
+        var self = this;
+        var functionSignature = 'owner()';
         return {
             callAsync: function (callData, defaultBlock) {
                 if (callData === void 0) { callData = {}; }
@@ -411,6 +656,71 @@ var SwapperContract = /** @class */ (function (_super) {
                 return self._strictEncodeArguments(functionSignature, [fromToken.toLowerCase(),
                     toToken.toLowerCase(),
                     amount
+                ]);
+            },
+        };
+    };
+    ;
+    SwapperContract.prototype.transferOwnership = function (newOwner) {
+        var self = this;
+        assert_1.assert.isString('newOwner', newOwner);
+        var functionSignature = 'transferOwnership(address)';
+        return {
+            sendTransactionAsync: function (txData, opts) {
+                if (opts === void 0) { opts = { shouldValidate: true }; }
+                return __awaiter(this, void 0, void 0, function () {
+                    var txDataWithDefaults;
+                    return __generator(this, function (_a) {
+                        switch (_a.label) {
+                            case 0: return [4 /*yield*/, self._applyDefaultsToTxDataAsync(__assign({}, txData, { data: this.getABIEncodedTransactionData() }), this.estimateGasAsync.bind(this))];
+                            case 1:
+                                txDataWithDefaults = _a.sent();
+                                if (!(opts.shouldValidate !== false)) return [3 /*break*/, 3];
+                                return [4 /*yield*/, this.callAsync(txDataWithDefaults)];
+                            case 2:
+                                _a.sent();
+                                _a.label = 3;
+                            case 3: return [2 /*return*/, self._web3Wrapper.sendTransactionAsync(txDataWithDefaults)];
+                        }
+                    });
+                });
+            },
+            awaitTransactionSuccessAsync: function (txData, opts) {
+                if (opts === void 0) { opts = { shouldValidate: true }; }
+                return self._promiseWithTransactionHash(this.sendTransactionAsync(txData, opts), opts);
+            },
+            estimateGasAsync: function (txData) {
+                return __awaiter(this, void 0, void 0, function () {
+                    var txDataWithDefaults;
+                    return __generator(this, function (_a) {
+                        switch (_a.label) {
+                            case 0: return [4 /*yield*/, self._applyDefaultsToTxDataAsync(__assign({}, txData, { data: this.getABIEncodedTransactionData() }))];
+                            case 1:
+                                txDataWithDefaults = _a.sent();
+                                return [2 /*return*/, self._web3Wrapper.estimateGasAsync(txDataWithDefaults)];
+                        }
+                    });
+                });
+            },
+            callAsync: function (callData, defaultBlock) {
+                if (callData === void 0) { callData = {}; }
+                return __awaiter(this, void 0, void 0, function () {
+                    var rawCallResult, abiEncoder;
+                    return __generator(this, function (_a) {
+                        switch (_a.label) {
+                            case 0:
+                                base_contract_1.BaseContract._assertCallParams(callData, defaultBlock);
+                                return [4 /*yield*/, self._performCallAsync(__assign({}, callData, { data: this.getABIEncodedTransactionData() }), defaultBlock)];
+                            case 1:
+                                rawCallResult = _a.sent();
+                                abiEncoder = self._lookupAbiEncoder(functionSignature);
+                                return [2 /*return*/, abiEncoder.strictDecodeReturnValue(rawCallResult)];
+                        }
+                    });
+                });
+            },
+            getABIEncodedTransactionData: function () {
+                return self._strictEncodeArguments(functionSignature, [newOwner.toLowerCase()
                 ]);
             },
         };
