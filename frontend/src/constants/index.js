@@ -8,7 +8,8 @@ export const FACTORY_ADDRESSES = {
 export const SCAM_ADDRESSES = {
   1: '0xb48e1b16829c7f5bd62b76cb878a6bb1c4625d7a',
   1337: '0xb48e1b16829c7f5bd62b76cb878a6bb1c4625d7a',
-  50: '0xb48e1b16829c7f5bd62b76cb878a6bb1c4625d7a'
+  50: '0xb48e1b16829c7f5bd62b76cb878a6bb1c4625d7a',
+  42: '0xc4e166e32915ded4f5df509bf8f49c3a20fb8280'
 }
 
 export const SUPPORTED_THEMES = {

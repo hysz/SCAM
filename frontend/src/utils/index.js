@@ -268,6 +268,7 @@ export function formatToUsd(price) {
 
 // get the token balance of an address
 export async function getTokenBalance(tokenAddress, address, library) {
+  console.log(tokenAddress, address, library)
   if (!isAddress(tokenAddress) || !isAddress(address)) {
     throw Error(`Invalid 'tokenAddress' or 'address' parameter '${tokenAddress}' or '${address}'.`)
   }

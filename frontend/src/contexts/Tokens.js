@@ -55,6 +55,20 @@ const INITIAL_TOKENS_CONTEXT = {
       [EXCHANGE_ADDRESS]: '0xb48e1b16829c7f5bd62b76cb878a6bb1c4625d7a'
     }
   },
+  42: {
+    '0xe35b6019f8281e986d1b73f3ddf56a3fe11e5c6f': {
+      [NAME]: 'Dai Stablecoin v1.0',
+      [SYMBOL]: 'DAI',
+      [DECIMALS]: 18,
+      [EXCHANGE_ADDRESS]: '0xc4e166e32915ded4f5df509bf8f49c3a20fb8280'
+    },
+    '0xad482749e8e5a5510bc7b2244cc37974c2ff34ab': {
+      [NAME]: 'USDC',
+      [SYMBOL]: 'USDC',
+      [DECIMALS]: 6,
+      [EXCHANGE_ADDRESS]: '0xc4e166e32915ded4f5df509bf8f49c3a20fb8280'
+    }
+  },
   4: {
     '0x5592EC0cfb4dbc12D3aB100b257153436a1f0FEa': {
       [NAME]: 'Dai',

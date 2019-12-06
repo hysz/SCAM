@@ -2,6 +2,7 @@ import React from 'react'
 import styled from 'styled-components'
 
 import { Link } from '../../theme'
+import Web3Status from '../Web3Status'
 import { darken } from 'polished'
 
 const HeaderFrame = styled.div`
@@ -68,7 +69,9 @@ export default function Header() {
           </Link>
         </Title> */}
       </HeaderElement>
-      <HeaderElement>{/* <Web3Status /> */}</HeaderElement>
+      <HeaderElement>
+        <Web3Status />
+      </HeaderElement>
     </HeaderFrame>
   )
 }
