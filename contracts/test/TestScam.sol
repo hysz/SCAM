@@ -22,6 +22,7 @@ contract TestScam is
 
         _initState();
 
+        // set initial blaances
         gState.x = uint256(500).toFixed();           // initial balance of Token X
         gState.y = uint256(1000).toFixed();            // initial balance of Token Y
 
@@ -42,15 +43,6 @@ contract TestScam is
             gState.xAddress,
             220 * 10**6
         );
-
-
-/*
-        swap(
-            gState.yAddress,
-            gState.xAddress,
-            1 * 10**6
-        );
-        */
     }
 
     function runBasicTestPeter()

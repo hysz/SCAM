@@ -11,6 +11,7 @@ import * as IStructs from '../generated-artifacts/IStructs.json';
 import * as LibFixedMath from '../generated-artifacts/LibFixedMath.json';
 import * as LibSafeMath from '../generated-artifacts/LibSafeMath.json';
 import * as LibScamMath from '../generated-artifacts/LibScamMath.json';
+import * as LibToken from '../generated-artifacts/LibToken.json';
 import * as Liquidity from '../generated-artifacts/Liquidity.json';
 import * as Ownable from '../generated-artifacts/Ownable.json';
 import * as Scam from '../generated-artifacts/Scam.json';
@@ -30,6 +31,7 @@ export const artifacts = {
     LibFixedMath: LibFixedMath as ContractArtifact,
     LibSafeMath: LibSafeMath as ContractArtifact,
     LibScamMath: LibScamMath as ContractArtifact,
+    LibToken: LibToken as ContractArtifact,
     TestLibScamMath: TestLibScamMath as ContractArtifact,
     TestScam: TestScam as ContractArtifact,
 };
