@@ -24,7 +24,7 @@ contract Swapper is
         //external
         public
     {
-        IStructs.State memory state = gState;
+        IStructs.State memory state = _loadGlobalState();
 
         // Compute initial balances (fixed point).
         int256 deltaA = LibFixedMath.toFixed(amount);
@@ -93,7 +93,7 @@ contract Swapper is
         }
 
         // Update state
-        gState = state;
+        _saveGlobalState(state);
 
         // Make transfers
         //IERC20(fromToken).transferFrom(msg.sender, address(this), uint256(deltaA));
@@ -121,10 +121,13 @@ contract Swapper is
     {
         // Compute initial midpoint on bond curve; this will be the initial lower bound.
         int256 pA = LibScamMath.computeMidpointOnBondCurve(
-            pBarA,
+            a,
             b,
+            pBarA,
             state.rhoRatio
         );
+
+        revert('greg');
 
         // Compute initial bounds.
         int256 lowerBound = 0;

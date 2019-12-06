@@ -9,8 +9,9 @@ library LibScamMath {
 
     /// @dev computes midpoint, inputs are all fixed point values.
     function computeMidpointOnBondCurve(
-        int256 pBarA,
+        int256 a,
         int256 b,
+        int256 pBarA,
         int256 rhoRatio
     )
         internal
@@ -18,9 +19,10 @@ library LibScamMath {
     {
         return pBarA.mul(
             LibFixedMath.one().sub(rhoRatio)
-            .mul(b.div(pBarA).ln())
+            .mul(b.div(pBarA.mul(a)).ln())
             .exp()
         );
+
         /*
         return pBarA.mul(
             b.div(pBarA)
@@ -73,5 +75,21 @@ library LibScamMath {
         } else {
             return x * fastExponentiation(x * x, (y - 1) / 2);
         }
+    }
+
+    function scaleUp(int256 a)
+        internal
+        pure
+        returns (int256)
+    {
+        return a.mul(10**10);
+    }
+
+    function scaleDown(int256 a)
+        internal
+        pure
+        returns (int256)
+    {
+        return a.div(10**10);
     }
 }

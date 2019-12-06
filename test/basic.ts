@@ -6,7 +6,7 @@ import { artifacts } from './artifacts';
 
 
 
-blockchainTests.skip('Test Scam', env => {
+blockchainTests('Test Scam', env => {
     let testContract: TestScamContract;
 
     before(async() => {
