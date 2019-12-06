@@ -58,15 +58,17 @@ blockchainTests.only('Test Scam', env => {
             console.log('pA: ', fromFixed((tx.logs[tx.logs.length-2] as any).args.pA));
 
                */
-           console.log('amountSpent: ', fromFixed((tx.logs[tx.logs.length-1] as any).args.amountSpent));
-           console.log('amountReceivved: ', fromFixed((tx.logs[tx.logs.length-1] as any).args.amountReceived));
+
+        //   console.log('amountSpent: ', fromFixed((tx.logs[tx.logs.length-1] as any).args.amountSpent));
+        //   console.log('amountReceivved: ', fromFixed((tx.logs[tx.logs.length-1] as any).args.amountReceived));
+
            //console.log('new x: ', fromFixed((tx.logs[tx.logs.length-1] as any).args.x));
           // console.log('new y: ', fromFixed((tx.logs[tx.logs.length-1] as any).args.y));
 
 
 
-           //  console.log('amountSpent: ', (tx.logs[tx.logs.length-1] as any).args.amountSpent);
-             //console.log('amountReceivved: ', (tx.logs[tx.logs.length-1] as any).args.amountReceived);
+            console.log('amountSpent: ', (tx.logs[tx.logs.length-1] as any).args.amountSpent.toString(10));
+             console.log('amountReceivved: ', (tx.logs[tx.logs.length-1] as any).args.amountReceived.toString(10));
         });
     });
 });

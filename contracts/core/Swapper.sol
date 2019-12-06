@@ -35,7 +35,7 @@ contract Swapper is
                 LibFixedMath.toFixed(amount, 10**18), // DAI
                 state
             );
-            amountReceived = uint256((amountReceivedFixed * int(10**18)).toInteger());
+            amountReceived = uint256((amountReceivedFixed * int(10**6)).toInteger());
         } else if(fromToken == state.yAddress && toToken == state.xAddress) {
             int256 amountReceivedFixed = _swap(
                 fromToken,
@@ -43,7 +43,7 @@ contract Swapper is
                 LibFixedMath.toFixed(amount, 10**6), // USDC
                 state
             );
-            amountReceived = uint256((amountReceivedFixed * int(10**6)).toInteger());
+            amountReceived = uint256((amountReceivedFixed * int(10**18)).toInteger());
         } else {
             revert("Invalid token addresses");
         }
@@ -61,7 +61,6 @@ contract Swapper is
         */
 
         // Emit event
-        /*
         emit IEvents.Fill(
             msg.sender,
             fromToken,
@@ -69,7 +68,6 @@ contract Swapper is
             amount,
             amountReceived
         );
-        */
 
         return amountReceived;
     }
