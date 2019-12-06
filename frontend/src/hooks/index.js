@@ -138,6 +138,8 @@ export function useScamContract(scamAddress, withSignerIfPossible = true) {
 
   return useMemo(() => {
     try {
+      // TODO(dekz) hack a sendAsync so 0x libs doesn't care
+      library.sendAsync = library._sendAsync
       return getScamContract(scamAddress, library, withSignerIfPossible ? account : undefined)
     } catch (e) {
       console.log(e)

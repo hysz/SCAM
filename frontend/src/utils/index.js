@@ -1,4 +1,5 @@
 import { ethers } from 'ethers'
+import { BigNumber } from '@0x/utils'
 
 import FACTORY_ABI from '../constants/abis/factory'
 import EXCHANGE_ABI from '../constants/abis/exchange'
@@ -288,7 +289,8 @@ export async function getTokenAllowance(address, tokenAddress, spenderAddress, l
 
 // amount must be a BigNumber, {base,display}Decimals must be Numbers
 export function amountFormatter(amount, baseDecimals = 18, displayDecimals = 3, useLessThan = true) {
-  return amount.toString()
+  const unit = new BigNumber(10).pow(baseDecimals)
+  return new BigNumber(amount).div(unit).toFixed(displayDecimals)
   // if (baseDecimals > 18 || displayDecimals > 18 || displayDecimals > baseDecimals) {
   //   throw Error(`Invalid combination of baseDecimals '${baseDecimals}' and displayDecimals '${displayDecimals}.`)
   // }

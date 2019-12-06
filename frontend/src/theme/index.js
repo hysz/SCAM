@@ -83,7 +83,7 @@ const theme = darkMode => ({
   // purples
   wisteriaPurple: darkMode ? '#fb5d81' : '#404040',
   // reds
-  salmonRed: '#FF6871',
+  salmonRed: darkMode ? '#FF6871' : '#ff3541',
   // orange
   pizazzOrange: '#FF8F05',
   // yellows

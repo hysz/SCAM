@@ -18,29 +18,42 @@ const EXCHANGE_ADDRESS = 'exchangeAddress'
 
 const UPDATE = 'UPDATE'
 
-const ETH = {
-}
+const ETH = {}
 
 const INITIAL_TOKENS_CONTEXT = {
   1: {
-    'DAI': {
+    '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48': {
+      [NAME]: 'USD//C',
+      [SYMBOL]: 'USDC',
+      [DECIMALS]: 6,
+      [EXCHANGE_ADDRESS]: ''
+    },
+    '0xE41d2489571d322189246DaFA5ebDe1F4699F498': {
+      [NAME]: '0x Protocol Token',
+      [SYMBOL]: 'ZRX',
+      [DECIMALS]: 18,
+      [EXCHANGE_ADDRESS]: ''
+    },
+    '0x6B175474E89094C44Da98b954EedeAC495271d0F': {
+      [NAME]: 'Dai Stablecoin',
+      [SYMBOL]: 'DAI',
+      [DECIMALS]: 18,
+      [EXCHANGE_ADDRESS]: ''
+    }
+  },
+  50: {
+    '0xc4cc602a7345518d0b7a84049d4bc8575ebf3398': {
       [NAME]: 'Dai Stablecoin v1.0',
       [SYMBOL]: 'DAI',
       [DECIMALS]: 18,
-      [EXCHANGE_ADDRESS]: '0x09cabEC1eAd1c0Ba254B09efb3EE13841712bE14'
+      [EXCHANGE_ADDRESS]: '0xb48e1b16829c7f5bd62b76cb878a6bb1c4625d7a'
     },
-    'USDC': {
+    '0xe704967449b57b2382b7fa482718748c13c63190': {
       [NAME]: 'USDC',
       [SYMBOL]: 'USDC',
-      [DECIMALS]: 18,
-      [EXCHANGE_ADDRESS]: '0x97deC872013f6B5fB443861090ad931542878126'
-    },
-    'TERRA': {
-      [NAME]: 'KRT',
-      [SYMBOL]: 'KRT',
-      [DECIMALS]: 18,
-      [EXCHANGE_ADDRESS]: '0x97deC872013f6B5fB443861090ad931542878126'
-    },
+      [DECIMALS]: 6,
+      [EXCHANGE_ADDRESS]: '0xb48e1b16829c7f5bd62b76cb878a6bb1c4625d7a'
+    }
   },
   4: {
     '0x5592EC0cfb4dbc12D3aB100b257153436a1f0FEa': {

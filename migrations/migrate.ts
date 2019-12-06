@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { artifacts as ERC20Artifacts, DummyERC20TokenContract } from '@0x/contracts-erc20';
-import { devConstants, web3Factory } from '@0x/dev-utils';
+import { devConstants, web3Factory, Web3Wrapper } from '@0x/dev-utils';
 import { runMigrationsAsync } from '@0x/migrations';
 import { Web3ProviderEngine } from '@0x/subproviders';
 import { BigNumber, logUtils } from '@0x/utils';
@@ -32,7 +32,8 @@ import { ScamContract } from '../generated-wrappers/scam';
         'DAI',
         'DAI',
         new BigNumber(18),
-        new BigNumber(2).pow(256).minus(1),
+        new BigNumber(0),
+        // new BigNumber(2).pow(256).minus(1),
     );
 
     const usdcContract = await DummyERC20TokenContract.deployFrom0xArtifactAsync(
@@ -43,17 +44,21 @@ import { ScamContract } from '../generated-wrappers/scam';
         'USDC',
         'USDC',
         new BigNumber(6),
-        new BigNumber(2).pow(256).minus(1),
+        new BigNumber(0),
+        // new BigNumber(2).pow(256).minus(1),
     );
     await scamContract
         .init(new BigNumber(99), new BigNumber(100), daiContract.address, usdcContract.address)
         .awaitTransactionSuccessAsync(txDefaults);
+
+    await usdcContract.mint(Web3Wrapper.toBaseUnitAmount(new BigNumber(1000), 6)).awaitTransactionSuccessAsync();
+    await daiContract.mint(Web3Wrapper.toBaseUnitAmount(new BigNumber(1000), 18)).awaitTransactionSuccessAsync();
     console.log({
         scam: scamContract.address,
         dai: daiContract.address,
         usdc: usdcContract.address,
+        gState: await scamContract.gState().callAsync(),
     });
-
     process.exit(0);
 })().catch(err => {
     logUtils.log(err);

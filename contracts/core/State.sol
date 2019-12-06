@@ -13,7 +13,7 @@ contract State is
 
     using LibFixedMath for int256;
 
-    IStructs.State gState;
+    IStructs.State public gState;
 
     function _loadGlobalState()
         internal

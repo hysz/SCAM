@@ -251,7 +251,7 @@ function getMarketRate(
 
 export default function ExchangePage({ initialCurrency, sending = false, params }) {
   const { t } = useTranslation()
-  const { account, library, networkId } = useWeb3Context()
+  const { account, networkId } = useWeb3Context()
 
   const addTransaction = useTransactionAdder()
 
@@ -355,7 +355,6 @@ export default function ExchangePage({ initialCurrency, sending = false, params 
     if (independentValue && (independentDecimals || independentDecimals === 0)) {
       try {
         const parsedValue = ethers.utils.parseUnits(independentValue, independentDecimals)
-
         if (parsedValue.lte(ethers.constants.Zero) || parsedValue.gte(ethers.constants.MaxUint256)) {
           throw Error()
         } else {
@@ -388,6 +387,7 @@ export default function ExchangePage({ initialCurrency, sending = false, params 
     const inputValueCalculation = independentField === INPUT ? independentValueParsed : dependentValueMaximum
     if (inputBalance && (inputAllowance || inputCurrency === 'ETH') && inputValueCalculation) {
       if (inputBalance.lt(inputValueCalculation)) {
+        console.log('insufficientBalance')
         setInputError(t('insufficientBalance'))
       } else if (inputCurrency !== 'ETH' && inputAllowance.lt(inputValueCalculation)) {
         setInputError(t('unlockTokenCont'))
@@ -424,6 +424,7 @@ export default function ExchangePage({ initialCurrency, sending = false, params 
 
           dispatchSwapState({ type: 'UPDATE_DEPENDENT', payload: calculatedDependentValue })
         } catch {
+          console.log('insuff liquid 1')
           setIndependentError(t('insufficientLiquidity'))
         }
         return () => {
@@ -447,6 +448,7 @@ export default function ExchangePage({ initialCurrency, sending = false, params 
 
           dispatchSwapState({ type: 'UPDATE_DEPENDENT', payload: calculatedDependentValue })
         } catch {
+          console.log('insuff liquid 2')
           setIndependentError(t('insufficientLiquidity'))
         }
         return () => {
@@ -492,6 +494,7 @@ export default function ExchangePage({ initialCurrency, sending = false, params 
             dispatchSwapState({ type: 'UPDATE_DEPENDENT', payload: calculatedDependentValue })
           }
         } catch {
+          console.log('insuff liquid 3')
           setIndependentError(t('insufficientLiquidity'))
         }
         return () => {
