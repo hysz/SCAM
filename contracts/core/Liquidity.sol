@@ -2,15 +2,26 @@ pragma solidity ^0.5.9;
 pragma experimental ABIEncoderV2;
 
 import "../libs/LibSafeMath.sol";
+import "../libs/LibFixedMath.sol";
 import "../interfaces/IERC20.sol";
 import "../interfaces/IStructs.sol";
+import "../core/State.sol";
 
 
 /// FIXME(jalextowle): Add in the bias factor and ponzi scheme
 contract Liquidity is
+    State,
     IStructs
 {
     using LibSafeMath for uint256;
+    function balanceOf(address account)
+        public
+        view
+        returns (uint256)
+    {
+        IStructs.State storage state = gState;
+        return state.liquidityBalance[account];
+    }
 
     /// @dev Allows a sender to deposit tokens into the contract to provide liquidity.
     /// @param x_amount The amount of x that should be taken from the sender's balance.
@@ -19,11 +30,11 @@ contract Liquidity is
         external
     {
         // Load the contract's state.
-        IStructs.State memory state = gState;
+        IStructs.State storage state = gState;
 
         // Ensure that the amount of x and y that are being deposited are proportional.
-        require(
-            x_amount.safeMul(state.y) == y_amount.safeMul(state.x),
+       require(
+            x_amount.safeMul(uint256(state.y >> 127)) == y_amount.safeMul(uint256(state.x >> 127)),
             "Liquidty:Amount deposited not proportional"
         );
 
@@ -33,11 +44,17 @@ contract Liquidity is
 
         // Grant the sender some liquidity tokens.
         // FIXME(jalextowle): (Look into whether more precision is needed)
-        uint256 liquidity_reward = x_amount.safeMul(state.l).safeDiv(state.x);
+        uint256 liquidity_reward;
+        if (state.x == 0) {
+            liquidity_reward = 0;
+            state.l = 1;
+        } else {
+            liquidity_reward = x_amount.safeMul(state.l).safeDiv(uint256(state.x) >> 127);
+        }
 
         // Increase the balances of x and y
-        state.x = state.x.safeAdd(x_amount);
-        state.y = state.y.safeAdd(y_amount);
+        state.x = LibFixedMath.add(state.x, LibFixedMath.toFixed(x_amount));
+        state.y = LibFixedMath.add(state.y, LibFixedMath.toFixed(y_amount));
 
         // Grant the liquidity tokens
         state.liquidityBalance[msg.sender] = state.liquidityBalance[msg.sender].safeAdd(
@@ -47,20 +64,20 @@ contract Liquidity is
     }
 
     /// @dev Allows a sender to withdraw tokens by burning liquidity tokens.
-    /// @param The amount of liquidity tokens to burn.
+    /// @param l_amount The amount of liquidity tokens to burn.
     function removeLiquidity(uint256 l_amount)
         external
     {
         // Load the contract's state.
-        IStructs.State memory state = gState;
+        IStructs.State storage state = gState;
 
         // Calculate the amounts of tokens that should be sent to the sender.
-        uint256 x_amount = amount.safeMul(state.x).safeDiv(state.l);
-        uint256 y_amount = amount.safeMul(state.y).safeDiv(state.l);
+        uint256 x_amount = l_amount.safeMul(uint256(state.x) >> 127).safeDiv(state.l);
+        uint256 y_amount = l_amount.safeMul(uint256(state.y) >> 127).safeDiv(state.l);
 
         // Decrease the balances of x and y
-        state.x = state.x.safeSub(x_amount);
-        state.y = state.y.safeSub(y_amount);
+        state.x = LibFixedMath.sub(state.x, LibFixedMath.toFixed(x_amount));
+        state.y = LibFixedMath.sub(state.y, LibFixedMath.toFixed(y_amount));
 
         // Destroy the liquidity tokens
         state.liquidityBalance[msg.sender] = state.liquidityBalance[msg.sender].safeSub(
