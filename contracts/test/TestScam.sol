@@ -13,7 +13,47 @@ contract TestScam is
     using LibFixedMath for uint256;
     using LibFixedMath for int256;
 
-    function runBasicTest()
+     function runBasicTest()
+        external
+    {
+        // For us
+        gState.xAddress = 0x0000000000000000000000000000000000000001;
+        gState.yAddress = 0x0000000000000000000000000000000000000002;
+
+        _initState();
+
+        gState.x = uint256(500).toFixed();           // initial balance of Token X
+        gState.y = uint256(1000).toFixed();            // initial balance of Token Y
+
+        swap(
+            gState.xAddress,
+            gState.yAddress,
+            75 * 10**18
+        );
+
+        swap(
+            gState.xAddress,
+            gState.yAddress,
+            400 * 10**18
+        );
+
+        swap(
+            gState.yAddress,
+            gState.xAddress,
+            220 * 10**6
+        );
+
+
+/*
+        swap(
+            gState.yAddress,
+            gState.xAddress,
+            1 * 10**6
+        );
+        */
+    }
+
+    function runBasicTestPeter()
         external
     {
         // For us
