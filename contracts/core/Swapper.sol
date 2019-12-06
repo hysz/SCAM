@@ -16,7 +16,7 @@ contract Swapper is
 
     using LibFixedMath for int256;
 
-    event Price(int256 price);
+    event Price(int256 price, int256 deltaB);
 
     function swap(
         address fromToken,
@@ -56,10 +56,6 @@ contract Swapper is
             state
         );
 
-        emit Price(price);
-
-        return;
-
         // Compute about of `tokenB`
         int256 deltaB = deltaA
         .mul(price)
@@ -75,6 +71,8 @@ contract Swapper is
             deltaB = 10^-10 - b;
         }
         */
+
+        emit Price(price, deltaB);
 
 
         // @TODO: Handle additional edge cases

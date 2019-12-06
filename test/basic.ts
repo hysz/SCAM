@@ -52,7 +52,8 @@ blockchainTests.only('Test Scam', env => {
             console.log(fromFixed((tx.logs[1] as any).args.lhs));
                 */
 
-            console.log(fromFixed((tx.logs[tx.logs.length-1] as any).args.price));
+            console.log(fromFixed((tx.logs[tx.logs.length-2] as any).args.price));
+            console.log(fromFixed((tx.logs[tx.logs.length-2] as any).args.deltaB));
 
         });
     });

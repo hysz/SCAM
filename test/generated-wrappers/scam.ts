@@ -61,6 +61,7 @@ export interface ScamFillEventArgs extends DecodedLogArgs {
 
 export interface ScamPriceEventArgs extends DecodedLogArgs {
     price: BigNumber;
+    deltaB: BigNumber;
 }
 
 
@@ -218,6 +219,11 @@ public static async deployFrom0xArtifactAsync(
                 inputs: [
                     {
                         name: 'price',
+                        type: 'int256',
+                        indexed: false,
+                    },
+                    {
+                        name: 'deltaB',
                         type: 'int256',
                         indexed: false,
                     },
