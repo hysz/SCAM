@@ -39,11 +39,13 @@ contract TestScam is
             10000
         );
 
+/*
         swap(
             gState.xAddress,
             gState.yAddress,
             10000
         );
+        */
     }
 
 

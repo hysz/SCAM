@@ -73,36 +73,46 @@ contract Swapper is
         }
 
         // Handle additional edge cases
-        int256 newPBarX = LibScamMath.computeNewPBarA(
+        int256 newPBarA = LibScamMath.computeNewPBarA(
             state.t,
             _getCurrentBlockNumber(),
             state.beta,
             pA,
-            state.pBarX
+            pBarA
         );
-        if (newPBarX > state.eToKappa.mul(pBarA)) {
-            newPBarX = state.eToKappa.mul(pBarA);
-        } else if(newPBarX < LibFixedMath.one().div(state.eToKappa).mul(pBarA)) {
-            newPBarX = LibFixedMath.one().div(state.eToKappa).mul(pBarA);
+        if (newPBarA > state.eToKappa.mul(pBarA)) {
+            newPBarA = state.eToKappa.mul(pBarA);
+        } else if(newPBarA < LibFixedMath.one().div(state.eToKappa).mul(pBarA)) {
+            newPBarA = LibFixedMath.one().div(state.eToKappa).mul(pBarA);
         }
 
-        emit Price(
-            price,
-            deltaB,
-            newPBarX,
-            pA
-        );
+
 
         // Update state
         state.t = _getCurrentBlockNumber();
         if (fromIsX) {
             state.x = a.add(deltaA);
             state.y = b.add(deltaB);
-            state.pBarX = newPBarX;
+            state.pBarX = newPBarA;
+
+            emit Price(
+                price,
+                deltaB,
+                state.pBarX,
+                pA
+            );
+
         } else {
             state.x = b.add(deltaB);
             state.y = a.add(deltaA);
-            state.pBarX = LibFixedMath.one().div(newPBarX);
+            state.pBarX = LibFixedMath.one().div(newPBarA);
+
+            emit Price(
+                price,
+                deltaB,
+                state.pBarX,
+                pA
+            );
         }
 
         // Update state
@@ -115,10 +125,12 @@ contract Swapper is
         // Emit event
         emit IEvents.Fill(
             msg.sender,
-            fromToken,
-            toToken,
+          //  fromToken,
+           // toToken,
             uint256(deltaA),
-            uint256(-deltaB)
+            uint256(-deltaB),
+            state.x,
+            state.y
         );
     }
 

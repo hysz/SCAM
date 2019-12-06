@@ -53,10 +53,10 @@ export interface SwapperBisectEventArgs extends DecodedLogArgs {
 
 export interface SwapperFillEventArgs extends DecodedLogArgs {
     from: string;
-    fromToken: string;
-    toToken: string;
     amountSpent: BigNumber;
     amountReceived: BigNumber;
+    x: BigNumber;
+    y: BigNumber;
 }
 
 export interface SwapperPriceEventArgs extends DecodedLogArgs {
@@ -182,16 +182,6 @@ public static async deployFrom0xArtifactAsync(
                         indexed: false,
                     },
                     {
-                        name: 'fromToken',
-                        type: 'address',
-                        indexed: false,
-                    },
-                    {
-                        name: 'toToken',
-                        type: 'address',
-                        indexed: false,
-                    },
-                    {
                         name: 'amountSpent',
                         type: 'uint256',
                         indexed: false,
@@ -199,6 +189,16 @@ public static async deployFrom0xArtifactAsync(
                     {
                         name: 'amountReceived',
                         type: 'uint256',
+                        indexed: false,
+                    },
+                    {
+                        name: 'x',
+                        type: 'int256',
+                        indexed: false,
+                    },
+                    {
+                        name: 'y',
+                        type: 'int256',
                         indexed: false,
                     },
                 ],
