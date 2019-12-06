@@ -9,6 +9,7 @@ interface IStructs {
         address yAddress;                                   // address of token y
         int256 x;                                           // contract's balance of token x (fixed point)
         int256 y;                                           // contract's balance of token y (fixed point)
+        uint256 l;                                          // total liquidity token balance
         int256 pBarX;                                       // expected future price of x in terms of y (fixed point)
         int256 pBarXInverted;                               // inverted expected future price of x in terms of y (fixed point)
         uint256 rhoNumerator;
@@ -17,8 +18,6 @@ interface IStructs {
         uint256 bisectionIterations;
         uint256 t;                                          // most recent block
         mapping (address => uint256) liquidityBalance;
-        uint256 l;                                          // total liquidity token balance
-
     }
 
 }
