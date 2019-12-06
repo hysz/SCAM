@@ -34,63 +34,36 @@ import * as ethers from 'ethers';
 // tslint:enable:no-unused-variable
 
 
-export type SwapperEventArgs =
-    | SwapperBisectEventArgs
-    | SwapperFillEventArgs
-    | SwapperOwnershipTransferredEventArgs
-    | SwapperPriceEventArgs;
+export type OwnableEventArgs =
+    | OwnableOwnershipTransferredEventArgs;
 
-export enum SwapperEvents {
-    Bisect = 'Bisect',
-    Fill = 'Fill',
+export enum OwnableEvents {
     OwnershipTransferred = 'OwnershipTransferred',
-    Price = 'Price',
 }
 
-export interface SwapperBisectEventArgs extends DecodedLogArgs {
-    lhs1: BigNumber;
-    mid: BigNumber;
-    lhs: BigNumber;
-}
-
-export interface SwapperFillEventArgs extends DecodedLogArgs {
-    from: string;
-    amountSpent: BigNumber;
-    amountReceived: BigNumber;
-    x: BigNumber;
-    y: BigNumber;
-}
-
-export interface SwapperOwnershipTransferredEventArgs extends DecodedLogArgs {
+export interface OwnableOwnershipTransferredEventArgs extends DecodedLogArgs {
     oldOwner: string;
     newOwner: string;
-}
-
-export interface SwapperPriceEventArgs extends DecodedLogArgs {
-    price: BigNumber;
-    deltaB: BigNumber;
-    newPBarX: BigNumber;
-    pA: BigNumber;
 }
 
 
 /* istanbul ignore next */
 // tslint:disable:no-parameter-reassignment
 // tslint:disable-next-line:class-name
-export class SwapperContract extends BaseContract {
+export class OwnableContract extends BaseContract {
     /**
      * @ignore
      */
 public static deployedBytecode: string | undefined;
-public static contractName = 'Swapper';
+public static contractName = 'Ownable';
     private readonly _methodABIIndex: { [name: string]: number } = {};
-private readonly _subscriptionManager: SubscriptionManager<SwapperEventArgs, SwapperEvents>;
+private readonly _subscriptionManager: SubscriptionManager<OwnableEventArgs, OwnableEvents>;
 public static async deployFrom0xArtifactAsync(
         artifact: ContractArtifact | SimpleContractArtifact,
         supportedProvider: SupportedProvider,
         txDefaults: Partial<TxData>,
         logDecodeDependencies: { [contractName: string]: (ContractArtifact | SimpleContractArtifact) },
-    ): Promise<SwapperContract> {
+    ): Promise<OwnableContract> {
         assert.doesConformToSchema('txDefaults', txDefaults, schemas.txDataSchema, [
             schemas.addressSchema,
             schemas.numberSchema,
@@ -108,7 +81,7 @@ public static async deployFrom0xArtifactAsync(
                 logDecodeDependenciesAbiOnly[key] = logDecodeDependencies[key].compilerOutput.abi;
             }
         }
-        return SwapperContract.deployAsync(bytecode, abi, provider, txDefaults, logDecodeDependenciesAbiOnly, );
+        return OwnableContract.deployAsync(bytecode, abi, provider, txDefaults, logDecodeDependenciesAbiOnly, );
     }
     public static async deployAsync(
         bytecode: string,
@@ -116,7 +89,7 @@ public static async deployFrom0xArtifactAsync(
         supportedProvider: SupportedProvider,
         txDefaults: Partial<TxData>,
         logDecodeDependencies: { [contractName: string]: ContractAbi },
-    ): Promise<SwapperContract> {
+    ): Promise<OwnableContract> {
         assert.isHexString('bytecode', bytecode);
         assert.doesConformToSchema('txDefaults', txDefaults, schemas.txDataSchema, [
             schemas.addressSchema,
@@ -144,8 +117,8 @@ public static async deployFrom0xArtifactAsync(
         const txHash = await web3Wrapper.sendTransactionAsync(txDataWithDefaults);
         logUtils.log(`transactionHash: ${txHash}`);
         const txReceipt = await web3Wrapper.awaitTransactionSuccessAsync(txHash);
-        logUtils.log(`Swapper successfully deployed at ${txReceipt.contractAddress}`);
-        const contractInstance = new SwapperContract(txReceipt.contractAddress as string, provider, txDefaults, logDecodeDependencies);
+        logUtils.log(`Ownable successfully deployed at ${txReceipt.contractAddress}`);
+        const contractInstance = new OwnableContract(txReceipt.contractAddress as string, provider, txDefaults, logDecodeDependencies);
         contractInstance.constructorArgs = [];
         return contractInstance;
     }
@@ -157,62 +130,13 @@ public static async deployFrom0xArtifactAsync(
     public static ABI(): ContractAbi {
         const abi = [
             { 
-                anonymous: false,
                 inputs: [
-                    {
-                        name: 'lhs1',
-                        type: 'int256',
-                        indexed: false,
-                    },
-                    {
-                        name: 'mid',
-                        type: 'int256',
-                        indexed: false,
-                    },
-                    {
-                        name: 'lhs',
-                        type: 'int256',
-                        indexed: false,
-                    },
                 ],
-                name: 'Bisect',
                 outputs: [
                 ],
-                type: 'event',
-            },
-            { 
-                anonymous: false,
-                inputs: [
-                    {
-                        name: 'from',
-                        type: 'address',
-                        indexed: false,
-                    },
-                    {
-                        name: 'amountSpent',
-                        type: 'uint256',
-                        indexed: false,
-                    },
-                    {
-                        name: 'amountReceived',
-                        type: 'uint256',
-                        indexed: false,
-                    },
-                    {
-                        name: 'x',
-                        type: 'int256',
-                        indexed: false,
-                    },
-                    {
-                        name: 'y',
-                        type: 'int256',
-                        indexed: false,
-                    },
-                ],
-                name: 'Fill',
-                outputs: [
-                ],
-                type: 'event',
+                payable: false,
+                stateMutability: 'nonpayable',
+                type: 'constructor',
             },
             { 
                 anonymous: false,
@@ -234,46 +158,6 @@ public static async deployFrom0xArtifactAsync(
                 type: 'event',
             },
             { 
-                anonymous: false,
-                inputs: [
-                    {
-                        name: 'price',
-                        type: 'int256',
-                        indexed: false,
-                    },
-                    {
-                        name: 'deltaB',
-                        type: 'int256',
-                        indexed: false,
-                    },
-                    {
-                        name: 'newPBarX',
-                        type: 'int256',
-                        indexed: false,
-                    },
-                    {
-                        name: 'pA',
-                        type: 'int256',
-                        indexed: false,
-                    },
-                ],
-                name: 'Price',
-                outputs: [
-                ],
-                type: 'event',
-            },
-            { 
-                constant: false,
-                inputs: [
-                ],
-                name: 'initState',
-                outputs: [
-                ],
-                payable: false,
-                stateMutability: 'nonpayable',
-                type: 'function',
-            },
-            { 
                 constant: true,
                 inputs: [
                 ],
@@ -286,29 +170,6 @@ public static async deployFrom0xArtifactAsync(
                 ],
                 payable: false,
                 stateMutability: 'view',
-                type: 'function',
-            },
-            { 
-                constant: false,
-                inputs: [
-                    {
-                        name: 'fromToken',
-                        type: 'address',
-                    },
-                    {
-                        name: 'toToken',
-                        type: 'address',
-                    },
-                    {
-                        name: 'amount',
-                        type: 'uint256',
-                    },
-                ],
-                name: 'swap',
-                outputs: [
-                ],
-                payable: false,
-                stateMutability: 'nonpayable',
                 type: 'function',
             },
             { 
@@ -332,85 +193,35 @@ public static async deployFrom0xArtifactAsync(
 
     public getFunctionSignature(methodName: string): string {
         const index = this._methodABIIndex[methodName];
-        const methodAbi = SwapperContract.ABI()[index] as MethodAbi; // tslint:disable-line:no-unnecessary-type-assertion
+        const methodAbi = OwnableContract.ABI()[index] as MethodAbi; // tslint:disable-line:no-unnecessary-type-assertion
         const functionSignature = methodAbiToFunctionSignature(methodAbi);
         return functionSignature;
     }
     public getABIDecodedTransactionData<T>(methodName: string, callData: string): T {
         const functionSignature = this.getFunctionSignature(methodName);
-        const self = (this as any) as SwapperContract;
+        const self = (this as any) as OwnableContract;
         const abiEncoder = self._lookupAbiEncoder(functionSignature);
         const abiDecodedCallData = abiEncoder.strictDecode<T>(callData);
         return abiDecodedCallData;
     }
     public getABIDecodedReturnData<T>(methodName: string, callData: string): T {
         const functionSignature = this.getFunctionSignature(methodName);
-        const self = (this as any) as SwapperContract;
+        const self = (this as any) as OwnableContract;
         const abiEncoder = self._lookupAbiEncoder(functionSignature);
         const abiDecodedCallData = abiEncoder.strictDecodeReturnValue<T>(callData);
         return abiDecodedCallData;
     }
     public getSelector(methodName: string): string {
         const functionSignature = this.getFunctionSignature(methodName);
-        const self = (this as any) as SwapperContract;
+        const self = (this as any) as OwnableContract;
         const abiEncoder = self._lookupAbiEncoder(functionSignature);
         return abiEncoder.getSelector();
     }
 
-    public initState(
-    ): ContractTxFunctionObj<void
-> {
-        const self = this as any as SwapperContract;
-        const functionSignature = 'initState()';
-
-        return {
-            async sendTransactionAsync(
-                txData?: Partial<TxData> | undefined,
-                opts: SendTransactionOpts = { shouldValidate: true },
-            ): Promise<string> {
-                const txDataWithDefaults = await self._applyDefaultsToTxDataAsync(
-                    { ...txData, data: this.getABIEncodedTransactionData() },
-                    this.estimateGasAsync.bind(this),
-                );
-                if (opts.shouldValidate !== false) {
-                    await this.callAsync(txDataWithDefaults);
-                }
-                return self._web3Wrapper.sendTransactionAsync(txDataWithDefaults);
-            },
-            awaitTransactionSuccessAsync(
-                txData?: Partial<TxData>,
-                opts: AwaitTransactionSuccessOpts = { shouldValidate: true },
-            ): PromiseWithTransactionHash<TransactionReceiptWithDecodedLogs> {
-                return self._promiseWithTransactionHash(this.sendTransactionAsync(txData, opts), opts);
-            },
-            async estimateGasAsync(
-                txData?: Partial<TxData> | undefined,
-            ): Promise<number> {
-                const txDataWithDefaults = await self._applyDefaultsToTxDataAsync(
-                    { ...txData, data: this.getABIEncodedTransactionData() }
-                );
-                return self._web3Wrapper.estimateGasAsync(txDataWithDefaults);
-            },
-            async callAsync(
-                callData: Partial<CallData> = {},
-                defaultBlock?: BlockParam,
-            ): Promise<void
-            > {
-                BaseContract._assertCallParams(callData, defaultBlock);
-                const rawCallResult = await self._performCallAsync({ ...callData, data: this.getABIEncodedTransactionData() }, defaultBlock);
-                const abiEncoder = self._lookupAbiEncoder(functionSignature);
-                return abiEncoder.strictDecodeReturnValue<void
-            >(rawCallResult);
-            },
-            getABIEncodedTransactionData(): string {
-                return self._strictEncodeArguments(functionSignature, []);
-            },
-        }
-    };
     public owner(
     ): ContractFunctionObj<string
 > {
-        const self = this as any as SwapperContract;
+        const self = this as any as OwnableContract;
         const functionSignature = 'owner()';
 
         return {
@@ -430,70 +241,11 @@ public static async deployFrom0xArtifactAsync(
             },
         }
     };
-    public swap(
-            fromToken: string,
-            toToken: string,
-            amount: BigNumber,
-    ): ContractTxFunctionObj<void
-> {
-        const self = this as any as SwapperContract;
-            assert.isString('fromToken', fromToken);
-            assert.isString('toToken', toToken);
-            assert.isBigNumber('amount', amount);
-        const functionSignature = 'swap(address,address,uint256)';
-
-        return {
-            async sendTransactionAsync(
-                txData?: Partial<TxData> | undefined,
-                opts: SendTransactionOpts = { shouldValidate: true },
-            ): Promise<string> {
-                const txDataWithDefaults = await self._applyDefaultsToTxDataAsync(
-                    { ...txData, data: this.getABIEncodedTransactionData() },
-                    this.estimateGasAsync.bind(this),
-                );
-                if (opts.shouldValidate !== false) {
-                    await this.callAsync(txDataWithDefaults);
-                }
-                return self._web3Wrapper.sendTransactionAsync(txDataWithDefaults);
-            },
-            awaitTransactionSuccessAsync(
-                txData?: Partial<TxData>,
-                opts: AwaitTransactionSuccessOpts = { shouldValidate: true },
-            ): PromiseWithTransactionHash<TransactionReceiptWithDecodedLogs> {
-                return self._promiseWithTransactionHash(this.sendTransactionAsync(txData, opts), opts);
-            },
-            async estimateGasAsync(
-                txData?: Partial<TxData> | undefined,
-            ): Promise<number> {
-                const txDataWithDefaults = await self._applyDefaultsToTxDataAsync(
-                    { ...txData, data: this.getABIEncodedTransactionData() }
-                );
-                return self._web3Wrapper.estimateGasAsync(txDataWithDefaults);
-            },
-            async callAsync(
-                callData: Partial<CallData> = {},
-                defaultBlock?: BlockParam,
-            ): Promise<void
-            > {
-                BaseContract._assertCallParams(callData, defaultBlock);
-                const rawCallResult = await self._performCallAsync({ ...callData, data: this.getABIEncodedTransactionData() }, defaultBlock);
-                const abiEncoder = self._lookupAbiEncoder(functionSignature);
-                return abiEncoder.strictDecodeReturnValue<void
-            >(rawCallResult);
-            },
-            getABIEncodedTransactionData(): string {
-                return self._strictEncodeArguments(functionSignature, [fromToken.toLowerCase(),
-            toToken.toLowerCase(),
-            amount
-            ]);
-            },
-        }
-    };
     public transferOwnership(
             newOwner: string,
     ): ContractTxFunctionObj<void
 > {
-        const self = this as any as SwapperContract;
+        const self = this as any as OwnableContract;
             assert.isString('newOwner', newOwner);
         const functionSignature = 'transferOwnership(address)';
 
@@ -544,29 +296,29 @@ public static async deployFrom0xArtifactAsync(
     };
 
     /**
-     * Subscribe to an event type emitted by the Swapper contract.
-     * @param eventName The Swapper contract event you would like to subscribe to.
+     * Subscribe to an event type emitted by the Ownable contract.
+     * @param eventName The Ownable contract event you would like to subscribe to.
      * @param indexFilterValues An object where the keys are indexed args returned by the event and
      * the value is the value you are interested in. E.g `{maker: aUserAddressHex}`
      * @param callback Callback that gets called when a log is added/removed
      * @param isVerbose Enable verbose subscription warnings (e.g recoverable network issues encountered)
      * @return Subscription token used later to unsubscribe
      */
-    public subscribe<ArgsType extends SwapperEventArgs>(
-        eventName: SwapperEvents,
+    public subscribe<ArgsType extends OwnableEventArgs>(
+        eventName: OwnableEvents,
         indexFilterValues: IndexedFilterValues,
         callback: EventCallback<ArgsType>,
         isVerbose: boolean = false,
         blockPollingIntervalMs?: number,
     ): string {
-        assert.doesBelongToStringEnum('eventName', eventName, SwapperEvents);
+        assert.doesBelongToStringEnum('eventName', eventName, OwnableEvents);
         assert.doesConformToSchema('indexFilterValues', indexFilterValues, schemas.indexFilterValuesSchema);
         assert.isFunction('callback', callback);
         const subscriptionToken = this._subscriptionManager.subscribe<ArgsType>(
             this.address,
             eventName,
             indexFilterValues,
-            SwapperContract.ABI(),
+            OwnableContract.ABI(),
             callback,
             isVerbose,
             blockPollingIntervalMs,
@@ -588,18 +340,18 @@ public static async deployFrom0xArtifactAsync(
     }
     /**
      * Gets historical logs without creating a subscription
-     * @param eventName The Swapper contract event you would like to subscribe to.
+     * @param eventName The Ownable contract event you would like to subscribe to.
      * @param blockRange Block range to get logs from.
      * @param indexFilterValues An object where the keys are indexed args returned by the event and
      * the value is the value you are interested in. E.g `{_from: aUserAddressHex}`
      * @return Array of logs that match the parameters
      */
-    public async getLogsAsync<ArgsType extends SwapperEventArgs>(
-        eventName: SwapperEvents,
+    public async getLogsAsync<ArgsType extends OwnableEventArgs>(
+        eventName: OwnableEvents,
         blockRange: BlockRange,
         indexFilterValues: IndexedFilterValues,
     ): Promise<Array<LogWithDecodedArgs<ArgsType>>> {
-        assert.doesBelongToStringEnum('eventName', eventName, SwapperEvents);
+        assert.doesBelongToStringEnum('eventName', eventName, OwnableEvents);
         assert.doesConformToSchema('blockRange', blockRange, schemas.blockRangeSchema);
         assert.doesConformToSchema('indexFilterValues', indexFilterValues, schemas.indexFilterValuesSchema);
         const logs = await this._subscriptionManager.getLogsAsync<ArgsType>(
@@ -607,7 +359,7 @@ public static async deployFrom0xArtifactAsync(
             eventName,
             blockRange,
             indexFilterValues,
-            SwapperContract.ABI(),
+            OwnableContract.ABI(),
         );
         return logs;
     }
@@ -616,15 +368,15 @@ public static async deployFrom0xArtifactAsync(
         supportedProvider: SupportedProvider,
         txDefaults?: Partial<TxData>,
         logDecodeDependencies?: { [contractName: string]: ContractAbi },
-        deployedBytecode: string | undefined = SwapperContract.deployedBytecode,
+        deployedBytecode: string | undefined = OwnableContract.deployedBytecode,
     ) {
-        super('Swapper', SwapperContract.ABI(), address, supportedProvider, txDefaults, logDecodeDependencies, deployedBytecode);
+        super('Ownable', OwnableContract.ABI(), address, supportedProvider, txDefaults, logDecodeDependencies, deployedBytecode);
         classUtils.bindAll(this, ['_abiEncoderByFunctionSignature', 'address', '_web3Wrapper']);
-this._subscriptionManager = new SubscriptionManager<SwapperEventArgs, SwapperEvents>(
-            SwapperContract.ABI(),
+this._subscriptionManager = new SubscriptionManager<OwnableEventArgs, OwnableEvents>(
+            OwnableContract.ABI(),
             this._web3Wrapper,
         );
-SwapperContract.ABI().forEach((item, index) => {
+OwnableContract.ABI().forEach((item, index) => {
             if (item.type === 'function') {
                 const methodAbi = item as MethodAbi;
                 this._methodABIIndex[methodAbi.name] = index;

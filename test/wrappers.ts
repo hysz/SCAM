@@ -10,6 +10,7 @@ export * from '../test/generated-wrappers/lib_fixed_math';
 export * from '../test/generated-wrappers/lib_safe_math';
 export * from '../test/generated-wrappers/lib_scam_math';
 export * from '../test/generated-wrappers/liquidity';
+export * from '../test/generated-wrappers/ownable';
 export * from '../test/generated-wrappers/scam';
 export * from '../test/generated-wrappers/state';
 export * from '../test/generated-wrappers/swapper';

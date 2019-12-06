@@ -12,6 +12,7 @@ import * as LibFixedMath from '../generated-artifacts/LibFixedMath.json';
 import * as LibSafeMath from '../generated-artifacts/LibSafeMath.json';
 import * as LibScamMath from '../generated-artifacts/LibScamMath.json';
 import * as Liquidity from '../generated-artifacts/Liquidity.json';
+import * as Ownable from '../generated-artifacts/Ownable.json';
 import * as Scam from '../generated-artifacts/Scam.json';
 import * as State from '../generated-artifacts/State.json';
 import * as Swapper from '../generated-artifacts/Swapper.json';
@@ -20,6 +21,7 @@ import * as TestScam from '../generated-artifacts/TestScam.json';
 export const artifacts = {
     Scam: Scam as ContractArtifact,
     Liquidity: Liquidity as ContractArtifact,
+    Ownable: Ownable as ContractArtifact,
     State: State as ContractArtifact,
     Swapper: Swapper as ContractArtifact,
     IERC20: IERC20 as ContractArtifact,

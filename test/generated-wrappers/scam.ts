@@ -37,11 +37,13 @@ import * as ethers from 'ethers';
 export type ScamEventArgs =
     | ScamBisectEventArgs
     | ScamFillEventArgs
+    | ScamOwnershipTransferredEventArgs
     | ScamPriceEventArgs;
 
 export enum ScamEvents {
     Bisect = 'Bisect',
     Fill = 'Fill',
+    OwnershipTransferred = 'OwnershipTransferred',
     Price = 'Price',
 }
 
@@ -57,6 +59,11 @@ export interface ScamFillEventArgs extends DecodedLogArgs {
     amountReceived: BigNumber;
     x: BigNumber;
     y: BigNumber;
+}
+
+export interface ScamOwnershipTransferredEventArgs extends DecodedLogArgs {
+    oldOwner: string;
+    newOwner: string;
 }
 
 export interface ScamPriceEventArgs extends DecodedLogArgs {
@@ -220,6 +227,25 @@ public static async deployFrom0xArtifactAsync(
                 anonymous: false,
                 inputs: [
                     {
+                        name: 'oldOwner',
+                        type: 'address',
+                        indexed: false,
+                    },
+                    {
+                        name: 'newOwner',
+                        type: 'address',
+                        indexed: false,
+                    },
+                ],
+                name: 'OwnershipTransferred',
+                outputs: [
+                ],
+                type: 'event',
+            },
+            { 
+                anonymous: false,
+                inputs: [
+                    {
                         name: 'price',
                         type: 'int256',
                         indexed: false,
@@ -263,20 +289,27 @@ public static async deployFrom0xArtifactAsync(
             { 
                 constant: false,
                 inputs: [
-                    {
-                        name: 'rhoNumerator',
-                        type: 'uint256',
-                    },
-                    {
-                        name: 'rhoDenominator',
-                        type: 'uint256',
-                    },
                 ],
-                name: 'init',
+                name: 'initState',
                 outputs: [
                 ],
                 payable: false,
                 stateMutability: 'nonpayable',
+                type: 'function',
+            },
+            { 
+                constant: true,
+                inputs: [
+                ],
+                name: 'owner',
+                outputs: [
+                    {
+                        name: '',
+                        type: 'address',
+                    },
+                ],
+                payable: false,
+                stateMutability: 'view',
                 type: 'function',
             },
             { 
@@ -311,6 +344,21 @@ public static async deployFrom0xArtifactAsync(
                     },
                 ],
                 name: 'swap',
+                outputs: [
+                ],
+                payable: false,
+                stateMutability: 'nonpayable',
+                type: 'function',
+            },
+            { 
+                constant: false,
+                inputs: [
+                    {
+                        name: 'newOwner',
+                        type: 'address',
+                    },
+                ],
+                name: 'transferOwnership',
                 outputs: [
                 ],
                 payable: false,
@@ -401,15 +449,11 @@ public static async deployFrom0xArtifactAsync(
             },
         }
     };
-    public init(
-            rhoNumerator: BigNumber,
-            rhoDenominator: BigNumber,
+    public initState(
     ): ContractTxFunctionObj<void
 > {
         const self = this as any as ScamContract;
-            assert.isBigNumber('rhoNumerator', rhoNumerator);
-            assert.isBigNumber('rhoDenominator', rhoDenominator);
-        const functionSignature = 'init(uint256,uint256)';
+        const functionSignature = 'initState()';
 
         return {
             async sendTransactionAsync(
@@ -451,9 +495,30 @@ public static async deployFrom0xArtifactAsync(
             >(rawCallResult);
             },
             getABIEncodedTransactionData(): string {
-                return self._strictEncodeArguments(functionSignature, [rhoNumerator,
-            rhoDenominator
-            ]);
+                return self._strictEncodeArguments(functionSignature, []);
+            },
+        }
+    };
+    public owner(
+    ): ContractFunctionObj<string
+> {
+        const self = this as any as ScamContract;
+        const functionSignature = 'owner()';
+
+        return {
+            async callAsync(
+                callData: Partial<CallData> = {},
+                defaultBlock?: BlockParam,
+            ): Promise<string
+            > {
+                BaseContract._assertCallParams(callData, defaultBlock);
+                const rawCallResult = await self._performCallAsync({ ...callData, data: this.getABIEncodedTransactionData() }, defaultBlock);
+                const abiEncoder = self._lookupAbiEncoder(functionSignature);
+                return abiEncoder.strictDecodeReturnValue<string
+            >(rawCallResult);
+            },
+            getABIEncodedTransactionData(): string {
+                return self._strictEncodeArguments(functionSignature, []);
             },
         }
     };
@@ -565,6 +630,59 @@ public static async deployFrom0xArtifactAsync(
                 return self._strictEncodeArguments(functionSignature, [fromToken.toLowerCase(),
             toToken.toLowerCase(),
             amount
+            ]);
+            },
+        }
+    };
+    public transferOwnership(
+            newOwner: string,
+    ): ContractTxFunctionObj<void
+> {
+        const self = this as any as ScamContract;
+            assert.isString('newOwner', newOwner);
+        const functionSignature = 'transferOwnership(address)';
+
+        return {
+            async sendTransactionAsync(
+                txData?: Partial<TxData> | undefined,
+                opts: SendTransactionOpts = { shouldValidate: true },
+            ): Promise<string> {
+                const txDataWithDefaults = await self._applyDefaultsToTxDataAsync(
+                    { ...txData, data: this.getABIEncodedTransactionData() },
+                    this.estimateGasAsync.bind(this),
+                );
+                if (opts.shouldValidate !== false) {
+                    await this.callAsync(txDataWithDefaults);
+                }
+                return self._web3Wrapper.sendTransactionAsync(txDataWithDefaults);
+            },
+            awaitTransactionSuccessAsync(
+                txData?: Partial<TxData>,
+                opts: AwaitTransactionSuccessOpts = { shouldValidate: true },
+            ): PromiseWithTransactionHash<TransactionReceiptWithDecodedLogs> {
+                return self._promiseWithTransactionHash(this.sendTransactionAsync(txData, opts), opts);
+            },
+            async estimateGasAsync(
+                txData?: Partial<TxData> | undefined,
+            ): Promise<number> {
+                const txDataWithDefaults = await self._applyDefaultsToTxDataAsync(
+                    { ...txData, data: this.getABIEncodedTransactionData() }
+                );
+                return self._web3Wrapper.estimateGasAsync(txDataWithDefaults);
+            },
+            async callAsync(
+                callData: Partial<CallData> = {},
+                defaultBlock?: BlockParam,
+            ): Promise<void
+            > {
+                BaseContract._assertCallParams(callData, defaultBlock);
+                const rawCallResult = await self._performCallAsync({ ...callData, data: this.getABIEncodedTransactionData() }, defaultBlock);
+                const abiEncoder = self._lookupAbiEncoder(functionSignature);
+                return abiEncoder.strictDecodeReturnValue<void
+            >(rawCallResult);
+            },
+            getABIEncodedTransactionData(): string {
+                return self._strictEncodeArguments(functionSignature, [newOwner.toLowerCase()
             ]);
             },
         }
