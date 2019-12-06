@@ -7,7 +7,7 @@ import {
     ContractTxFunctionObj,
     SendTransactionOpts,
     BaseContract,
-    PromiseWithTransactionHash,
+    SubscriptionManager,PromiseWithTransactionHash,
     methodAbiToFunctionSignature,
 } from '@0x/base-contract';
 import { schemas } from '@0x/json-schemas';
@@ -19,6 +19,7 @@ import {
     ContractAbi,
     ContractArtifact,
     DecodedLogArgs,
+    LogWithDecodedArgs,
     MethodAbi,
     TransactionReceiptWithDecodedLogs,
     TxData,
@@ -33,6 +34,21 @@ import * as ethers from 'ethers';
 // tslint:enable:no-unused-variable
 
 
+export type LibScamMathEventArgs =
+    | LibScamMathTestMidpointOnBondCurveEventArgs;
+
+export enum LibScamMathEvents {
+    TestMidpointOnBondCurve = 'TestMidpointOnBondCurve',
+}
+
+export interface LibScamMathTestMidpointOnBondCurveEventArgs extends DecodedLogArgs {
+    a: BigNumber;
+    b: BigNumber;
+    pBarA: BigNumber;
+    rhoRatio: BigNumber;
+    result: BigNumber;
+}
+
 
 /* istanbul ignore next */
 // tslint:disable:no-parameter-reassignment
@@ -44,6 +60,7 @@ export class LibScamMathContract extends BaseContract {
 public static deployedBytecode: string | undefined;
 public static contractName = 'LibScamMath';
     private readonly _methodABIIndex: { [name: string]: number } = {};
+private readonly _subscriptionManager: SubscriptionManager<LibScamMathEventArgs, LibScamMathEvents>;
 public static async deployFrom0xArtifactAsync(
         artifact: ContractArtifact | SimpleContractArtifact,
         supportedProvider: SupportedProvider,
@@ -115,6 +132,40 @@ public static async deployFrom0xArtifactAsync(
      */
     public static ABI(): ContractAbi {
         const abi = [
+            { 
+                anonymous: false,
+                inputs: [
+                    {
+                        name: 'a',
+                        type: 'int256',
+                        indexed: false,
+                    },
+                    {
+                        name: 'b',
+                        type: 'int256',
+                        indexed: false,
+                    },
+                    {
+                        name: 'pBarA',
+                        type: 'int256',
+                        indexed: false,
+                    },
+                    {
+                        name: 'rhoRatio',
+                        type: 'int256',
+                        indexed: false,
+                    },
+                    {
+                        name: 'result',
+                        type: 'int256',
+                        indexed: false,
+                    },
+                ],
+                name: 'TestMidpointOnBondCurve',
+                outputs: [
+                ],
+                type: 'event',
+            },
         ] as ContractAbi;
         return abi;
     }
@@ -147,7 +198,74 @@ public static async deployFrom0xArtifactAsync(
     }
 
 
-
+    /**
+     * Subscribe to an event type emitted by the LibScamMath contract.
+     * @param eventName The LibScamMath contract event you would like to subscribe to.
+     * @param indexFilterValues An object where the keys are indexed args returned by the event and
+     * the value is the value you are interested in. E.g `{maker: aUserAddressHex}`
+     * @param callback Callback that gets called when a log is added/removed
+     * @param isVerbose Enable verbose subscription warnings (e.g recoverable network issues encountered)
+     * @return Subscription token used later to unsubscribe
+     */
+    public subscribe<ArgsType extends LibScamMathEventArgs>(
+        eventName: LibScamMathEvents,
+        indexFilterValues: IndexedFilterValues,
+        callback: EventCallback<ArgsType>,
+        isVerbose: boolean = false,
+        blockPollingIntervalMs?: number,
+    ): string {
+        assert.doesBelongToStringEnum('eventName', eventName, LibScamMathEvents);
+        assert.doesConformToSchema('indexFilterValues', indexFilterValues, schemas.indexFilterValuesSchema);
+        assert.isFunction('callback', callback);
+        const subscriptionToken = this._subscriptionManager.subscribe<ArgsType>(
+            this.address,
+            eventName,
+            indexFilterValues,
+            LibScamMathContract.ABI(),
+            callback,
+            isVerbose,
+            blockPollingIntervalMs,
+        );
+        return subscriptionToken;
+    }
+    /**
+     * Cancel a subscription
+     * @param subscriptionToken Subscription token returned by `subscribe()`
+     */
+    public unsubscribe(subscriptionToken: string): void {
+        this._subscriptionManager.unsubscribe(subscriptionToken);
+    }
+    /**
+     * Cancels all existing subscriptions
+     */
+    public unsubscribeAll(): void {
+        this._subscriptionManager.unsubscribeAll();
+    }
+    /**
+     * Gets historical logs without creating a subscription
+     * @param eventName The LibScamMath contract event you would like to subscribe to.
+     * @param blockRange Block range to get logs from.
+     * @param indexFilterValues An object where the keys are indexed args returned by the event and
+     * the value is the value you are interested in. E.g `{_from: aUserAddressHex}`
+     * @return Array of logs that match the parameters
+     */
+    public async getLogsAsync<ArgsType extends LibScamMathEventArgs>(
+        eventName: LibScamMathEvents,
+        blockRange: BlockRange,
+        indexFilterValues: IndexedFilterValues,
+    ): Promise<Array<LogWithDecodedArgs<ArgsType>>> {
+        assert.doesBelongToStringEnum('eventName', eventName, LibScamMathEvents);
+        assert.doesConformToSchema('blockRange', blockRange, schemas.blockRangeSchema);
+        assert.doesConformToSchema('indexFilterValues', indexFilterValues, schemas.indexFilterValuesSchema);
+        const logs = await this._subscriptionManager.getLogsAsync<ArgsType>(
+            this.address,
+            eventName,
+            blockRange,
+            indexFilterValues,
+            LibScamMathContract.ABI(),
+        );
+        return logs;
+    }
     constructor(
         address: string,
         supportedProvider: SupportedProvider,
@@ -157,6 +275,10 @@ public static async deployFrom0xArtifactAsync(
     ) {
         super('LibScamMath', LibScamMathContract.ABI(), address, supportedProvider, txDefaults, logDecodeDependencies, deployedBytecode);
         classUtils.bindAll(this, ['_abiEncoderByFunctionSignature', 'address', '_web3Wrapper']);
+this._subscriptionManager = new SubscriptionManager<LibScamMathEventArgs, LibScamMathEvents>(
+            LibScamMathContract.ABI(),
+            this._web3Wrapper,
+        );
 LibScamMathContract.ABI().forEach((item, index) => {
             if (item.type === 'function') {
                 const methodAbi = item as MethodAbi;

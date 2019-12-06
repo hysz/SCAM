@@ -53,12 +53,19 @@ library LibFixedMath {
 
     /// @dev Returns the multiplication of two fixed point numbers, reverting on overflow.
     function mul(int256 a, int256 b) internal pure returns (int256 c) {
-        c = (_mul(a / 10**10, b / 10**10) * 10**10) / FIXED_1;
+        int256 base = FIXED_1;
+        if (b != 0) {
+            b /= 2**40;
+            base = 2**87;
+        }
+
+        int256 product = _mul(a, b);
+        c = product / base;
     }
 
     /// @dev Returns the division of two fixed point numbers.
     function div(int256 a, int256 b) internal pure returns (int256 c) {
-        c = _div(_mul(a / 10**10, FIXED_1 / 10**10) * 10**10, b);
+        c = _div(_mul(a, FIXED_1 / 2**40), b) * 2**40;
     }
 
     /// @dev Performs (a * n) / d, without scaling for precision.
@@ -311,7 +318,7 @@ library LibFixedMath {
 
     /// @dev Returns the multiplication two numbers, reverting on overflow.
     function _mul(int256 a, int256 b) private pure returns (int256 c) {
-        if (a == 0) {
+        if (a == 0 || b == 0) {
             return 0;
         }
         c = a * b;

@@ -54,7 +54,7 @@ contract Swapper is
             state
         );
 
-        revert('greg');
+        return;
 
         // Compute about of `tokenB`
         int256 deltaB = deltaA
@@ -127,7 +127,7 @@ contract Swapper is
             state.rhoRatio
         );
 
-        revert('greg');
+        return int256(0);
 
         // Compute initial bounds.
         int256 lowerBound = 0;

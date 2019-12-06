@@ -22,6 +22,12 @@ blockchainTests('Test Scam', env => {
         it('runBasicTest', async () => {
             const tx = await testContract.runBasicTest().awaitTransactionSuccessAsync();
             console.log(JSON.stringify(tx, null, 4));
+
+            console.log((tx.logs[0] as any).args.a.toString(10));
+            console.log((tx.logs[0] as any).args.b.toString(10));
+            console.log((tx.logs[0] as any).args.pBarA.toString(10));
+            console.log((tx.logs[0] as any).args.rhoRatio.toString(10));
+            console.log((tx.logs[0] as any).args.result.toString(10));
         });
     });
 });

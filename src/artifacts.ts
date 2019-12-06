@@ -5,6 +5,7 @@
  */
 import {ContractArtifact} from 'ethereum-types';
 
+import * as FixidityLib from '../generated-artifacts/FixidityLib.json';
 import * as IERC20 from '../generated-artifacts/IERC20.json';
 import * as IEvents from '../generated-artifacts/IEvents.json';
 import * as IStructs from '../generated-artifacts/IStructs.json';
@@ -12,6 +13,7 @@ import * as LibFixedMath from '../generated-artifacts/LibFixedMath.json';
 import * as LibSafeMath from '../generated-artifacts/LibSafeMath.json';
 import * as LibScamMath from '../generated-artifacts/LibScamMath.json';
 import * as Liquidity from '../generated-artifacts/Liquidity.json';
+import * as LogarithmLib from '../generated-artifacts/LogarithmLib.json';
 import * as Scam from '../generated-artifacts/Scam.json';
 import * as State from '../generated-artifacts/State.json';
 import * as Swapper from '../generated-artifacts/Swapper.json';
@@ -25,9 +27,11 @@ export const artifacts = {
     IERC20: IERC20 as ContractArtifact,
     IEvents: IEvents as ContractArtifact,
     IStructs: IStructs as ContractArtifact,
+    FixidityLib: FixidityLib as ContractArtifact,
     LibFixedMath: LibFixedMath as ContractArtifact,
     LibSafeMath: LibSafeMath as ContractArtifact,
     LibScamMath: LibScamMath as ContractArtifact,
+    LogarithmLib: LogarithmLib as ContractArtifact,
     TestLibScamMath: TestLibScamMath as ContractArtifact,
     TestScam: TestScam as ContractArtifact,
 };

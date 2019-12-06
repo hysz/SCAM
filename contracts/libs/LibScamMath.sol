@@ -7,6 +7,14 @@ library LibScamMath {
 
     using LibFixedMath for int256;
 
+    event TestMidpointOnBondCurve(
+        int256 a,
+        int256 b,
+        int256 pBarA,
+        int256 rhoRatio,
+        int256 result
+    );
+
     /// @dev computes midpoint, inputs are all fixed point values.
     function computeMidpointOnBondCurve(
         int256 a,
@@ -17,18 +25,33 @@ library LibScamMath {
         internal
         returns (int256 midpoint)
     {
+        int term1 = rhoRatio.sub(LibFixedMath.one());
+        int term2 = pBarA.mul(a).div(b).ln();
+        int term3 = term1.mul(term2);
+        int term4 = term3.exp();
+        int result = pBarA.mul(term4);
+
+        emit TestMidpointOnBondCurve(
+            a,
+            b,
+            pBarA,
+            rhoRatio,
+            result.toInteger()
+        );
+
+        return result;
+
+
+
+        /*
         return pBarA.mul(
             LibFixedMath.one().sub(rhoRatio)
             .mul(b.div(pBarA.mul(a)).ln())
             .exp()
         );
-
-        /*
-        return pBarA.mul(
-            b.div(pBarA)
-            .exp(LibFixedMath.one().sub(rhoRatio))
-        );
         */
+
+
     }
 
     function computeMidpoint(
