@@ -316,7 +316,6 @@ export default function ExchangePage({ initialCurrency, sending = false, params 
   const inputExchangeContract = useExchangeContract(inputExchangeAddress)
   const outputExchangeContract = useExchangeContract(outputExchangeAddress)
   const scamContract = useScamContract(SCAM_ADDRESSES[networkId])
-  const contract = swapType === ETH_TO_TOKEN ? outputExchangeContract : inputExchangeContract
 
   // get input allowance
   const inputAllowance = useAddressAllowance(account, inputCurrency, inputExchangeAddress)
@@ -348,6 +347,12 @@ export default function ExchangePage({ initialCurrency, sending = false, params 
   const inputValueFormatted = independentField === INPUT ? independentValue : dependentValueFormatted
   const outputValueParsed = independentField === OUTPUT ? independentValueParsed : dependentValue
   const outputValueFormatted = independentField === OUTPUT ? independentValue : dependentValueFormatted
+
+  let calculatedOutputFormatted = '1.045'
+  if (inputValueParsed) {
+    // TODO actually calculate, quickly with an eth_call
+    calculatedOutputFormatted = new BigNumber(inputValueFormatted.toString()).times(1.045).toString()
+  }
 
   // validate + parse independent value
   const [independentError, setIndependentError] = useState()
@@ -456,7 +461,6 @@ export default function ExchangePage({ initialCurrency, sending = false, params 
         }
       }
     } else if (swapType === TOKEN_TO_TOKEN) {
-      console.log('TOKEN TO TOKEN SWAP')
       const reserveETHFirst = inputReserveETH
       const reserveTokenFirst = inputReserveToken
 
@@ -560,6 +564,10 @@ export default function ExchangePage({ initialCurrency, sending = false, params 
   }
 
   async function onSwap() {
+    console.log('input currency', inputCurrency)
+    console.log('output currency', outputCurrency)
+    console.log('inputValueParsed', inputValueParsed.toString())
+    console.log('scamContract', scamContract.address)
     scamContract
       .swap(inputCurrency, outputCurrency, new BigNumber(inputValueParsed.toString()))
       .sendTransactionAsync({ gas: 9000000 })
@@ -703,7 +711,8 @@ export default function ExchangePage({ initialCurrency, sending = false, params 
         }}
         selectedTokens={[inputCurrency, outputCurrency]}
         selectedTokenAddress={outputCurrency}
-        value={inputValueParsed ? '1.0145' : outputValueFormatted}
+        value={inputValueParsed ? calculatedOutputFormatted : outputValueFormatted}
+        // disabled={true}
         errorMessage={independentField === OUTPUT ? independentError : ''}
         disableUnlock
       />
