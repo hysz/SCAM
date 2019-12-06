@@ -38,6 +38,12 @@ contract TestScam is
             gState.yAddress,
             10000
         );
+
+        swap(
+            gState.yAddress,
+            gState.xAddress,
+            10000
+        );
     }
 
 

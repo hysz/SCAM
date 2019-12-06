@@ -23,7 +23,7 @@ library LibScamMath {
         int256 rhoRatio
     )
         internal
-        returns (int256 midpoint)
+        returns (int256 result)
     {
         int term0 = pBarA.mul(a);
         int term1A = b.div(term0);
