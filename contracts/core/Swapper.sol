@@ -65,49 +65,43 @@ contract Swapper is
         deltaB = int256(0).sub(deltaB); // negate
 
         // Edge Cases
+        int256 epsilon = LibFixedMath.toFixed(int256(1), int256(100000)); // Good for USDC, may vary w token.
         if (deltaB > 0) {
             deltaB = 0;
-        } /* else if (b.add(deltaB) <= 10^-10) { @todo add
-            deltaB = 10^-10 - b;
+        } else if (b.add(deltaB) <= epsilon) {
+            deltaB = epsilon.sub(b);
         }
-        */
 
+        // Handle additional edge cases
+        int256 newPBarX = LibScamMath.computeNewPBarA(
+            state.t,
+            _getCurrentBlockNumber(),
+            state.beta,
+            pA,
+            state.pBarX
+        );
+        if (newPBarX > state.eToKappa.mul(pBarA)) {
+            newPBarX = state.eToKappa.mul(pBarA);
+        } else if(newPBarX < LibFixedMath.one().div(state.eToKappa).mul(pBarA)) {
+            newPBarX = LibFixedMath.one().div(state.eToKappa).mul(pBarA);
+        }
 
+        emit Price(
+            price,
+            deltaB,
+            newPBarX
+        );
 
-        // @TODO: Handle additional edge cases
-
-
-        // Update balances
+        // Update state
+        state.t = _getCurrentBlockNumber();
         if (fromIsX) {
-            int256 newPBarX = LibScamMath.computeNewPBarA(
-                //state.t,
-                //block.number,
-                0,
-                570,
-                state.beta,
-                pA,
-                state.pBarX
-            );
-
-            emit Price(
-                price,
-                deltaB,
-                newPBarX
-            );
-
             state.x = a.add(deltaA);
             state.y = b.add(deltaB);
-            /*
-                delta_p_bar_x = (sell_token_id == 'X') * (p_bar_a_prime - p_bar_x) + ...
-                (sell_token_id == 'Y') * (1/p_bar_a_prime - p_bar_x);
-            */
-            // gState.pBarX = ...
-            // gState.pBarXIneverted = ...
+            state.pBarX = newPBarX;
         } else {
             state.x = b.add(deltaB);
             state.y = a.add(deltaA);
-            // gState.pBarX = ...
-            // gState.pBarXIneverted = ...
+            state.pBarX = LibFixedMath.one().div(newPBarX);
         }
 
         // Update state
@@ -123,7 +117,7 @@ contract Swapper is
             fromToken,
             toToken,
             uint256(deltaA),
-            uint256(deltaB)
+            uint256(-deltaB)
         );
     }
 
@@ -179,5 +173,12 @@ contract Swapper is
         }
 
         return (pA, lowerBound);
+    }
+
+    function _getCurrentBlockNumber()
+        internal
+        returns (uint256)
+    {
+        return block.number;
     }
 }

@@ -35,4 +35,11 @@ contract TestScam is
 
         swap(gState.xAddress, gState.yAddress, 10000);
     }
+
+    function _getCurrentBlockNumber()
+        internal
+        returns (uint256)
+    {
+        return 570;
+    }
 }
