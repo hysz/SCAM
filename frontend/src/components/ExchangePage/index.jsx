@@ -568,16 +568,18 @@ export default function ExchangePage({ initialCurrency, sending = false, params 
   const highSlippageWarning = null
   const percentSlippageFormatted = null
   if (inputValueParsed) {
-    scamContract
-      .swap(inputCurrency, outputCurrency, new BigNumber(inputValueParsed.toString()))
-      .callAsync()
-      .then(response => {
-        dispatchSwapState({
-          type: 'UPDATE_CALCULATED_AMOUNT',
-          payload: amountFormatter(response, outputDecimals, 3, false)
+    try {
+      scamContract
+        .swap(inputCurrency, outputCurrency, new BigNumber(inputValueParsed.toString()))
+        .callAsync()
+        .then(response => {
+          dispatchSwapState({
+            type: 'UPDATE_CALCULATED_AMOUNT',
+            payload: amountFormatter(response, outputDecimals, 3, false)
+          })
+          console.log(response)
         })
-        console.log(response)
-      })
+    } catch {}
   }
 
   return (
