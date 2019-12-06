@@ -47,25 +47,19 @@ import { ScamContract } from '../generated-wrappers/scam';
         new BigNumber(0),
         // new BigNumber(2).pow(256).minus(1),
     );
-    await scamContract
-        .init(new BigNumber(99), new BigNumber(100), daiContract.address, usdcContract.address)
-        .awaitTransactionSuccessAsync(txDefaults);
+    await scamContract.initState(daiContract.address, usdcContract.address).awaitTransactionSuccessAsync(txDefaults);
 
-    await usdcContract.mint(Web3Wrapper.toBaseUnitAmount(new BigNumber(1000), 6)).awaitTransactionSuccessAsync();
-    await daiContract.mint(Web3Wrapper.toBaseUnitAmount(new BigNumber(1000), 18)).awaitTransactionSuccessAsync();
+    await usdcContract.mint(Web3Wrapper.toBaseUnitAmount(new BigNumber(5000), 6)).awaitTransactionSuccessAsync();
+    await daiContract.mint(Web3Wrapper.toBaseUnitAmount(new BigNumber(5000), 18)).awaitTransactionSuccessAsync();
     await usdcContract.approve(scamContract.address, new BigNumber(2).pow(256).minus(1)).awaitTransactionSuccessAsync();
     await daiContract.approve(scamContract.address, new BigNumber(2).pow(256).minus(1)).awaitTransactionSuccessAsync();
     console.log('adding liquidity');
+    const daiAmount = 500;
+    const usdcAmount = 1000;
     await scamContract
         .addLiquidity(
-            Web3Wrapper.toBaseUnitAmount(new BigNumber(1), 18),
-            Web3Wrapper.toBaseUnitAmount(new BigNumber(1), 6),
-        )
-        .awaitTransactionSuccessAsync();
-    await scamContract
-        .addLiquidity(
-            Web3Wrapper.toBaseUnitAmount(new BigNumber(100), 18),
-            Web3Wrapper.toBaseUnitAmount(new BigNumber(100), 6),
+            Web3Wrapper.toBaseUnitAmount(new BigNumber(daiAmount), 18),
+            Web3Wrapper.toBaseUnitAmount(new BigNumber(usdcAmount), 6),
         )
         .awaitTransactionSuccessAsync();
     // {

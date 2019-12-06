@@ -78,22 +78,22 @@ var utils_1 = require("@0x/utils");
 var web3_wrapper_1 = require("@0x/web3-wrapper");
 var assert_1 = require("@0x/assert");
 var ethers = require("ethers");
-var LibScamMathEvents;
-(function (LibScamMathEvents) {
-    LibScamMathEvents["TestMidpointOnBondCurve"] = "TestMidpointOnBondCurve";
-})(LibScamMathEvents = exports.LibScamMathEvents || (exports.LibScamMathEvents = {}));
+var OwnableEvents;
+(function (OwnableEvents) {
+    OwnableEvents["OwnershipTransferred"] = "OwnershipTransferred";
+})(OwnableEvents = exports.OwnableEvents || (exports.OwnableEvents = {}));
 /* istanbul ignore next */
 // tslint:disable:no-parameter-reassignment
 // tslint:disable-next-line:class-name
-var LibScamMathContract = /** @class */ (function (_super) {
-    __extends(LibScamMathContract, _super);
-    function LibScamMathContract(address, supportedProvider, txDefaults, logDecodeDependencies, deployedBytecode) {
-        if (deployedBytecode === void 0) { deployedBytecode = LibScamMathContract.deployedBytecode; }
-        var _this = _super.call(this, 'LibScamMath', LibScamMathContract.ABI(), address, supportedProvider, txDefaults, logDecodeDependencies, deployedBytecode) || this;
+var OwnableContract = /** @class */ (function (_super) {
+    __extends(OwnableContract, _super);
+    function OwnableContract(address, supportedProvider, txDefaults, logDecodeDependencies, deployedBytecode) {
+        if (deployedBytecode === void 0) { deployedBytecode = OwnableContract.deployedBytecode; }
+        var _this = _super.call(this, 'Ownable', OwnableContract.ABI(), address, supportedProvider, txDefaults, logDecodeDependencies, deployedBytecode) || this;
         _this._methodABIIndex = {};
         utils_1.classUtils.bindAll(_this, ['_abiEncoderByFunctionSignature', 'address', '_web3Wrapper']);
-        _this._subscriptionManager = new base_contract_1.SubscriptionManager(LibScamMathContract.ABI(), _this._web3Wrapper);
-        LibScamMathContract.ABI().forEach(function (item, index) {
+        _this._subscriptionManager = new base_contract_1.SubscriptionManager(OwnableContract.ABI(), _this._web3Wrapper);
+        OwnableContract.ABI().forEach(function (item, index) {
             if (item.type === 'function') {
                 var methodAbi = item;
                 _this._methodABIIndex[methodAbi.name] = index;
@@ -101,7 +101,7 @@ var LibScamMathContract = /** @class */ (function (_super) {
         });
         return _this;
     }
-    LibScamMathContract.deployFrom0xArtifactAsync = function (artifact, supportedProvider, txDefaults, logDecodeDependencies) {
+    OwnableContract.deployFrom0xArtifactAsync = function (artifact, supportedProvider, txDefaults, logDecodeDependencies) {
         return __awaiter(this, void 0, void 0, function () {
             var e_1, _a, provider, bytecode, abi, logDecodeDependenciesAbiOnly, _b, _c, key;
             return __generator(this, function (_d) {
@@ -132,11 +132,11 @@ var LibScamMathContract = /** @class */ (function (_super) {
                         finally { if (e_1) throw e_1.error; }
                     }
                 }
-                return [2 /*return*/, LibScamMathContract.deployAsync(bytecode, abi, provider, txDefaults, logDecodeDependenciesAbiOnly)];
+                return [2 /*return*/, OwnableContract.deployAsync(bytecode, abi, provider, txDefaults, logDecodeDependenciesAbiOnly)];
             });
         });
     };
-    LibScamMathContract.deployAsync = function (bytecode, abi, supportedProvider, txDefaults, logDecodeDependencies) {
+    OwnableContract.deployAsync = function (bytecode, abi, supportedProvider, txDefaults, logDecodeDependencies) {
         return __awaiter(this, void 0, void 0, function () {
             var provider, constructorAbi, iface, deployInfo, txData, web3Wrapper, txDataWithDefaults, txHash, txReceipt, contractInstance;
             return __generator(this, function (_a) {
@@ -165,8 +165,8 @@ var LibScamMathContract = /** @class */ (function (_super) {
                         return [4 /*yield*/, web3Wrapper.awaitTransactionSuccessAsync(txHash)];
                     case 3:
                         txReceipt = _a.sent();
-                        utils_1.logUtils.log("LibScamMath successfully deployed at " + txReceipt.contractAddress);
-                        contractInstance = new LibScamMathContract(txReceipt.contractAddress, provider, txDefaults, logDecodeDependencies);
+                        utils_1.logUtils.log("Ownable successfully deployed at " + txReceipt.contractAddress);
+                        contractInstance = new OwnableContract(txReceipt.contractAddress, provider, txDefaults, logDecodeDependencies);
                         contractInstance.constructorArgs = [];
                         return [2 /*return*/, contractInstance];
                 }
@@ -176,118 +176,230 @@ var LibScamMathContract = /** @class */ (function (_super) {
     /**
      * @returns      The contract ABI
      */
-    LibScamMathContract.ABI = function () {
+    OwnableContract.ABI = function () {
         var abi = [
+            {
+                inputs: [],
+                outputs: [],
+                payable: false,
+                stateMutability: 'nonpayable',
+                type: 'constructor',
+            },
             {
                 anonymous: false,
                 inputs: [
                     {
-                        name: 'a',
-                        type: 'int256',
+                        name: 'oldOwner',
+                        type: 'address',
                         indexed: false,
                     },
                     {
-                        name: 'b',
-                        type: 'int256',
-                        indexed: false,
-                    },
-                    {
-                        name: 'pBarA',
-                        type: 'int256',
-                        indexed: false,
-                    },
-                    {
-                        name: 'rhoRatio',
-                        type: 'int256',
-                        indexed: false,
-                    },
-                    {
-                        name: 'result',
-                        type: 'int256',
+                        name: 'newOwner',
+                        type: 'address',
                         indexed: false,
                     },
                 ],
-                name: 'TestMidpointOnBondCurve',
+                name: 'OwnershipTransferred',
                 outputs: [],
                 type: 'event',
+            },
+            {
+                constant: true,
+                inputs: [],
+                name: 'owner',
+                outputs: [
+                    {
+                        name: '',
+                        type: 'address',
+                    },
+                ],
+                payable: false,
+                stateMutability: 'view',
+                type: 'function',
+            },
+            {
+                constant: false,
+                inputs: [
+                    {
+                        name: 'newOwner',
+                        type: 'address',
+                    },
+                ],
+                name: 'transferOwnership',
+                outputs: [],
+                payable: false,
+                stateMutability: 'nonpayable',
+                type: 'function',
             },
         ];
         return abi;
     };
-    LibScamMathContract.prototype.getFunctionSignature = function (methodName) {
+    OwnableContract.prototype.getFunctionSignature = function (methodName) {
         var index = this._methodABIIndex[methodName];
-        var methodAbi = LibScamMathContract.ABI()[index]; // tslint:disable-line:no-unnecessary-type-assertion
+        var methodAbi = OwnableContract.ABI()[index]; // tslint:disable-line:no-unnecessary-type-assertion
         var functionSignature = base_contract_1.methodAbiToFunctionSignature(methodAbi);
         return functionSignature;
     };
-    LibScamMathContract.prototype.getABIDecodedTransactionData = function (methodName, callData) {
+    OwnableContract.prototype.getABIDecodedTransactionData = function (methodName, callData) {
         var functionSignature = this.getFunctionSignature(methodName);
         var self = this;
         var abiEncoder = self._lookupAbiEncoder(functionSignature);
         var abiDecodedCallData = abiEncoder.strictDecode(callData);
         return abiDecodedCallData;
     };
-    LibScamMathContract.prototype.getABIDecodedReturnData = function (methodName, callData) {
+    OwnableContract.prototype.getABIDecodedReturnData = function (methodName, callData) {
         var functionSignature = this.getFunctionSignature(methodName);
         var self = this;
         var abiEncoder = self._lookupAbiEncoder(functionSignature);
         var abiDecodedCallData = abiEncoder.strictDecodeReturnValue(callData);
         return abiDecodedCallData;
     };
-    LibScamMathContract.prototype.getSelector = function (methodName) {
+    OwnableContract.prototype.getSelector = function (methodName) {
         var functionSignature = this.getFunctionSignature(methodName);
         var self = this;
         var abiEncoder = self._lookupAbiEncoder(functionSignature);
         return abiEncoder.getSelector();
     };
+    OwnableContract.prototype.owner = function () {
+        var self = this;
+        var functionSignature = 'owner()';
+        return {
+            callAsync: function (callData, defaultBlock) {
+                if (callData === void 0) { callData = {}; }
+                return __awaiter(this, void 0, void 0, function () {
+                    var rawCallResult, abiEncoder;
+                    return __generator(this, function (_a) {
+                        switch (_a.label) {
+                            case 0:
+                                base_contract_1.BaseContract._assertCallParams(callData, defaultBlock);
+                                return [4 /*yield*/, self._performCallAsync(__assign({}, callData, { data: this.getABIEncodedTransactionData() }), defaultBlock)];
+                            case 1:
+                                rawCallResult = _a.sent();
+                                abiEncoder = self._lookupAbiEncoder(functionSignature);
+                                return [2 /*return*/, abiEncoder.strictDecodeReturnValue(rawCallResult)];
+                        }
+                    });
+                });
+            },
+            getABIEncodedTransactionData: function () {
+                return self._strictEncodeArguments(functionSignature, []);
+            },
+        };
+    };
+    ;
+    OwnableContract.prototype.transferOwnership = function (newOwner) {
+        var self = this;
+        assert_1.assert.isString('newOwner', newOwner);
+        var functionSignature = 'transferOwnership(address)';
+        return {
+            sendTransactionAsync: function (txData, opts) {
+                if (opts === void 0) { opts = { shouldValidate: true }; }
+                return __awaiter(this, void 0, void 0, function () {
+                    var txDataWithDefaults;
+                    return __generator(this, function (_a) {
+                        switch (_a.label) {
+                            case 0: return [4 /*yield*/, self._applyDefaultsToTxDataAsync(__assign({}, txData, { data: this.getABIEncodedTransactionData() }), this.estimateGasAsync.bind(this))];
+                            case 1:
+                                txDataWithDefaults = _a.sent();
+                                if (!(opts.shouldValidate !== false)) return [3 /*break*/, 3];
+                                return [4 /*yield*/, this.callAsync(txDataWithDefaults)];
+                            case 2:
+                                _a.sent();
+                                _a.label = 3;
+                            case 3: return [2 /*return*/, self._web3Wrapper.sendTransactionAsync(txDataWithDefaults)];
+                        }
+                    });
+                });
+            },
+            awaitTransactionSuccessAsync: function (txData, opts) {
+                if (opts === void 0) { opts = { shouldValidate: true }; }
+                return self._promiseWithTransactionHash(this.sendTransactionAsync(txData, opts), opts);
+            },
+            estimateGasAsync: function (txData) {
+                return __awaiter(this, void 0, void 0, function () {
+                    var txDataWithDefaults;
+                    return __generator(this, function (_a) {
+                        switch (_a.label) {
+                            case 0: return [4 /*yield*/, self._applyDefaultsToTxDataAsync(__assign({}, txData, { data: this.getABIEncodedTransactionData() }))];
+                            case 1:
+                                txDataWithDefaults = _a.sent();
+                                return [2 /*return*/, self._web3Wrapper.estimateGasAsync(txDataWithDefaults)];
+                        }
+                    });
+                });
+            },
+            callAsync: function (callData, defaultBlock) {
+                if (callData === void 0) { callData = {}; }
+                return __awaiter(this, void 0, void 0, function () {
+                    var rawCallResult, abiEncoder;
+                    return __generator(this, function (_a) {
+                        switch (_a.label) {
+                            case 0:
+                                base_contract_1.BaseContract._assertCallParams(callData, defaultBlock);
+                                return [4 /*yield*/, self._performCallAsync(__assign({}, callData, { data: this.getABIEncodedTransactionData() }), defaultBlock)];
+                            case 1:
+                                rawCallResult = _a.sent();
+                                abiEncoder = self._lookupAbiEncoder(functionSignature);
+                                return [2 /*return*/, abiEncoder.strictDecodeReturnValue(rawCallResult)];
+                        }
+                    });
+                });
+            },
+            getABIEncodedTransactionData: function () {
+                return self._strictEncodeArguments(functionSignature, [newOwner.toLowerCase()
+                ]);
+            },
+        };
+    };
+    ;
     /**
-     * Subscribe to an event type emitted by the LibScamMath contract.
-     * @param eventName The LibScamMath contract event you would like to subscribe to.
+     * Subscribe to an event type emitted by the Ownable contract.
+     * @param eventName The Ownable contract event you would like to subscribe to.
      * @param indexFilterValues An object where the keys are indexed args returned by the event and
      * the value is the value you are interested in. E.g `{maker: aUserAddressHex}`
      * @param callback Callback that gets called when a log is added/removed
      * @param isVerbose Enable verbose subscription warnings (e.g recoverable network issues encountered)
      * @return Subscription token used later to unsubscribe
      */
-    LibScamMathContract.prototype.subscribe = function (eventName, indexFilterValues, callback, isVerbose, blockPollingIntervalMs) {
+    OwnableContract.prototype.subscribe = function (eventName, indexFilterValues, callback, isVerbose, blockPollingIntervalMs) {
         if (isVerbose === void 0) { isVerbose = false; }
-        assert_1.assert.doesBelongToStringEnum('eventName', eventName, LibScamMathEvents);
+        assert_1.assert.doesBelongToStringEnum('eventName', eventName, OwnableEvents);
         assert_1.assert.doesConformToSchema('indexFilterValues', indexFilterValues, json_schemas_1.schemas.indexFilterValuesSchema);
         assert_1.assert.isFunction('callback', callback);
-        var subscriptionToken = this._subscriptionManager.subscribe(this.address, eventName, indexFilterValues, LibScamMathContract.ABI(), callback, isVerbose, blockPollingIntervalMs);
+        var subscriptionToken = this._subscriptionManager.subscribe(this.address, eventName, indexFilterValues, OwnableContract.ABI(), callback, isVerbose, blockPollingIntervalMs);
         return subscriptionToken;
     };
     /**
      * Cancel a subscription
      * @param subscriptionToken Subscription token returned by `subscribe()`
      */
-    LibScamMathContract.prototype.unsubscribe = function (subscriptionToken) {
+    OwnableContract.prototype.unsubscribe = function (subscriptionToken) {
         this._subscriptionManager.unsubscribe(subscriptionToken);
     };
     /**
      * Cancels all existing subscriptions
      */
-    LibScamMathContract.prototype.unsubscribeAll = function () {
+    OwnableContract.prototype.unsubscribeAll = function () {
         this._subscriptionManager.unsubscribeAll();
     };
     /**
      * Gets historical logs without creating a subscription
-     * @param eventName The LibScamMath contract event you would like to subscribe to.
+     * @param eventName The Ownable contract event you would like to subscribe to.
      * @param blockRange Block range to get logs from.
      * @param indexFilterValues An object where the keys are indexed args returned by the event and
      * the value is the value you are interested in. E.g `{_from: aUserAddressHex}`
      * @return Array of logs that match the parameters
      */
-    LibScamMathContract.prototype.getLogsAsync = function (eventName, blockRange, indexFilterValues) {
+    OwnableContract.prototype.getLogsAsync = function (eventName, blockRange, indexFilterValues) {
         return __awaiter(this, void 0, void 0, function () {
             var logs;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        assert_1.assert.doesBelongToStringEnum('eventName', eventName, LibScamMathEvents);
+                        assert_1.assert.doesBelongToStringEnum('eventName', eventName, OwnableEvents);
                         assert_1.assert.doesConformToSchema('blockRange', blockRange, json_schemas_1.schemas.blockRangeSchema);
                         assert_1.assert.doesConformToSchema('indexFilterValues', indexFilterValues, json_schemas_1.schemas.indexFilterValuesSchema);
-                        return [4 /*yield*/, this._subscriptionManager.getLogsAsync(this.address, eventName, blockRange, indexFilterValues, LibScamMathContract.ABI())];
+                        return [4 /*yield*/, this._subscriptionManager.getLogsAsync(this.address, eventName, blockRange, indexFilterValues, OwnableContract.ABI())];
                     case 1:
                         logs = _a.sent();
                         return [2 /*return*/, logs];
@@ -295,11 +407,11 @@ var LibScamMathContract = /** @class */ (function (_super) {
             });
         });
     };
-    LibScamMathContract.contractName = 'LibScamMath';
-    return LibScamMathContract;
+    OwnableContract.contractName = 'Ownable';
+    return OwnableContract;
 }(base_contract_1.BaseContract));
-exports.LibScamMathContract = LibScamMathContract;
+exports.OwnableContract = OwnableContract;
 // tslint:disable:max-file-line-count
 // tslint:enable:no-unbound-method no-parameter-reassignment no-consecutive-blank-lines ordered-imports align
 // tslint:enable:trailing-comma whitespace no-trailing-whitespace
-//# sourceMappingURL=lib_scam_math.js.map
+//# sourceMappingURL=ownable.js.map

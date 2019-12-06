@@ -31,10 +31,12 @@ contract Liquidity is
     {
         // Load the contract's state.
         IStructs.State storage state = gState;
+        int256 xAmountFixed = LibFixedMath.toFixed(x_amount, 10**18);
+        int256 yAmountFixed = LibFixedMath.toFixed(y_amount, 10**6);
 
         // Ensure that the amount of x and y that are being deposited are proportional.
        require(
-            x_amount.safeMul(uint256(state.y >> 127)) == y_amount.safeMul(uint256(state.x >> 127)),
+            xAmountFixed.mul(state.y) == yAmountFixed.mul(state.x),
             "Liquidty:Amount deposited not proportional"
         );
 
@@ -53,8 +55,8 @@ contract Liquidity is
         }
 
         // Increase the balances of x and y
-        state.x = LibFixedMath.add(state.x, LibFixedMath.toFixed(x_amount));
-        state.y = LibFixedMath.add(state.y, LibFixedMath.toFixed(y_amount));
+        state.x = LibFixedMath.add(state.x, xAmountFixed);
+        state.y = LibFixedMath.add(state.y, yAmountFixed);
 
         // Grant the liquidity tokens
         state.liquidityBalance[msg.sender] = state.liquidityBalance[msg.sender].safeAdd(

@@ -28,7 +28,7 @@ contract State is
         gState = state;
     }
 
-    function initState()
+    function initState(address xAddress, address yAddress)
         external
         onlyOwner
     {
@@ -37,6 +37,8 @@ contract State is
             'Already Initialized'
         );
 
+        gState.xAddress = xAddress;
+        gState.yAddress = yAddress;
         gState.pBarX = LibFixedMath.toFixed(int256(1));  // initial expected price of X given Y
         gState.rhoNumerator = uint256(99);
         gState.rhoRatio = LibFixedMath.toFixed(uint256(99), uint256(100));

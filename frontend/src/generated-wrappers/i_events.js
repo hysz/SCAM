@@ -81,6 +81,7 @@ var ethers = require("ethers");
 var IEventsEvents;
 (function (IEventsEvents) {
     IEventsEvents["Fill"] = "Fill";
+    IEventsEvents["FillInternal"] = "FillInternal";
 })(IEventsEvents = exports.IEventsEvents || (exports.IEventsEvents = {}));
 /* istanbul ignore next */
 // tslint:disable:no-parameter-reassignment
@@ -208,6 +209,29 @@ var IEventsContract = /** @class */ (function (_super) {
                     },
                 ],
                 name: 'Fill',
+                outputs: [],
+                type: 'event',
+            },
+            {
+                anonymous: false,
+                inputs: [
+                    {
+                        name: 'from',
+                        type: 'address',
+                        indexed: false,
+                    },
+                    {
+                        name: 'amountSpent',
+                        type: 'int256',
+                        indexed: false,
+                    },
+                    {
+                        name: 'amountReceived',
+                        type: 'int256',
+                        indexed: false,
+                    },
+                ],
+                name: 'FillInternal',
                 outputs: [],
                 type: 'event',
             },

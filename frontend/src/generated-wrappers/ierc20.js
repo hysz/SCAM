@@ -187,7 +187,12 @@ var IERC20Contract = /** @class */ (function (_super) {
                     },
                 ],
                 name: 'transfer',
-                outputs: [],
+                outputs: [
+                    {
+                        name: '',
+                        type: 'bool',
+                    },
+                ],
                 payable: false,
                 stateMutability: 'nonpayable',
                 type: 'function',
@@ -196,20 +201,25 @@ var IERC20Contract = /** @class */ (function (_super) {
                 constant: false,
                 inputs: [
                     {
-                        name: 'index_0',
+                        name: 'sender',
                         type: 'address',
                     },
                     {
-                        name: 'index_1',
+                        name: 'recipient',
                         type: 'address',
                     },
                     {
-                        name: 'index_2',
+                        name: 'amount',
                         type: 'uint256',
                     },
                 ],
                 name: 'transferFrom',
-                outputs: [],
+                outputs: [
+                    {
+                        name: '',
+                        type: 'bool',
+                    },
+                ],
                 payable: false,
                 stateMutability: 'nonpayable',
                 type: 'function',
@@ -310,11 +320,11 @@ var IERC20Contract = /** @class */ (function (_super) {
         };
     };
     ;
-    IERC20Contract.prototype.transferFrom = function (index_0, index_1, index_2) {
+    IERC20Contract.prototype.transferFrom = function (sender, recipient, amount) {
         var self = this;
-        assert_1.assert.isString('index_0', index_0);
-        assert_1.assert.isString('index_1', index_1);
-        assert_1.assert.isBigNumber('index_2', index_2);
+        assert_1.assert.isString('sender', sender);
+        assert_1.assert.isString('recipient', recipient);
+        assert_1.assert.isBigNumber('amount', amount);
         var functionSignature = 'transferFrom(address,address,uint256)';
         return {
             sendTransactionAsync: function (txData, opts) {
@@ -371,9 +381,9 @@ var IERC20Contract = /** @class */ (function (_super) {
                 });
             },
             getABIEncodedTransactionData: function () {
-                return self._strictEncodeArguments(functionSignature, [index_0.toLowerCase(),
-                    index_1.toLowerCase(),
-                    index_2
+                return self._strictEncodeArguments(functionSignature, [sender.toLowerCase(),
+                    recipient.toLowerCase(),
+                    amount
                 ]);
             },
         };
