@@ -30,7 +30,7 @@
         "contracts:gen": "contracts-gen generate",
         "contracts:copy": "contracts-gen copy",
         "lint-contracts": "solhint -c ../.solhint.json contracts/**/**/**/**/*.sol",
-        "migrate": "node lib/migrations/migrate.js"
+        "compile:truffle": "truffle compile"
     },
     "repository": {
         "type": "git",
