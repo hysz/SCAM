@@ -22,7 +22,7 @@ contract TestScam is
 
         // From Peter
         gState.x = uint256(100000).toFixed();           // initial balance of Token X
-        gState.y = uint256(100000).toFixed();           // initial balance of Token Y
+        gState.y = uint256(50000).toFixed();            // initial balance of Token Y
         gState.pBarX = uint256(1).toFixed();            // initial expected price of X given Y
         gState.rhoNumerator = uint256(99);
         gState.rhoRatio = LibFixedMath.toFixed(uint256(99), uint256(100));
@@ -33,7 +33,11 @@ contract TestScam is
         );
         gState.eToKappa = LibFixedMath.toFixed(int256(10005), int256(1000));
 
-        swap(gState.xAddress, gState.yAddress, 10000);
+        swap(
+            gState.xAddress,
+            gState.yAddress,
+            10000
+        );
     }
 
     function _getCurrentBlockNumber()

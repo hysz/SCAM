@@ -25,11 +25,37 @@ library LibScamMath {
         internal
         returns (int256 midpoint)
     {
-        int term1 = rhoRatio.sub(LibFixedMath.one());
-        int term2 = pBarA.mul(a).div(b).ln();
+        int term0 = pBarA.mul(a);
+        int term1A = b.div(term0);
+        int term1B = term0.div(b);
+        int term2 = LibFixedMath.one().sub(rhoRatio);
+        int256 result;
+        if (term1A < LibFixedMath.one()) {
+            result = term1A.ln().mul(term2).exp();
+        } else {
+            result = LibFixedMath.one().div(
+                term1B.ln().mul(term2).exp()
+            );
+        }
+        return result;
+
+
+
+/*
+        int term1;
+        int term2;
+        if (term0 < LibFixedMath.one()) {
+            term1 =
+            term2 = term0.ln();
+        } else {
+            term1 = LibFixedMath.one().sub(rhoRatio);
+            term2 = b.div(pBarA.mul(a)).ln();
+        }
+
         int term3 = term1.mul(term2);
         int term4 = term3.exp();
         int result = pBarA.mul(term4);
+        */
 
         emit TestMidpointOnBondCurve(
             a,
