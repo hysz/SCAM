@@ -28,6 +28,11 @@ contract TestScam is
         gState.rhoRatio = LibFixedMath.toFixed(uint256(99), uint256(100));
         gState.fee = LibFixedMath.toFixed(uint256(5), uint256(10000));    // 0.0005
 
+        gState.beta = LibFixedMath.one().sub(
+            LibFixedMath.toFixed(int256(1), int256(1000000))
+        );
+        gState.eToKappa = LibFixedMath.toFixed(int256(10005), int256(1000));
+
         swap(gState.xAddress, gState.yAddress, 10000);
     }
 }

@@ -16,7 +16,7 @@ contract Swapper is
 
     using LibFixedMath for int256;
 
-    event Price(int256 price, int256 deltaB);
+    event Price(int256 price, int256 deltaB, int256 newPBarX);
 
     function swap(
         address fromToken,
@@ -48,7 +48,7 @@ contract Swapper is
         }
 
         // Compute
-        int256 price = _bisect(
+        (int256 pA, int256 price) = _bisect(
             a,
             b,
             pBarA,
@@ -72,13 +72,29 @@ contract Swapper is
         }
         */
 
-        emit Price(price, deltaB);
 
 
         // @TODO: Handle additional edge cases
 
+
         // Update balances
         if (fromIsX) {
+            int256 newPBarX = LibScamMath.computeNewPBarA(
+                //state.t,
+                //block.number,
+                0,
+                570,
+                state.beta,
+                pA,
+                state.pBarX
+            );
+
+            emit Price(
+                price,
+                deltaB,
+                newPBarX
+            );
+
             state.x = a.add(deltaA);
             state.y = b.add(deltaB);
             /*
@@ -125,10 +141,10 @@ contract Swapper is
         IStructs.State memory state
     )
         internal
-        returns (int256 r)
+        returns (int256 pA, int256 r)
     {
         // Compute initial midpoint on bond curve; this will be the initial lower bound.
-        int256 pA = LibScamMath.computeMidpointOnBondCurve(
+        pA = LibScamMath.computeMidpointOnBondCurve(
             a,
             b,
             pBarA,
@@ -162,6 +178,6 @@ contract Swapper is
             }
         }
 
-        return lowerBound;
+        return (pA, lowerBound);
     }
 }

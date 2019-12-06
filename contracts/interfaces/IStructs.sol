@@ -19,6 +19,8 @@ interface IStructs {
         mapping (address => uint256) liquidityBalance;
         uint256 l;                                          // total liquidity token balance
 
+        int256 beta;    // persistence of expercted price - the larger the more persistent
+        int256 eToKappa;   // clamp that prevents the expected price changing by a lot in an expected tx
     }
 
 }

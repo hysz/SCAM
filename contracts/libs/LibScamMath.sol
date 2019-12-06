@@ -42,6 +42,31 @@ library LibScamMath {
         return result;
     }
 
+    function computeNewPBarA(
+        uint256 t,
+        uint256 newT,
+        int256 beta,
+        int256 pA,
+        int256 pBarA
+    )
+        internal
+        returns (int256)
+    {
+        int256 deltaT = LibFixedMath.toFixed(newT - t);
+        int256 betaToDeltaT = deltaT.mul(beta.ln()).exp();
+        int256 oneMinusBToDeltaT = LibFixedMath.one().sub(betaToDeltaT);
+        int256 term1 = pA.mul(oneMinusBToDeltaT);
+        int256 term2 = pBarA.mul(betaToDeltaT);
+
+        int256 term3Denominator = LibFixedMath.add(
+            oneMinusBToDeltaT.div(pA),
+            betaToDeltaT.div(pBarA)
+        );
+        int256 term3 = LibFixedMath.one().div(term3Denominator);
+        int256 result = term1.add(term2).add(term3).div(LibFixedMath.toFixed(int256(2)));
+        return result;
+    }
+
     function computeMidpoint(
         int256 a,
         int256 b
