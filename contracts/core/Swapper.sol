@@ -7,6 +7,7 @@ import "../libs/LibFixedMath.sol";
 import "../libs/LibSafeMath.sol";
 import "../libs/LibScamMath.sol";
 import "../core/State.sol";
+import "../interfaces/IERC20.sol";
 
 
 contract Swapper is
@@ -49,16 +50,15 @@ contract Swapper is
         }
 
         // Make transfers
-        /*
         require(
             IERC20(fromToken).transferFrom(msg.sender, address(this), amount),
             'INSUFFICIENT_FROM_TOKEN_BALANCE'
         );
         require(
-            IERC20(toToken).transferFrom(address(this), msg.sender, amountReceived),
+            // IERC20(toToken).transferFrom(address(this), msg.sender, amountReceived),
+            IERC20(toToken).transfer(msg.sender, amountReceived),
             'INSUFFICIENT_TO_TOKEN_BALANCE'
         );
-        */
 
         // Emit event
         emit IEvents.Fill(
