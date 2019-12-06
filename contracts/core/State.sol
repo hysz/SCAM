@@ -43,7 +43,7 @@ contract State is
             'Already Initialized'
         );
 
-        gState.pBarX = LibFixedMath.toFixed(int256(1));  // initial expected price of X given Y
+        gState.pBarX = LibFixedMath.toFixed(uint256(99), uint256(100));  // initial expected price of X given Y
         gState.rhoNumerator = uint256(99);
         gState.rhoRatio = LibFixedMath.toFixed(uint256(99), uint256(100));
         gState.fee = LibFixedMath.toFixed(uint256(5), uint256(10000));    // 0.0005
