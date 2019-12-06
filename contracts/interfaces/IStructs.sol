@@ -10,7 +10,6 @@ interface IStructs {
         int256 x;                                           // contract's balance of token x (fixed point)
         int256 y;                                           // contract's balance of token y (fixed point)
         int256 pBarX;                                       // expected future price of x in terms of y (fixed point)
-        int256 pBarXInverted;                               // inverted expected future price of x in terms of y (fixed point)
         uint256 rhoNumerator;
         int256 rhoRatio;
         int256 fee;

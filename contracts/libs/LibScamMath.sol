@@ -39,24 +39,6 @@ library LibScamMath {
         }
         return result;
 
-
-
-/*
-        int term1;
-        int term2;
-        if (term0 < LibFixedMath.one()) {
-            term1 =
-            term2 = term0.ln();
-        } else {
-            term1 = LibFixedMath.one().sub(rhoRatio);
-            term2 = b.div(pBarA.mul(a)).ln();
-        }
-
-        int term3 = term1.mul(term2);
-        int term4 = term3.exp();
-        int result = pBarA.mul(term4);
-        */
-
         emit TestMidpointOnBondCurve(
             a,
             b,

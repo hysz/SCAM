@@ -42,7 +42,7 @@ contract Swapper is
         } else if(fromToken == state.yAddress && toToken == state.xAddress) {
             a = state.y;
             b = state.x;
-            pBarA = state.pBarXInverted;
+            pBarA = LibFixedMath.one().div(state.pBarX);
         } else {
             revert("Invalid token addresses");
         }
