@@ -16,7 +16,7 @@ contract Swapper is
 
     using LibFixedMath for int256;
 
-    event Price(int256 price, int256 deltaB, int256 newPBarX);
+    event Price(int256 price, int256 deltaB, int256 newPBarX, int256 pA);
 
     function swap(
         address fromToken,
@@ -89,7 +89,8 @@ contract Swapper is
         emit Price(
             price,
             deltaB,
-            newPBarX
+            newPBarX,
+            pA
         );
 
         // Update state
@@ -153,7 +154,7 @@ contract Swapper is
         int256 aPlusAmount = a.add(deltaA);
 
         //
-        for (uint256 i = 0; i < /*state.bisectionIterations*/ 20; ++i) {
+        for (uint256 i = 0; i < 20; ++i) {
             int256 mid = LibScamMath.computeMidpoint(lowerBound, upperBound);
             int256 lhs1 = LibScamMath.computeBaseToNinetyNine(mid.div(pBarA));
             int256 lhs = aPlusAmount

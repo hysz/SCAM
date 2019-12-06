@@ -13,7 +13,6 @@ interface IStructs {
         uint256 rhoNumerator;
         int256 rhoRatio;
         int256 fee;
-        uint256 bisectionIterations;
         uint256 t;                                          // most recent block
         mapping (address => uint256) liquidityBalance;
         uint256 l;                                          // total liquidity token balance

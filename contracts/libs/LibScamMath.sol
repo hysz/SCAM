@@ -29,15 +29,15 @@ library LibScamMath {
         int term1A = b.div(term0);
         int term1B = term0.div(b);
         int term2 = LibFixedMath.one().sub(rhoRatio);
-        int256 result;
+        int256 term3;
         if (term1A < LibFixedMath.one()) {
-            result = term1A.ln().mul(term2).exp();
+            term3 = term1A.ln().mul(term2).exp();
         } else {
-            result = LibFixedMath.one().div(
+            term3 = LibFixedMath.one().div(
                 term1B.ln().mul(term2).exp()
             );
         }
-        return result;
+        result = term3.mul(pBarA);
 
         emit TestMidpointOnBondCurve(
             a,

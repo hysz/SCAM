@@ -63,6 +63,7 @@ export interface TestScamPriceEventArgs extends DecodedLogArgs {
     price: BigNumber;
     deltaB: BigNumber;
     newPBarX: BigNumber;
+    pA: BigNumber;
 }
 
 
@@ -224,6 +225,11 @@ public static async deployFrom0xArtifactAsync(
                         type: 'int256',
                         indexed: false,
                     },
+                    {
+                        name: 'pA',
+                        type: 'int256',
+                        indexed: false,
+                    },
                 ],
                 name: 'Price',
                 outputs: [
@@ -284,6 +290,17 @@ public static async deployFrom0xArtifactAsync(
                 inputs: [
                 ],
                 name: 'runBasicTest',
+                outputs: [
+                ],
+                payable: false,
+                stateMutability: 'nonpayable',
+                type: 'function',
+            },
+            { 
+                constant: false,
+                inputs: [
+                ],
+                name: 'runBasicTestOld',
                 outputs: [
                 ],
                 payable: false,
@@ -511,6 +528,56 @@ public static async deployFrom0xArtifactAsync(
 > {
         const self = this as any as TestScamContract;
         const functionSignature = 'runBasicTest()';
+
+        return {
+            async sendTransactionAsync(
+                txData?: Partial<TxData> | undefined,
+                opts: SendTransactionOpts = { shouldValidate: true },
+            ): Promise<string> {
+                const txDataWithDefaults = await self._applyDefaultsToTxDataAsync(
+                    { ...txData, data: this.getABIEncodedTransactionData() },
+                    this.estimateGasAsync.bind(this),
+                );
+                if (opts.shouldValidate !== false) {
+                    await this.callAsync(txDataWithDefaults);
+                }
+                return self._web3Wrapper.sendTransactionAsync(txDataWithDefaults);
+            },
+            awaitTransactionSuccessAsync(
+                txData?: Partial<TxData>,
+                opts: AwaitTransactionSuccessOpts = { shouldValidate: true },
+            ): PromiseWithTransactionHash<TransactionReceiptWithDecodedLogs> {
+                return self._promiseWithTransactionHash(this.sendTransactionAsync(txData, opts), opts);
+            },
+            async estimateGasAsync(
+                txData?: Partial<TxData> | undefined,
+            ): Promise<number> {
+                const txDataWithDefaults = await self._applyDefaultsToTxDataAsync(
+                    { ...txData, data: this.getABIEncodedTransactionData() }
+                );
+                return self._web3Wrapper.estimateGasAsync(txDataWithDefaults);
+            },
+            async callAsync(
+                callData: Partial<CallData> = {},
+                defaultBlock?: BlockParam,
+            ): Promise<void
+            > {
+                BaseContract._assertCallParams(callData, defaultBlock);
+                const rawCallResult = await self._performCallAsync({ ...callData, data: this.getABIEncodedTransactionData() }, defaultBlock);
+                const abiEncoder = self._lookupAbiEncoder(functionSignature);
+                return abiEncoder.strictDecodeReturnValue<void
+            >(rawCallResult);
+            },
+            getABIEncodedTransactionData(): string {
+                return self._strictEncodeArguments(functionSignature, []);
+            },
+        }
+    };
+    public runBasicTestOld(
+    ): ContractTxFunctionObj<void
+> {
+        const self = this as any as TestScamContract;
+        const functionSignature = 'runBasicTestOld()';
 
         return {
             async sendTransactionAsync(

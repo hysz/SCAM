@@ -63,6 +63,7 @@ export interface SwapperPriceEventArgs extends DecodedLogArgs {
     price: BigNumber;
     deltaB: BigNumber;
     newPBarX: BigNumber;
+    pA: BigNumber;
 }
 
 
@@ -221,6 +222,11 @@ public static async deployFrom0xArtifactAsync(
                     },
                     {
                         name: 'newPBarX',
+                        type: 'int256',
+                        indexed: false,
+                    },
+                    {
+                        name: 'pA',
                         type: 'int256',
                         indexed: false,
                     },
