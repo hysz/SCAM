@@ -92,7 +92,8 @@ export function useExchangeReserves(tokenAddress) {
   const { exchangeAddress } = useTokenDetails(tokenAddress)
 
   const reserveETH = useAddressBalance(exchangeAddress, 'ETH')
-  const reserveToken = useAddressBalance(exchangeAddress, tokenAddress)
+  const reserveToken = useAddressBalance(exchangeAddress, 'ETH')
+  // const reserveToken = useAddressBalance(exchangeAddress, tokenAddress)
 
   return { reserveETH, reserveToken }
 }

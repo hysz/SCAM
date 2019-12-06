@@ -78,7 +78,10 @@ var utils_1 = require("@0x/utils");
 var web3_wrapper_1 = require("@0x/web3-wrapper");
 var assert_1 = require("@0x/assert");
 var ethers = require("ethers");
-// tslint:enable:no-unused-variable
+var ScamEvents;
+(function (ScamEvents) {
+    ScamEvents["Fill"] = "Fill";
+})(ScamEvents = exports.ScamEvents || (exports.ScamEvents = {}));
 /* istanbul ignore next */
 // tslint:disable:no-parameter-reassignment
 // tslint:disable-next-line:class-name
@@ -89,6 +92,7 @@ var ScamContract = /** @class */ (function (_super) {
         var _this = _super.call(this, 'Scam', ScamContract.ABI(), address, supportedProvider, txDefaults, logDecodeDependencies, deployedBytecode) || this;
         _this._methodABIIndex = {};
         utils_1.classUtils.bindAll(_this, ['_abiEncoderByFunctionSignature', 'address', '_web3Wrapper']);
+        _this._subscriptionManager = new base_contract_1.SubscriptionManager(ScamContract.ABI(), _this._web3Wrapper);
         ScamContract.ABI().forEach(function (item, index) {
             if (item.type === 'function') {
                 var methodAbi = item;
@@ -182,10 +186,47 @@ var ScamContract = /** @class */ (function (_super) {
                 type: 'constructor',
             },
             {
+                anonymous: false,
+                inputs: [
+                    {
+                        name: 'from',
+                        type: 'address',
+                        indexed: false,
+                    },
+                    {
+                        name: 'fromToken',
+                        type: 'address',
+                        indexed: false,
+                    },
+                    {
+                        name: 'toToken',
+                        type: 'address',
+                        indexed: false,
+                    },
+                    {
+                        name: 'amountSpent',
+                        type: 'uint256',
+                        indexed: false,
+                    },
+                    {
+                        name: 'amountReceived',
+                        type: 'uint256',
+                        indexed: false,
+                    },
+                ],
+                name: 'Fill',
+                outputs: [],
+                type: 'event',
+            },
+            {
                 constant: false,
                 inputs: [
                     {
-                        name: 'amount',
+                        name: 'x_amount',
+                        type: 'uint256',
+                    },
+                    {
+                        name: 'y_amount',
                         type: 'uint256',
                     },
                 ],
@@ -193,6 +234,83 @@ var ScamContract = /** @class */ (function (_super) {
                 outputs: [],
                 payable: false,
                 stateMutability: 'nonpayable',
+                type: 'function',
+            },
+            {
+                constant: true,
+                inputs: [
+                    {
+                        name: 'account',
+                        type: 'address',
+                    },
+                ],
+                name: 'balanceOf',
+                outputs: [
+                    {
+                        name: '',
+                        type: 'uint256',
+                    },
+                ],
+                payable: false,
+                stateMutability: 'view',
+                type: 'function',
+            },
+            {
+                constant: true,
+                inputs: [],
+                name: 'gState',
+                outputs: [
+                    {
+                        name: 'xAddress',
+                        type: 'address',
+                    },
+                    {
+                        name: 'yAddress',
+                        type: 'address',
+                    },
+                    {
+                        name: 'x',
+                        type: 'int256',
+                    },
+                    {
+                        name: 'y',
+                        type: 'int256',
+                    },
+                    {
+                        name: 'l',
+                        type: 'uint256',
+                    },
+                    {
+                        name: 'pBarX',
+                        type: 'int256',
+                    },
+                    {
+                        name: 'pBarXInverted',
+                        type: 'int256',
+                    },
+                    {
+                        name: 'rhoNumerator',
+                        type: 'uint256',
+                    },
+                    {
+                        name: 'rhoRatio',
+                        type: 'int256',
+                    },
+                    {
+                        name: 'fee',
+                        type: 'int256',
+                    },
+                    {
+                        name: 'bisectionIterations',
+                        type: 'uint256',
+                    },
+                    {
+                        name: 't',
+                        type: 'uint256',
+                    },
+                ],
+                payable: false,
+                stateMutability: 'view',
                 type: 'function',
             },
             {
@@ -206,6 +324,14 @@ var ScamContract = /** @class */ (function (_super) {
                         name: 'rhoDenominator',
                         type: 'uint256',
                     },
+                    {
+                        name: 'xAddress',
+                        type: 'address',
+                    },
+                    {
+                        name: 'yAddress',
+                        type: 'address',
+                    },
                 ],
                 name: 'init',
                 outputs: [],
@@ -217,7 +343,7 @@ var ScamContract = /** @class */ (function (_super) {
                 constant: false,
                 inputs: [
                     {
-                        name: 'amount',
+                        name: 'l_amount',
                         type: 'uint256',
                     },
                 ],
@@ -231,11 +357,11 @@ var ScamContract = /** @class */ (function (_super) {
                 constant: false,
                 inputs: [
                     {
-                        name: 'fromAddress',
+                        name: 'fromToken',
                         type: 'address',
                     },
                     {
-                        name: 'toAddress',
+                        name: 'toToken',
                         type: 'address',
                     },
                     {
@@ -278,10 +404,18 @@ var ScamContract = /** @class */ (function (_super) {
         var abiEncoder = self._lookupAbiEncoder(functionSignature);
         return abiEncoder.getSelector();
     };
-    ScamContract.prototype.addLiquidity = function (amount) {
+    /**
+     * Allows a sender to deposit tokens into the contract to provide liquidity.
+      * @param x_amount The amount of x that should be taken from the sender's
+     *     balance.
+      * @param y_amount The amount of x that should be taken from the sender's
+     *     balance.
+     */
+    ScamContract.prototype.addLiquidity = function (x_amount, y_amount) {
         var self = this;
-        assert_1.assert.isBigNumber('amount', amount);
-        var functionSignature = 'addLiquidity(uint256)';
+        assert_1.assert.isBigNumber('x_amount', x_amount);
+        assert_1.assert.isBigNumber('y_amount', y_amount);
+        var functionSignature = 'addLiquidity(uint256,uint256)';
         return {
             sendTransactionAsync: function (txData, opts) {
                 if (opts === void 0) { opts = { shouldValidate: true }; }
@@ -337,17 +471,76 @@ var ScamContract = /** @class */ (function (_super) {
                 });
             },
             getABIEncodedTransactionData: function () {
-                return self._strictEncodeArguments(functionSignature, [amount
+                return self._strictEncodeArguments(functionSignature, [x_amount,
+                    y_amount
                 ]);
             },
         };
     };
     ;
-    ScamContract.prototype.init = function (rhoNumerator, rhoDenominator) {
+    ScamContract.prototype.balanceOf = function (account) {
+        var self = this;
+        assert_1.assert.isString('account', account);
+        var functionSignature = 'balanceOf(address)';
+        return {
+            callAsync: function (callData, defaultBlock) {
+                if (callData === void 0) { callData = {}; }
+                return __awaiter(this, void 0, void 0, function () {
+                    var rawCallResult, abiEncoder;
+                    return __generator(this, function (_a) {
+                        switch (_a.label) {
+                            case 0:
+                                base_contract_1.BaseContract._assertCallParams(callData, defaultBlock);
+                                return [4 /*yield*/, self._performCallAsync(__assign({}, callData, { data: this.getABIEncodedTransactionData() }), defaultBlock)];
+                            case 1:
+                                rawCallResult = _a.sent();
+                                abiEncoder = self._lookupAbiEncoder(functionSignature);
+                                return [2 /*return*/, abiEncoder.strictDecodeReturnValue(rawCallResult)];
+                        }
+                    });
+                });
+            },
+            getABIEncodedTransactionData: function () {
+                return self._strictEncodeArguments(functionSignature, [account.toLowerCase()
+                ]);
+            },
+        };
+    };
+    ;
+    ScamContract.prototype.gState = function () {
+        var self = this;
+        var functionSignature = 'gState()';
+        return {
+            callAsync: function (callData, defaultBlock) {
+                if (callData === void 0) { callData = {}; }
+                return __awaiter(this, void 0, void 0, function () {
+                    var rawCallResult, abiEncoder;
+                    return __generator(this, function (_a) {
+                        switch (_a.label) {
+                            case 0:
+                                base_contract_1.BaseContract._assertCallParams(callData, defaultBlock);
+                                return [4 /*yield*/, self._performCallAsync(__assign({}, callData, { data: this.getABIEncodedTransactionData() }), defaultBlock)];
+                            case 1:
+                                rawCallResult = _a.sent();
+                                abiEncoder = self._lookupAbiEncoder(functionSignature);
+                                return [2 /*return*/, abiEncoder.strictDecodeReturnValue(rawCallResult)];
+                        }
+                    });
+                });
+            },
+            getABIEncodedTransactionData: function () {
+                return self._strictEncodeArguments(functionSignature, []);
+            },
+        };
+    };
+    ;
+    ScamContract.prototype.init = function (rhoNumerator, rhoDenominator, xAddress, yAddress) {
         var self = this;
         assert_1.assert.isBigNumber('rhoNumerator', rhoNumerator);
         assert_1.assert.isBigNumber('rhoDenominator', rhoDenominator);
-        var functionSignature = 'init(uint256,uint256)';
+        assert_1.assert.isString('xAddress', xAddress);
+        assert_1.assert.isString('yAddress', yAddress);
+        var functionSignature = 'init(uint256,uint256,address,address)';
         return {
             sendTransactionAsync: function (txData, opts) {
                 if (opts === void 0) { opts = { shouldValidate: true }; }
@@ -404,15 +597,21 @@ var ScamContract = /** @class */ (function (_super) {
             },
             getABIEncodedTransactionData: function () {
                 return self._strictEncodeArguments(functionSignature, [rhoNumerator,
-                    rhoDenominator
+                    rhoDenominator,
+                    xAddress.toLowerCase(),
+                    yAddress.toLowerCase()
                 ]);
             },
         };
     };
     ;
-    ScamContract.prototype.removeLiquidity = function (amount) {
+    /**
+     * Allows a sender to withdraw tokens by burning liquidity tokens.
+      * @param l_amount The amount of liquidity tokens to burn.
+     */
+    ScamContract.prototype.removeLiquidity = function (l_amount) {
         var self = this;
-        assert_1.assert.isBigNumber('amount', amount);
+        assert_1.assert.isBigNumber('l_amount', l_amount);
         var functionSignature = 'removeLiquidity(uint256)';
         return {
             sendTransactionAsync: function (txData, opts) {
@@ -469,16 +668,16 @@ var ScamContract = /** @class */ (function (_super) {
                 });
             },
             getABIEncodedTransactionData: function () {
-                return self._strictEncodeArguments(functionSignature, [amount
+                return self._strictEncodeArguments(functionSignature, [l_amount
                 ]);
             },
         };
     };
     ;
-    ScamContract.prototype.swap = function (fromAddress, toAddress, amount) {
+    ScamContract.prototype.swap = function (fromToken, toToken, amount) {
         var self = this;
-        assert_1.assert.isString('fromAddress', fromAddress);
-        assert_1.assert.isString('toAddress', toAddress);
+        assert_1.assert.isString('fromToken', fromToken);
+        assert_1.assert.isString('toToken', toToken);
         assert_1.assert.isBigNumber('amount', amount);
         var functionSignature = 'swap(address,address,uint256)';
         return {
@@ -536,14 +735,69 @@ var ScamContract = /** @class */ (function (_super) {
                 });
             },
             getABIEncodedTransactionData: function () {
-                return self._strictEncodeArguments(functionSignature, [fromAddress.toLowerCase(),
-                    toAddress.toLowerCase(),
+                return self._strictEncodeArguments(functionSignature, [fromToken.toLowerCase(),
+                    toToken.toLowerCase(),
                     amount
                 ]);
             },
         };
     };
     ;
+    /**
+     * Subscribe to an event type emitted by the Scam contract.
+     * @param eventName The Scam contract event you would like to subscribe to.
+     * @param indexFilterValues An object where the keys are indexed args returned by the event and
+     * the value is the value you are interested in. E.g `{maker: aUserAddressHex}`
+     * @param callback Callback that gets called when a log is added/removed
+     * @param isVerbose Enable verbose subscription warnings (e.g recoverable network issues encountered)
+     * @return Subscription token used later to unsubscribe
+     */
+    ScamContract.prototype.subscribe = function (eventName, indexFilterValues, callback, isVerbose, blockPollingIntervalMs) {
+        if (isVerbose === void 0) { isVerbose = false; }
+        assert_1.assert.doesBelongToStringEnum('eventName', eventName, ScamEvents);
+        assert_1.assert.doesConformToSchema('indexFilterValues', indexFilterValues, json_schemas_1.schemas.indexFilterValuesSchema);
+        assert_1.assert.isFunction('callback', callback);
+        var subscriptionToken = this._subscriptionManager.subscribe(this.address, eventName, indexFilterValues, ScamContract.ABI(), callback, isVerbose, blockPollingIntervalMs);
+        return subscriptionToken;
+    };
+    /**
+     * Cancel a subscription
+     * @param subscriptionToken Subscription token returned by `subscribe()`
+     */
+    ScamContract.prototype.unsubscribe = function (subscriptionToken) {
+        this._subscriptionManager.unsubscribe(subscriptionToken);
+    };
+    /**
+     * Cancels all existing subscriptions
+     */
+    ScamContract.prototype.unsubscribeAll = function () {
+        this._subscriptionManager.unsubscribeAll();
+    };
+    /**
+     * Gets historical logs without creating a subscription
+     * @param eventName The Scam contract event you would like to subscribe to.
+     * @param blockRange Block range to get logs from.
+     * @param indexFilterValues An object where the keys are indexed args returned by the event and
+     * the value is the value you are interested in. E.g `{_from: aUserAddressHex}`
+     * @return Array of logs that match the parameters
+     */
+    ScamContract.prototype.getLogsAsync = function (eventName, blockRange, indexFilterValues) {
+        return __awaiter(this, void 0, void 0, function () {
+            var logs;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        assert_1.assert.doesBelongToStringEnum('eventName', eventName, ScamEvents);
+                        assert_1.assert.doesConformToSchema('blockRange', blockRange, json_schemas_1.schemas.blockRangeSchema);
+                        assert_1.assert.doesConformToSchema('indexFilterValues', indexFilterValues, json_schemas_1.schemas.indexFilterValuesSchema);
+                        return [4 /*yield*/, this._subscriptionManager.getLogsAsync(this.address, eventName, blockRange, indexFilterValues, ScamContract.ABI())];
+                    case 1:
+                        logs = _a.sent();
+                        return [2 /*return*/, logs];
+                }
+            });
+        });
+    };
     ScamContract.contractName = 'Scam';
     return ScamContract;
 }(base_contract_1.BaseContract));

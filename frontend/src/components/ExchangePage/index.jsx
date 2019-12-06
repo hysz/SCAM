@@ -456,6 +456,7 @@ export default function ExchangePage({ initialCurrency, sending = false, params 
         }
       }
     } else if (swapType === TOKEN_TO_TOKEN) {
+      console.log('TOKEN TO TOKEN SWAP')
       const reserveETHFirst = inputReserveETH
       const reserveTokenFirst = inputReserveToken
 
@@ -464,37 +465,38 @@ export default function ExchangePage({ initialCurrency, sending = false, params 
 
       if (amount && reserveETHFirst && reserveTokenFirst && reserveETHSecond && reserveTokenSecond) {
         try {
-          if (independentField === INPUT) {
-            const intermediateValue = calculateEtherTokenOutputFromInput(amount, reserveTokenFirst, reserveETHFirst)
-            if (intermediateValue.lte(ethers.constants.Zero)) {
-              throw Error()
-            }
-            const calculatedDependentValue = calculateEtherTokenOutputFromInput(
-              intermediateValue,
-              reserveETHSecond,
-              reserveTokenSecond
-            )
-            if (calculatedDependentValue.lte(ethers.constants.Zero)) {
-              throw Error()
-            }
-            dispatchSwapState({ type: 'UPDATE_DEPENDENT', payload: calculatedDependentValue })
-          } else {
-            const intermediateValue = calculateEtherTokenInputFromOutput(amount, reserveETHSecond, reserveTokenSecond)
-            if (intermediateValue.lte(ethers.constants.Zero)) {
-              throw Error()
-            }
-            const calculatedDependentValue = calculateEtherTokenInputFromOutput(
-              intermediateValue,
-              reserveTokenFirst,
-              reserveETHFirst
-            )
-            if (calculatedDependentValue.lte(ethers.constants.Zero)) {
-              throw Error()
-            }
-            dispatchSwapState({ type: 'UPDATE_DEPENDENT', payload: calculatedDependentValue })
-          }
-        } catch {
-          console.log('insuff liquid 3')
+          // dispatchSwapState({ type: 'UPDATE_DEPENDENT', payload: new BigNumber(0) })
+          // if (independentField === INPUT) {
+          //   const intermediateValue = calculateEtherTokenOutputFromInput(amount, reserveTokenFirst, reserveETHFirst)
+          //   if (intermediateValue.lte(ethers.constants.Zero)) {
+          //     throw Error(`1 intermediateValue ${intermediateValue}`)
+          //   }
+          //   const calculatedDependentValue = calculateEtherTokenOutputFromInput(
+          //     intermediateValue,
+          //     reserveETHSecond,
+          //     reserveTokenSecond
+          //   )
+          //   if (calculatedDependentValue.lte(ethers.constants.Zero)) {
+          //     throw Error(`1 calculatedDependentValue ${calculatedDependentValue}`)
+          //   }
+          //   dispatchSwapState({ type: 'UPDATE_DEPENDENT', payload: calculatedDependentValue })
+          // } else {
+          //   const intermediateValue = calculateEtherTokenInputFromOutput(amount, reserveETHSecond, reserveTokenSecond)
+          //   if (intermediateValue.lte(ethers.constants.Zero)) {
+          //     throw Error(`2 intermediateValue ${intermediateValue}`)
+          //   }
+          //   const calculatedDependentValue = calculateEtherTokenInputFromOutput(
+          //     intermediateValue,
+          //     reserveTokenFirst,
+          //     reserveETHFirst
+          //   )
+          //   if (calculatedDependentValue.lte(ethers.constants.Zero)) {
+          //     throw Error(`2 calculatedDependentValue ${calculatedDependentValue}`)
+          //   }
+          //   dispatchSwapState({ type: 'UPDATE_DEPENDENT', payload: calculatedDependentValue })
+          // }
+        } catch (e) {
+          console.log('insuff liquid 3', e)
           setIndependentError(t('insufficientLiquidity'))
         }
         return () => {
@@ -558,6 +560,13 @@ export default function ExchangePage({ initialCurrency, sending = false, params 
   }
 
   async function onSwap() {
+    scamContract
+      .swap(inputCurrency, outputCurrency, new BigNumber(inputValueParsed.toString()))
+      .sendTransactionAsync({ gas: 9000000 })
+      .then(response => {
+        console.log(response)
+        addTransaction({ hash: response })
+      })
     // const deadline = Math.ceil(Date.now() / 1000) + DEADLINE_FROM_NOW
     // let estimate, method, args, value
     // if (independentField === INPUT) {
@@ -762,7 +771,8 @@ export default function ExchangePage({ initialCurrency, sending = false, params 
       />
       <Flex>
         <Button
-          disabled={!isValid || customSlippageError === 'invalid'}
+          // disabled={!isValid || customSlippageError === 'invalid'}
+          disabled={false}
           onClick={onSwap}
           warning={highSlippageWarning || customSlippageError === 'warning'}
         >

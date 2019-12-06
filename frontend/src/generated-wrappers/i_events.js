@@ -78,18 +78,22 @@ var utils_1 = require("@0x/utils");
 var web3_wrapper_1 = require("@0x/web3-wrapper");
 var assert_1 = require("@0x/assert");
 var ethers = require("ethers");
-// tslint:enable:no-unused-variable
+var IEventsEvents;
+(function (IEventsEvents) {
+    IEventsEvents["Fill"] = "Fill";
+})(IEventsEvents = exports.IEventsEvents || (exports.IEventsEvents = {}));
 /* istanbul ignore next */
 // tslint:disable:no-parameter-reassignment
 // tslint:disable-next-line:class-name
-var IERC20Contract = /** @class */ (function (_super) {
-    __extends(IERC20Contract, _super);
-    function IERC20Contract(address, supportedProvider, txDefaults, logDecodeDependencies, deployedBytecode) {
-        if (deployedBytecode === void 0) { deployedBytecode = IERC20Contract.deployedBytecode; }
-        var _this = _super.call(this, 'IERC20', IERC20Contract.ABI(), address, supportedProvider, txDefaults, logDecodeDependencies, deployedBytecode) || this;
+var IEventsContract = /** @class */ (function (_super) {
+    __extends(IEventsContract, _super);
+    function IEventsContract(address, supportedProvider, txDefaults, logDecodeDependencies, deployedBytecode) {
+        if (deployedBytecode === void 0) { deployedBytecode = IEventsContract.deployedBytecode; }
+        var _this = _super.call(this, 'IEvents', IEventsContract.ABI(), address, supportedProvider, txDefaults, logDecodeDependencies, deployedBytecode) || this;
         _this._methodABIIndex = {};
         utils_1.classUtils.bindAll(_this, ['_abiEncoderByFunctionSignature', 'address', '_web3Wrapper']);
-        IERC20Contract.ABI().forEach(function (item, index) {
+        _this._subscriptionManager = new base_contract_1.SubscriptionManager(IEventsContract.ABI(), _this._web3Wrapper);
+        IEventsContract.ABI().forEach(function (item, index) {
             if (item.type === 'function') {
                 var methodAbi = item;
                 _this._methodABIIndex[methodAbi.name] = index;
@@ -97,7 +101,7 @@ var IERC20Contract = /** @class */ (function (_super) {
         });
         return _this;
     }
-    IERC20Contract.deployFrom0xArtifactAsync = function (artifact, supportedProvider, txDefaults, logDecodeDependencies) {
+    IEventsContract.deployFrom0xArtifactAsync = function (artifact, supportedProvider, txDefaults, logDecodeDependencies) {
         return __awaiter(this, void 0, void 0, function () {
             var e_1, _a, provider, bytecode, abi, logDecodeDependenciesAbiOnly, _b, _c, key;
             return __generator(this, function (_d) {
@@ -128,11 +132,11 @@ var IERC20Contract = /** @class */ (function (_super) {
                         finally { if (e_1) throw e_1.error; }
                     }
                 }
-                return [2 /*return*/, IERC20Contract.deployAsync(bytecode, abi, provider, txDefaults, logDecodeDependenciesAbiOnly)];
+                return [2 /*return*/, IEventsContract.deployAsync(bytecode, abi, provider, txDefaults, logDecodeDependenciesAbiOnly)];
             });
         });
     };
-    IERC20Contract.deployAsync = function (bytecode, abi, supportedProvider, txDefaults, logDecodeDependencies) {
+    IEventsContract.deployAsync = function (bytecode, abi, supportedProvider, txDefaults, logDecodeDependencies) {
         return __awaiter(this, void 0, void 0, function () {
             var provider, constructorAbi, iface, deployInfo, txData, web3Wrapper, txDataWithDefaults, txHash, txReceipt, contractInstance;
             return __generator(this, function (_a) {
@@ -161,8 +165,8 @@ var IERC20Contract = /** @class */ (function (_super) {
                         return [4 /*yield*/, web3Wrapper.awaitTransactionSuccessAsync(txHash)];
                     case 3:
                         txReceipt = _a.sent();
-                        utils_1.logUtils.log("IERC20 successfully deployed at " + txReceipt.contractAddress);
-                        contractInstance = new IERC20Contract(txReceipt.contractAddress, provider, txDefaults, logDecodeDependencies);
+                        utils_1.logUtils.log("IEvents successfully deployed at " + txReceipt.contractAddress);
+                        contractInstance = new IEventsContract(txReceipt.contractAddress, provider, txDefaults, logDecodeDependencies);
                         contractInstance.constructorArgs = [];
                         return [2 /*return*/, contractInstance];
                 }
@@ -172,218 +176,130 @@ var IERC20Contract = /** @class */ (function (_super) {
     /**
      * @returns      The contract ABI
      */
-    IERC20Contract.ABI = function () {
+    IEventsContract.ABI = function () {
         var abi = [
             {
-                constant: false,
+                anonymous: false,
                 inputs: [
                     {
-                        name: 'index_0',
+                        name: 'from',
                         type: 'address',
+                        indexed: false,
                     },
                     {
-                        name: 'index_1',
+                        name: 'fromToken',
+                        type: 'address',
+                        indexed: false,
+                    },
+                    {
+                        name: 'toToken',
+                        type: 'address',
+                        indexed: false,
+                    },
+                    {
+                        name: 'amountSpent',
                         type: 'uint256',
+                        indexed: false,
+                    },
+                    {
+                        name: 'amountReceived',
+                        type: 'uint256',
+                        indexed: false,
                     },
                 ],
-                name: 'transfer',
+                name: 'Fill',
                 outputs: [],
-                payable: false,
-                stateMutability: 'nonpayable',
-                type: 'function',
-            },
-            {
-                constant: false,
-                inputs: [
-                    {
-                        name: 'index_0',
-                        type: 'address',
-                    },
-                    {
-                        name: 'index_1',
-                        type: 'address',
-                    },
-                    {
-                        name: 'index_2',
-                        type: 'uint256',
-                    },
-                ],
-                name: 'transferFrom',
-                outputs: [],
-                payable: false,
-                stateMutability: 'nonpayable',
-                type: 'function',
+                type: 'event',
             },
         ];
         return abi;
     };
-    IERC20Contract.prototype.getFunctionSignature = function (methodName) {
+    IEventsContract.prototype.getFunctionSignature = function (methodName) {
         var index = this._methodABIIndex[methodName];
-        var methodAbi = IERC20Contract.ABI()[index]; // tslint:disable-line:no-unnecessary-type-assertion
+        var methodAbi = IEventsContract.ABI()[index]; // tslint:disable-line:no-unnecessary-type-assertion
         var functionSignature = base_contract_1.methodAbiToFunctionSignature(methodAbi);
         return functionSignature;
     };
-    IERC20Contract.prototype.getABIDecodedTransactionData = function (methodName, callData) {
+    IEventsContract.prototype.getABIDecodedTransactionData = function (methodName, callData) {
         var functionSignature = this.getFunctionSignature(methodName);
         var self = this;
         var abiEncoder = self._lookupAbiEncoder(functionSignature);
         var abiDecodedCallData = abiEncoder.strictDecode(callData);
         return abiDecodedCallData;
     };
-    IERC20Contract.prototype.getABIDecodedReturnData = function (methodName, callData) {
+    IEventsContract.prototype.getABIDecodedReturnData = function (methodName, callData) {
         var functionSignature = this.getFunctionSignature(methodName);
         var self = this;
         var abiEncoder = self._lookupAbiEncoder(functionSignature);
         var abiDecodedCallData = abiEncoder.strictDecodeReturnValue(callData);
         return abiDecodedCallData;
     };
-    IERC20Contract.prototype.getSelector = function (methodName) {
+    IEventsContract.prototype.getSelector = function (methodName) {
         var functionSignature = this.getFunctionSignature(methodName);
         var self = this;
         var abiEncoder = self._lookupAbiEncoder(functionSignature);
         return abiEncoder.getSelector();
     };
-    IERC20Contract.prototype.transfer = function (index_0, index_1) {
-        var self = this;
-        assert_1.assert.isString('index_0', index_0);
-        assert_1.assert.isBigNumber('index_1', index_1);
-        var functionSignature = 'transfer(address,uint256)';
-        return {
-            sendTransactionAsync: function (txData, opts) {
-                if (opts === void 0) { opts = { shouldValidate: true }; }
-                return __awaiter(this, void 0, void 0, function () {
-                    var txDataWithDefaults;
-                    return __generator(this, function (_a) {
-                        switch (_a.label) {
-                            case 0: return [4 /*yield*/, self._applyDefaultsToTxDataAsync(__assign({}, txData, { data: this.getABIEncodedTransactionData() }), this.estimateGasAsync.bind(this))];
-                            case 1:
-                                txDataWithDefaults = _a.sent();
-                                if (!(opts.shouldValidate !== false)) return [3 /*break*/, 3];
-                                return [4 /*yield*/, this.callAsync(txDataWithDefaults)];
-                            case 2:
-                                _a.sent();
-                                _a.label = 3;
-                            case 3: return [2 /*return*/, self._web3Wrapper.sendTransactionAsync(txDataWithDefaults)];
-                        }
-                    });
-                });
-            },
-            awaitTransactionSuccessAsync: function (txData, opts) {
-                if (opts === void 0) { opts = { shouldValidate: true }; }
-                return self._promiseWithTransactionHash(this.sendTransactionAsync(txData, opts), opts);
-            },
-            estimateGasAsync: function (txData) {
-                return __awaiter(this, void 0, void 0, function () {
-                    var txDataWithDefaults;
-                    return __generator(this, function (_a) {
-                        switch (_a.label) {
-                            case 0: return [4 /*yield*/, self._applyDefaultsToTxDataAsync(__assign({}, txData, { data: this.getABIEncodedTransactionData() }))];
-                            case 1:
-                                txDataWithDefaults = _a.sent();
-                                return [2 /*return*/, self._web3Wrapper.estimateGasAsync(txDataWithDefaults)];
-                        }
-                    });
-                });
-            },
-            callAsync: function (callData, defaultBlock) {
-                if (callData === void 0) { callData = {}; }
-                return __awaiter(this, void 0, void 0, function () {
-                    var rawCallResult, abiEncoder;
-                    return __generator(this, function (_a) {
-                        switch (_a.label) {
-                            case 0:
-                                base_contract_1.BaseContract._assertCallParams(callData, defaultBlock);
-                                return [4 /*yield*/, self._performCallAsync(__assign({}, callData, { data: this.getABIEncodedTransactionData() }), defaultBlock)];
-                            case 1:
-                                rawCallResult = _a.sent();
-                                abiEncoder = self._lookupAbiEncoder(functionSignature);
-                                return [2 /*return*/, abiEncoder.strictDecodeReturnValue(rawCallResult)];
-                        }
-                    });
-                });
-            },
-            getABIEncodedTransactionData: function () {
-                return self._strictEncodeArguments(functionSignature, [index_0.toLowerCase(),
-                    index_1
-                ]);
-            },
-        };
+    /**
+     * Subscribe to an event type emitted by the IEvents contract.
+     * @param eventName The IEvents contract event you would like to subscribe to.
+     * @param indexFilterValues An object where the keys are indexed args returned by the event and
+     * the value is the value you are interested in. E.g `{maker: aUserAddressHex}`
+     * @param callback Callback that gets called when a log is added/removed
+     * @param isVerbose Enable verbose subscription warnings (e.g recoverable network issues encountered)
+     * @return Subscription token used later to unsubscribe
+     */
+    IEventsContract.prototype.subscribe = function (eventName, indexFilterValues, callback, isVerbose, blockPollingIntervalMs) {
+        if (isVerbose === void 0) { isVerbose = false; }
+        assert_1.assert.doesBelongToStringEnum('eventName', eventName, IEventsEvents);
+        assert_1.assert.doesConformToSchema('indexFilterValues', indexFilterValues, json_schemas_1.schemas.indexFilterValuesSchema);
+        assert_1.assert.isFunction('callback', callback);
+        var subscriptionToken = this._subscriptionManager.subscribe(this.address, eventName, indexFilterValues, IEventsContract.ABI(), callback, isVerbose, blockPollingIntervalMs);
+        return subscriptionToken;
     };
-    ;
-    IERC20Contract.prototype.transferFrom = function (index_0, index_1, index_2) {
-        var self = this;
-        assert_1.assert.isString('index_0', index_0);
-        assert_1.assert.isString('index_1', index_1);
-        assert_1.assert.isBigNumber('index_2', index_2);
-        var functionSignature = 'transferFrom(address,address,uint256)';
-        return {
-            sendTransactionAsync: function (txData, opts) {
-                if (opts === void 0) { opts = { shouldValidate: true }; }
-                return __awaiter(this, void 0, void 0, function () {
-                    var txDataWithDefaults;
-                    return __generator(this, function (_a) {
-                        switch (_a.label) {
-                            case 0: return [4 /*yield*/, self._applyDefaultsToTxDataAsync(__assign({}, txData, { data: this.getABIEncodedTransactionData() }), this.estimateGasAsync.bind(this))];
-                            case 1:
-                                txDataWithDefaults = _a.sent();
-                                if (!(opts.shouldValidate !== false)) return [3 /*break*/, 3];
-                                return [4 /*yield*/, this.callAsync(txDataWithDefaults)];
-                            case 2:
-                                _a.sent();
-                                _a.label = 3;
-                            case 3: return [2 /*return*/, self._web3Wrapper.sendTransactionAsync(txDataWithDefaults)];
-                        }
-                    });
-                });
-            },
-            awaitTransactionSuccessAsync: function (txData, opts) {
-                if (opts === void 0) { opts = { shouldValidate: true }; }
-                return self._promiseWithTransactionHash(this.sendTransactionAsync(txData, opts), opts);
-            },
-            estimateGasAsync: function (txData) {
-                return __awaiter(this, void 0, void 0, function () {
-                    var txDataWithDefaults;
-                    return __generator(this, function (_a) {
-                        switch (_a.label) {
-                            case 0: return [4 /*yield*/, self._applyDefaultsToTxDataAsync(__assign({}, txData, { data: this.getABIEncodedTransactionData() }))];
-                            case 1:
-                                txDataWithDefaults = _a.sent();
-                                return [2 /*return*/, self._web3Wrapper.estimateGasAsync(txDataWithDefaults)];
-                        }
-                    });
-                });
-            },
-            callAsync: function (callData, defaultBlock) {
-                if (callData === void 0) { callData = {}; }
-                return __awaiter(this, void 0, void 0, function () {
-                    var rawCallResult, abiEncoder;
-                    return __generator(this, function (_a) {
-                        switch (_a.label) {
-                            case 0:
-                                base_contract_1.BaseContract._assertCallParams(callData, defaultBlock);
-                                return [4 /*yield*/, self._performCallAsync(__assign({}, callData, { data: this.getABIEncodedTransactionData() }), defaultBlock)];
-                            case 1:
-                                rawCallResult = _a.sent();
-                                abiEncoder = self._lookupAbiEncoder(functionSignature);
-                                return [2 /*return*/, abiEncoder.strictDecodeReturnValue(rawCallResult)];
-                        }
-                    });
-                });
-            },
-            getABIEncodedTransactionData: function () {
-                return self._strictEncodeArguments(functionSignature, [index_0.toLowerCase(),
-                    index_1.toLowerCase(),
-                    index_2
-                ]);
-            },
-        };
+    /**
+     * Cancel a subscription
+     * @param subscriptionToken Subscription token returned by `subscribe()`
+     */
+    IEventsContract.prototype.unsubscribe = function (subscriptionToken) {
+        this._subscriptionManager.unsubscribe(subscriptionToken);
     };
-    ;
-    IERC20Contract.contractName = 'IERC20';
-    return IERC20Contract;
+    /**
+     * Cancels all existing subscriptions
+     */
+    IEventsContract.prototype.unsubscribeAll = function () {
+        this._subscriptionManager.unsubscribeAll();
+    };
+    /**
+     * Gets historical logs without creating a subscription
+     * @param eventName The IEvents contract event you would like to subscribe to.
+     * @param blockRange Block range to get logs from.
+     * @param indexFilterValues An object where the keys are indexed args returned by the event and
+     * the value is the value you are interested in. E.g `{_from: aUserAddressHex}`
+     * @return Array of logs that match the parameters
+     */
+    IEventsContract.prototype.getLogsAsync = function (eventName, blockRange, indexFilterValues) {
+        return __awaiter(this, void 0, void 0, function () {
+            var logs;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        assert_1.assert.doesBelongToStringEnum('eventName', eventName, IEventsEvents);
+                        assert_1.assert.doesConformToSchema('blockRange', blockRange, json_schemas_1.schemas.blockRangeSchema);
+                        assert_1.assert.doesConformToSchema('indexFilterValues', indexFilterValues, json_schemas_1.schemas.indexFilterValuesSchema);
+                        return [4 /*yield*/, this._subscriptionManager.getLogsAsync(this.address, eventName, blockRange, indexFilterValues, IEventsContract.ABI())];
+                    case 1:
+                        logs = _a.sent();
+                        return [2 /*return*/, logs];
+                }
+            });
+        });
+    };
+    IEventsContract.contractName = 'IEvents';
+    return IEventsContract;
 }(base_contract_1.BaseContract));
-exports.IERC20Contract = IERC20Contract;
+exports.IEventsContract = IEventsContract;
 // tslint:disable:max-file-line-count
 // tslint:enable:no-unbound-method no-parameter-reassignment no-consecutive-blank-lines ordered-imports align
 // tslint:enable:trailing-comma whitespace no-trailing-whitespace
-//# sourceMappingURL=ierc20.js.map
+//# sourceMappingURL=i_events.js.map

@@ -78,18 +78,22 @@ var utils_1 = require("@0x/utils");
 var web3_wrapper_1 = require("@0x/web3-wrapper");
 var assert_1 = require("@0x/assert");
 var ethers = require("ethers");
-// tslint:enable:no-unused-variable
+var TestScamEvents;
+(function (TestScamEvents) {
+    TestScamEvents["Fill"] = "Fill";
+})(TestScamEvents = exports.TestScamEvents || (exports.TestScamEvents = {}));
 /* istanbul ignore next */
 // tslint:disable:no-parameter-reassignment
 // tslint:disable-next-line:class-name
-var LiquidityContract = /** @class */ (function (_super) {
-    __extends(LiquidityContract, _super);
-    function LiquidityContract(address, supportedProvider, txDefaults, logDecodeDependencies, deployedBytecode) {
-        if (deployedBytecode === void 0) { deployedBytecode = LiquidityContract.deployedBytecode; }
-        var _this = _super.call(this, 'Liquidity', LiquidityContract.ABI(), address, supportedProvider, txDefaults, logDecodeDependencies, deployedBytecode) || this;
+var TestScamContract = /** @class */ (function (_super) {
+    __extends(TestScamContract, _super);
+    function TestScamContract(address, supportedProvider, txDefaults, logDecodeDependencies, deployedBytecode) {
+        if (deployedBytecode === void 0) { deployedBytecode = TestScamContract.deployedBytecode; }
+        var _this = _super.call(this, 'TestScam', TestScamContract.ABI(), address, supportedProvider, txDefaults, logDecodeDependencies, deployedBytecode) || this;
         _this._methodABIIndex = {};
         utils_1.classUtils.bindAll(_this, ['_abiEncoderByFunctionSignature', 'address', '_web3Wrapper']);
-        LiquidityContract.ABI().forEach(function (item, index) {
+        _this._subscriptionManager = new base_contract_1.SubscriptionManager(TestScamContract.ABI(), _this._web3Wrapper);
+        TestScamContract.ABI().forEach(function (item, index) {
             if (item.type === 'function') {
                 var methodAbi = item;
                 _this._methodABIIndex[methodAbi.name] = index;
@@ -97,7 +101,7 @@ var LiquidityContract = /** @class */ (function (_super) {
         });
         return _this;
     }
-    LiquidityContract.deployFrom0xArtifactAsync = function (artifact, supportedProvider, txDefaults, logDecodeDependencies) {
+    TestScamContract.deployFrom0xArtifactAsync = function (artifact, supportedProvider, txDefaults, logDecodeDependencies) {
         return __awaiter(this, void 0, void 0, function () {
             var e_1, _a, provider, bytecode, abi, logDecodeDependenciesAbiOnly, _b, _c, key;
             return __generator(this, function (_d) {
@@ -128,11 +132,11 @@ var LiquidityContract = /** @class */ (function (_super) {
                         finally { if (e_1) throw e_1.error; }
                     }
                 }
-                return [2 /*return*/, LiquidityContract.deployAsync(bytecode, abi, provider, txDefaults, logDecodeDependenciesAbiOnly)];
+                return [2 /*return*/, TestScamContract.deployAsync(bytecode, abi, provider, txDefaults, logDecodeDependenciesAbiOnly)];
             });
         });
     };
-    LiquidityContract.deployAsync = function (bytecode, abi, supportedProvider, txDefaults, logDecodeDependencies) {
+    TestScamContract.deployAsync = function (bytecode, abi, supportedProvider, txDefaults, logDecodeDependencies) {
         return __awaiter(this, void 0, void 0, function () {
             var provider, constructorAbi, iface, deployInfo, txData, web3Wrapper, txDataWithDefaults, txHash, txReceipt, contractInstance;
             return __generator(this, function (_a) {
@@ -161,8 +165,8 @@ var LiquidityContract = /** @class */ (function (_super) {
                         return [4 /*yield*/, web3Wrapper.awaitTransactionSuccessAsync(txHash)];
                     case 3:
                         txReceipt = _a.sent();
-                        utils_1.logUtils.log("Liquidity successfully deployed at " + txReceipt.contractAddress);
-                        contractInstance = new LiquidityContract(txReceipt.contractAddress, provider, txDefaults, logDecodeDependencies);
+                        utils_1.logUtils.log("TestScam successfully deployed at " + txReceipt.contractAddress);
+                        contractInstance = new TestScamContract(txReceipt.contractAddress, provider, txDefaults, logDecodeDependencies);
                         contractInstance.constructorArgs = [];
                         return [2 /*return*/, contractInstance];
                 }
@@ -172,8 +176,41 @@ var LiquidityContract = /** @class */ (function (_super) {
     /**
      * @returns      The contract ABI
      */
-    LiquidityContract.ABI = function () {
+    TestScamContract.ABI = function () {
         var abi = [
+            {
+                anonymous: false,
+                inputs: [
+                    {
+                        name: 'from',
+                        type: 'address',
+                        indexed: false,
+                    },
+                    {
+                        name: 'fromToken',
+                        type: 'address',
+                        indexed: false,
+                    },
+                    {
+                        name: 'toToken',
+                        type: 'address',
+                        indexed: false,
+                    },
+                    {
+                        name: 'amountSpent',
+                        type: 'uint256',
+                        indexed: false,
+                    },
+                    {
+                        name: 'amountReceived',
+                        type: 'uint256',
+                        indexed: false,
+                    },
+                ],
+                name: 'Fill',
+                outputs: [],
+                type: 'event',
+            },
             {
                 constant: false,
                 inputs: [
@@ -273,6 +310,32 @@ var LiquidityContract = /** @class */ (function (_super) {
                 constant: false,
                 inputs: [
                     {
+                        name: 'rhoNumerator',
+                        type: 'uint256',
+                    },
+                    {
+                        name: 'rhoDenominator',
+                        type: 'uint256',
+                    },
+                    {
+                        name: 'xAddress',
+                        type: 'address',
+                    },
+                    {
+                        name: 'yAddress',
+                        type: 'address',
+                    },
+                ],
+                name: 'init',
+                outputs: [],
+                payable: false,
+                stateMutability: 'nonpayable',
+                type: 'function',
+            },
+            {
+                constant: false,
+                inputs: [
+                    {
                         name: 'l_amount',
                         type: 'uint256',
                     },
@@ -283,30 +346,61 @@ var LiquidityContract = /** @class */ (function (_super) {
                 stateMutability: 'nonpayable',
                 type: 'function',
             },
+            {
+                constant: false,
+                inputs: [],
+                name: 'runBasicTest',
+                outputs: [],
+                payable: false,
+                stateMutability: 'nonpayable',
+                type: 'function',
+            },
+            {
+                constant: false,
+                inputs: [
+                    {
+                        name: 'fromToken',
+                        type: 'address',
+                    },
+                    {
+                        name: 'toToken',
+                        type: 'address',
+                    },
+                    {
+                        name: 'amount',
+                        type: 'uint256',
+                    },
+                ],
+                name: 'swap',
+                outputs: [],
+                payable: false,
+                stateMutability: 'nonpayable',
+                type: 'function',
+            },
         ];
         return abi;
     };
-    LiquidityContract.prototype.getFunctionSignature = function (methodName) {
+    TestScamContract.prototype.getFunctionSignature = function (methodName) {
         var index = this._methodABIIndex[methodName];
-        var methodAbi = LiquidityContract.ABI()[index]; // tslint:disable-line:no-unnecessary-type-assertion
+        var methodAbi = TestScamContract.ABI()[index]; // tslint:disable-line:no-unnecessary-type-assertion
         var functionSignature = base_contract_1.methodAbiToFunctionSignature(methodAbi);
         return functionSignature;
     };
-    LiquidityContract.prototype.getABIDecodedTransactionData = function (methodName, callData) {
+    TestScamContract.prototype.getABIDecodedTransactionData = function (methodName, callData) {
         var functionSignature = this.getFunctionSignature(methodName);
         var self = this;
         var abiEncoder = self._lookupAbiEncoder(functionSignature);
         var abiDecodedCallData = abiEncoder.strictDecode(callData);
         return abiDecodedCallData;
     };
-    LiquidityContract.prototype.getABIDecodedReturnData = function (methodName, callData) {
+    TestScamContract.prototype.getABIDecodedReturnData = function (methodName, callData) {
         var functionSignature = this.getFunctionSignature(methodName);
         var self = this;
         var abiEncoder = self._lookupAbiEncoder(functionSignature);
         var abiDecodedCallData = abiEncoder.strictDecodeReturnValue(callData);
         return abiDecodedCallData;
     };
-    LiquidityContract.prototype.getSelector = function (methodName) {
+    TestScamContract.prototype.getSelector = function (methodName) {
         var functionSignature = this.getFunctionSignature(methodName);
         var self = this;
         var abiEncoder = self._lookupAbiEncoder(functionSignature);
@@ -319,7 +413,7 @@ var LiquidityContract = /** @class */ (function (_super) {
       * @param y_amount The amount of x that should be taken from the sender's
      *     balance.
      */
-    LiquidityContract.prototype.addLiquidity = function (x_amount, y_amount) {
+    TestScamContract.prototype.addLiquidity = function (x_amount, y_amount) {
         var self = this;
         assert_1.assert.isBigNumber('x_amount', x_amount);
         assert_1.assert.isBigNumber('y_amount', y_amount);
@@ -386,7 +480,7 @@ var LiquidityContract = /** @class */ (function (_super) {
         };
     };
     ;
-    LiquidityContract.prototype.balanceOf = function (account) {
+    TestScamContract.prototype.balanceOf = function (account) {
         var self = this;
         assert_1.assert.isString('account', account);
         var functionSignature = 'balanceOf(address)';
@@ -415,7 +509,7 @@ var LiquidityContract = /** @class */ (function (_super) {
         };
     };
     ;
-    LiquidityContract.prototype.gState = function () {
+    TestScamContract.prototype.gState = function () {
         var self = this;
         var functionSignature = 'gState()';
         return {
@@ -442,11 +536,82 @@ var LiquidityContract = /** @class */ (function (_super) {
         };
     };
     ;
+    TestScamContract.prototype.init = function (rhoNumerator, rhoDenominator, xAddress, yAddress) {
+        var self = this;
+        assert_1.assert.isBigNumber('rhoNumerator', rhoNumerator);
+        assert_1.assert.isBigNumber('rhoDenominator', rhoDenominator);
+        assert_1.assert.isString('xAddress', xAddress);
+        assert_1.assert.isString('yAddress', yAddress);
+        var functionSignature = 'init(uint256,uint256,address,address)';
+        return {
+            sendTransactionAsync: function (txData, opts) {
+                if (opts === void 0) { opts = { shouldValidate: true }; }
+                return __awaiter(this, void 0, void 0, function () {
+                    var txDataWithDefaults;
+                    return __generator(this, function (_a) {
+                        switch (_a.label) {
+                            case 0: return [4 /*yield*/, self._applyDefaultsToTxDataAsync(__assign({}, txData, { data: this.getABIEncodedTransactionData() }), this.estimateGasAsync.bind(this))];
+                            case 1:
+                                txDataWithDefaults = _a.sent();
+                                if (!(opts.shouldValidate !== false)) return [3 /*break*/, 3];
+                                return [4 /*yield*/, this.callAsync(txDataWithDefaults)];
+                            case 2:
+                                _a.sent();
+                                _a.label = 3;
+                            case 3: return [2 /*return*/, self._web3Wrapper.sendTransactionAsync(txDataWithDefaults)];
+                        }
+                    });
+                });
+            },
+            awaitTransactionSuccessAsync: function (txData, opts) {
+                if (opts === void 0) { opts = { shouldValidate: true }; }
+                return self._promiseWithTransactionHash(this.sendTransactionAsync(txData, opts), opts);
+            },
+            estimateGasAsync: function (txData) {
+                return __awaiter(this, void 0, void 0, function () {
+                    var txDataWithDefaults;
+                    return __generator(this, function (_a) {
+                        switch (_a.label) {
+                            case 0: return [4 /*yield*/, self._applyDefaultsToTxDataAsync(__assign({}, txData, { data: this.getABIEncodedTransactionData() }))];
+                            case 1:
+                                txDataWithDefaults = _a.sent();
+                                return [2 /*return*/, self._web3Wrapper.estimateGasAsync(txDataWithDefaults)];
+                        }
+                    });
+                });
+            },
+            callAsync: function (callData, defaultBlock) {
+                if (callData === void 0) { callData = {}; }
+                return __awaiter(this, void 0, void 0, function () {
+                    var rawCallResult, abiEncoder;
+                    return __generator(this, function (_a) {
+                        switch (_a.label) {
+                            case 0:
+                                base_contract_1.BaseContract._assertCallParams(callData, defaultBlock);
+                                return [4 /*yield*/, self._performCallAsync(__assign({}, callData, { data: this.getABIEncodedTransactionData() }), defaultBlock)];
+                            case 1:
+                                rawCallResult = _a.sent();
+                                abiEncoder = self._lookupAbiEncoder(functionSignature);
+                                return [2 /*return*/, abiEncoder.strictDecodeReturnValue(rawCallResult)];
+                        }
+                    });
+                });
+            },
+            getABIEncodedTransactionData: function () {
+                return self._strictEncodeArguments(functionSignature, [rhoNumerator,
+                    rhoDenominator,
+                    xAddress.toLowerCase(),
+                    yAddress.toLowerCase()
+                ]);
+            },
+        };
+    };
+    ;
     /**
      * Allows a sender to withdraw tokens by burning liquidity tokens.
       * @param l_amount The amount of liquidity tokens to burn.
      */
-    LiquidityContract.prototype.removeLiquidity = function (l_amount) {
+    TestScamContract.prototype.removeLiquidity = function (l_amount) {
         var self = this;
         assert_1.assert.isBigNumber('l_amount', l_amount);
         var functionSignature = 'removeLiquidity(uint256)';
@@ -511,11 +676,198 @@ var LiquidityContract = /** @class */ (function (_super) {
         };
     };
     ;
-    LiquidityContract.contractName = 'Liquidity';
-    return LiquidityContract;
+    TestScamContract.prototype.runBasicTest = function () {
+        var self = this;
+        var functionSignature = 'runBasicTest()';
+        return {
+            sendTransactionAsync: function (txData, opts) {
+                if (opts === void 0) { opts = { shouldValidate: true }; }
+                return __awaiter(this, void 0, void 0, function () {
+                    var txDataWithDefaults;
+                    return __generator(this, function (_a) {
+                        switch (_a.label) {
+                            case 0: return [4 /*yield*/, self._applyDefaultsToTxDataAsync(__assign({}, txData, { data: this.getABIEncodedTransactionData() }), this.estimateGasAsync.bind(this))];
+                            case 1:
+                                txDataWithDefaults = _a.sent();
+                                if (!(opts.shouldValidate !== false)) return [3 /*break*/, 3];
+                                return [4 /*yield*/, this.callAsync(txDataWithDefaults)];
+                            case 2:
+                                _a.sent();
+                                _a.label = 3;
+                            case 3: return [2 /*return*/, self._web3Wrapper.sendTransactionAsync(txDataWithDefaults)];
+                        }
+                    });
+                });
+            },
+            awaitTransactionSuccessAsync: function (txData, opts) {
+                if (opts === void 0) { opts = { shouldValidate: true }; }
+                return self._promiseWithTransactionHash(this.sendTransactionAsync(txData, opts), opts);
+            },
+            estimateGasAsync: function (txData) {
+                return __awaiter(this, void 0, void 0, function () {
+                    var txDataWithDefaults;
+                    return __generator(this, function (_a) {
+                        switch (_a.label) {
+                            case 0: return [4 /*yield*/, self._applyDefaultsToTxDataAsync(__assign({}, txData, { data: this.getABIEncodedTransactionData() }))];
+                            case 1:
+                                txDataWithDefaults = _a.sent();
+                                return [2 /*return*/, self._web3Wrapper.estimateGasAsync(txDataWithDefaults)];
+                        }
+                    });
+                });
+            },
+            callAsync: function (callData, defaultBlock) {
+                if (callData === void 0) { callData = {}; }
+                return __awaiter(this, void 0, void 0, function () {
+                    var rawCallResult, abiEncoder;
+                    return __generator(this, function (_a) {
+                        switch (_a.label) {
+                            case 0:
+                                base_contract_1.BaseContract._assertCallParams(callData, defaultBlock);
+                                return [4 /*yield*/, self._performCallAsync(__assign({}, callData, { data: this.getABIEncodedTransactionData() }), defaultBlock)];
+                            case 1:
+                                rawCallResult = _a.sent();
+                                abiEncoder = self._lookupAbiEncoder(functionSignature);
+                                return [2 /*return*/, abiEncoder.strictDecodeReturnValue(rawCallResult)];
+                        }
+                    });
+                });
+            },
+            getABIEncodedTransactionData: function () {
+                return self._strictEncodeArguments(functionSignature, []);
+            },
+        };
+    };
+    ;
+    TestScamContract.prototype.swap = function (fromToken, toToken, amount) {
+        var self = this;
+        assert_1.assert.isString('fromToken', fromToken);
+        assert_1.assert.isString('toToken', toToken);
+        assert_1.assert.isBigNumber('amount', amount);
+        var functionSignature = 'swap(address,address,uint256)';
+        return {
+            sendTransactionAsync: function (txData, opts) {
+                if (opts === void 0) { opts = { shouldValidate: true }; }
+                return __awaiter(this, void 0, void 0, function () {
+                    var txDataWithDefaults;
+                    return __generator(this, function (_a) {
+                        switch (_a.label) {
+                            case 0: return [4 /*yield*/, self._applyDefaultsToTxDataAsync(__assign({}, txData, { data: this.getABIEncodedTransactionData() }), this.estimateGasAsync.bind(this))];
+                            case 1:
+                                txDataWithDefaults = _a.sent();
+                                if (!(opts.shouldValidate !== false)) return [3 /*break*/, 3];
+                                return [4 /*yield*/, this.callAsync(txDataWithDefaults)];
+                            case 2:
+                                _a.sent();
+                                _a.label = 3;
+                            case 3: return [2 /*return*/, self._web3Wrapper.sendTransactionAsync(txDataWithDefaults)];
+                        }
+                    });
+                });
+            },
+            awaitTransactionSuccessAsync: function (txData, opts) {
+                if (opts === void 0) { opts = { shouldValidate: true }; }
+                return self._promiseWithTransactionHash(this.sendTransactionAsync(txData, opts), opts);
+            },
+            estimateGasAsync: function (txData) {
+                return __awaiter(this, void 0, void 0, function () {
+                    var txDataWithDefaults;
+                    return __generator(this, function (_a) {
+                        switch (_a.label) {
+                            case 0: return [4 /*yield*/, self._applyDefaultsToTxDataAsync(__assign({}, txData, { data: this.getABIEncodedTransactionData() }))];
+                            case 1:
+                                txDataWithDefaults = _a.sent();
+                                return [2 /*return*/, self._web3Wrapper.estimateGasAsync(txDataWithDefaults)];
+                        }
+                    });
+                });
+            },
+            callAsync: function (callData, defaultBlock) {
+                if (callData === void 0) { callData = {}; }
+                return __awaiter(this, void 0, void 0, function () {
+                    var rawCallResult, abiEncoder;
+                    return __generator(this, function (_a) {
+                        switch (_a.label) {
+                            case 0:
+                                base_contract_1.BaseContract._assertCallParams(callData, defaultBlock);
+                                return [4 /*yield*/, self._performCallAsync(__assign({}, callData, { data: this.getABIEncodedTransactionData() }), defaultBlock)];
+                            case 1:
+                                rawCallResult = _a.sent();
+                                abiEncoder = self._lookupAbiEncoder(functionSignature);
+                                return [2 /*return*/, abiEncoder.strictDecodeReturnValue(rawCallResult)];
+                        }
+                    });
+                });
+            },
+            getABIEncodedTransactionData: function () {
+                return self._strictEncodeArguments(functionSignature, [fromToken.toLowerCase(),
+                    toToken.toLowerCase(),
+                    amount
+                ]);
+            },
+        };
+    };
+    ;
+    /**
+     * Subscribe to an event type emitted by the TestScam contract.
+     * @param eventName The TestScam contract event you would like to subscribe to.
+     * @param indexFilterValues An object where the keys are indexed args returned by the event and
+     * the value is the value you are interested in. E.g `{maker: aUserAddressHex}`
+     * @param callback Callback that gets called when a log is added/removed
+     * @param isVerbose Enable verbose subscription warnings (e.g recoverable network issues encountered)
+     * @return Subscription token used later to unsubscribe
+     */
+    TestScamContract.prototype.subscribe = function (eventName, indexFilterValues, callback, isVerbose, blockPollingIntervalMs) {
+        if (isVerbose === void 0) { isVerbose = false; }
+        assert_1.assert.doesBelongToStringEnum('eventName', eventName, TestScamEvents);
+        assert_1.assert.doesConformToSchema('indexFilterValues', indexFilterValues, json_schemas_1.schemas.indexFilterValuesSchema);
+        assert_1.assert.isFunction('callback', callback);
+        var subscriptionToken = this._subscriptionManager.subscribe(this.address, eventName, indexFilterValues, TestScamContract.ABI(), callback, isVerbose, blockPollingIntervalMs);
+        return subscriptionToken;
+    };
+    /**
+     * Cancel a subscription
+     * @param subscriptionToken Subscription token returned by `subscribe()`
+     */
+    TestScamContract.prototype.unsubscribe = function (subscriptionToken) {
+        this._subscriptionManager.unsubscribe(subscriptionToken);
+    };
+    /**
+     * Cancels all existing subscriptions
+     */
+    TestScamContract.prototype.unsubscribeAll = function () {
+        this._subscriptionManager.unsubscribeAll();
+    };
+    /**
+     * Gets historical logs without creating a subscription
+     * @param eventName The TestScam contract event you would like to subscribe to.
+     * @param blockRange Block range to get logs from.
+     * @param indexFilterValues An object where the keys are indexed args returned by the event and
+     * the value is the value you are interested in. E.g `{_from: aUserAddressHex}`
+     * @return Array of logs that match the parameters
+     */
+    TestScamContract.prototype.getLogsAsync = function (eventName, blockRange, indexFilterValues) {
+        return __awaiter(this, void 0, void 0, function () {
+            var logs;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        assert_1.assert.doesBelongToStringEnum('eventName', eventName, TestScamEvents);
+                        assert_1.assert.doesConformToSchema('blockRange', blockRange, json_schemas_1.schemas.blockRangeSchema);
+                        assert_1.assert.doesConformToSchema('indexFilterValues', indexFilterValues, json_schemas_1.schemas.indexFilterValuesSchema);
+                        return [4 /*yield*/, this._subscriptionManager.getLogsAsync(this.address, eventName, blockRange, indexFilterValues, TestScamContract.ABI())];
+                    case 1:
+                        logs = _a.sent();
+                        return [2 /*return*/, logs];
+                }
+            });
+        });
+    };
+    TestScamContract.contractName = 'TestScam';
+    return TestScamContract;
 }(base_contract_1.BaseContract));
-exports.LiquidityContract = LiquidityContract;
+exports.TestScamContract = TestScamContract;
 // tslint:disable:max-file-line-count
 // tslint:enable:no-unbound-method no-parameter-reassignment no-consecutive-blank-lines ordered-imports align
 // tslint:enable:trailing-comma whitespace no-trailing-whitespace
-//# sourceMappingURL=liquidity.js.map
+//# sourceMappingURL=test_scam.js.map

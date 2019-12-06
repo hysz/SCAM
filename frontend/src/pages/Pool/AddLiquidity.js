@@ -12,7 +12,7 @@ import OversizedPanel from '../../components/OversizedPanel'
 import ContextualInfo from '../../components/ContextualInfo'
 import { ReactComponent as Plus } from '../../assets/images/plus-blue.svg'
 
-import { useExchangeContract } from '../../hooks'
+import { useExchangeContract, useScamContract } from '../../hooks'
 import { brokenTokens } from '../../constants'
 import { amountFormatter, calculateGasMargin } from '../../utils'
 import { useTransactionAdder } from '../../contexts/Transactions'
@@ -20,6 +20,7 @@ import { useTokenDetails } from '../../contexts/Tokens'
 import { useFetchAllBalances } from '../../contexts/AllBalances'
 import { useAddressBalance, useExchangeReserves } from '../../contexts/Balances'
 import { useAddressAllowance } from '../../contexts/Allowances'
+import { BigNumber } from '@0x/utils'
 
 const INPUT = 0
 const OUTPUT = 1
@@ -131,16 +132,20 @@ function initialAddLiquidityState(state) {
     inputValue: state.ethAmountURL ? state.ethAmountURL : '',
     outputValue: state.tokenAmountURL && !state.ethAmountURL ? state.tokenAmountURL : '',
     lastEditedField: state.tokenAmountURL && state.ethAmountURL === '' ? OUTPUT : INPUT,
-    outputCurrency: state.tokenURL ? state.tokenURL : ''
+    outputCurrency: state.tokenURL ? state.tokenURL : '',
+    inputCurrency: state.tokenURL ? state.tokenURL : ''
   }
 }
 
 function addLiquidityStateReducer(state, action) {
   switch (action.type) {
     case 'SELECT_CURRENCY': {
+      const { inputCurrency, outputCurrency } = state
+      const { field, value } = action.payload
       return {
         ...state,
-        outputCurrency: action.payload
+        inputCurrency: field === INPUT ? value : inputCurrency,
+        outputCurrency: field === OUTPUT ? value : outputCurrency
       }
     }
     case 'UPDATE_VALUE': {
@@ -214,8 +219,7 @@ export default function AddLiquidity({ params }) {
     { ethAmountURL: params.ethAmount, tokenAmountURL: params.tokenAmount, tokenURL: params.token },
     initialAddLiquidityState
   )
-  const { inputValue, outputValue, lastEditedField, outputCurrency } = addLiquidityState
-  const inputCurrency = 'ETH'
+  const { inputValue, outputValue, lastEditedField, outputCurrency, inputCurrency } = addLiquidityState
 
   const [inputValueParsed, setInputValueParsed] = useState()
   const [outputValueParsed, setOutputValueParsed] = useState()
@@ -224,17 +228,20 @@ export default function AddLiquidity({ params }) {
 
   const [brokenTokenWarning, setBrokenTokenWarning] = useState()
 
-  const { symbol, decimals, exchangeAddress } = useTokenDetails(outputCurrency)
-  const exchangeContract = useExchangeContract(exchangeAddress)
+  const { symbol: outputSymbol, decimals: outputDecimals, exchangeAddress } = useTokenDetails(outputCurrency)
+  const { symbol: inputSymbol, decimals: inputDecimals } = useTokenDetails(inputCurrency)
+  // const exchangeContract = useExchangeContract(exchangeAddress)
+  const scamContract = useScamContract(exchangeAddress)
 
   const [totalPoolTokens, setTotalPoolTokens] = useState()
   const fetchPoolTokens = useCallback(() => {
-    if (exchangeContract) {
-      exchangeContract.totalSupply().then(totalSupply => {
-        setTotalPoolTokens(totalSupply)
-      })
-    }
-  }, [exchangeContract])
+    // if (exchangeContract) {
+    //   exchangeContract.totalSupply().then(totalSupply => {
+    //     setTotalPoolTokens(totalSupply)
+    //   })
+    // }
+    setTotalPoolTokens(0)
+  }, [scamContract])
   useEffect(() => {
     fetchPoolTokens()
     library.on('block', fetchPoolTokens)
@@ -245,11 +252,14 @@ export default function AddLiquidity({ params }) {
   }, [fetchPoolTokens, library])
 
   const poolTokenBalance = useAddressBalance(account, exchangeAddress)
-  const exchangeETHBalance = useAddressBalance(exchangeAddress, 'ETH')
-  const exchangeTokenBalance = useAddressBalance(exchangeAddress, outputCurrency)
+  const exchangeInputBalance = useAddressBalance(exchangeAddress, inputCurrency)
+  const exchangeOutputBalance = useAddressBalance(exchangeAddress, outputCurrency)
 
-  const { reserveETH, reserveToken } = useExchangeReserves(outputCurrency)
+  // const { reserveETH, reserveToken } = useExchangeReserves(outputCurrency)
+  const reserveETH = useAddressBalance(exchangeAddress, inputCurrency)
+  const reserveToken = useAddressBalance(exchangeAddress, outputCurrency)
   const isNewExchange = !!(reserveETH && reserveToken && reserveETH.isZero() && reserveToken.isZero())
+  // console.log(isNewExchange, 'isNewExchange', reserveETH, reserveToken)
 
   // 18 decimals
   const poolTokenPercentage =
@@ -257,22 +267,22 @@ export default function AddLiquidity({ params }) {
       ? poolTokenBalance.mul(ethers.utils.bigNumberify(10).pow(ethers.utils.bigNumberify(18))).div(totalPoolTokens)
       : undefined
   const ethShare =
-    exchangeETHBalance && poolTokenPercentage
-      ? exchangeETHBalance
+    exchangeInputBalance && poolTokenPercentage
+      ? exchangeInputBalance
           .mul(poolTokenPercentage)
           .div(ethers.utils.bigNumberify(10).pow(ethers.utils.bigNumberify(18)))
       : undefined
   const tokenShare =
-    exchangeTokenBalance && poolTokenPercentage
-      ? exchangeTokenBalance
+    exchangeOutputBalance && poolTokenPercentage
+      ? exchangeOutputBalance
           .mul(poolTokenPercentage)
           .div(ethers.utils.bigNumberify(10).pow(ethers.utils.bigNumberify(18)))
       : undefined
 
   const liquidityMinted = isNewExchange
     ? inputValueParsed
-    : totalPoolTokens && inputValueParsed && exchangeETHBalance && !exchangeETHBalance.isZero()
-    ? totalPoolTokens.mul(inputValueParsed).div(exchangeETHBalance)
+    : totalPoolTokens && inputValueParsed && exchangeInputBalance && !exchangeInputBalance.isZero()
+    ? totalPoolTokens.mul(inputValueParsed).div(exchangeInputBalance)
     : undefined
 
   // user balances
@@ -280,23 +290,23 @@ export default function AddLiquidity({ params }) {
   const outputBalance = useAddressBalance(account, outputCurrency)
 
   const ethPerLiquidityToken =
-    exchangeETHBalance && totalPoolTokens && isNewExchange === false && !totalPoolTokens.isZero()
-      ? exchangeETHBalance.mul(ethers.utils.bigNumberify(10).pow(ethers.utils.bigNumberify(18))).div(totalPoolTokens)
+    exchangeInputBalance && totalPoolTokens && isNewExchange === false && !totalPoolTokens.isZero()
+      ? exchangeInputBalance.mul(ethers.utils.bigNumberify(10).pow(ethers.utils.bigNumberify(18))).div(totalPoolTokens)
       : undefined
   const tokenPerLiquidityToken =
-    exchangeTokenBalance && totalPoolTokens && isNewExchange === false && !totalPoolTokens.isZero()
-      ? exchangeTokenBalance.mul(ethers.utils.bigNumberify(10).pow(ethers.utils.bigNumberify(18))).div(totalPoolTokens)
+    exchangeOutputBalance && totalPoolTokens && isNewExchange === false && !totalPoolTokens.isZero()
+      ? exchangeOutputBalance.mul(ethers.utils.bigNumberify(10).pow(ethers.utils.bigNumberify(18))).div(totalPoolTokens)
       : undefined
 
   const outputValueMax = outputValueParsed && calculateSlippageBounds(outputValueParsed).maximum
   const liquidityTokensMin = liquidityMinted && calculateSlippageBounds(liquidityMinted).minimum
 
   const marketRate = useMemo(() => {
-    return getMarketRate(reserveETH, reserveToken, decimals)
-  }, [reserveETH, reserveToken, decimals])
+    return getMarketRate(reserveETH, reserveToken, outputDecimals)
+  }, [reserveETH, reserveToken, outputDecimals])
   const marketRateInverted = useMemo(() => {
-    return getMarketRate(reserveETH, reserveToken, decimals, true)
-  }, [reserveETH, reserveToken, decimals])
+    return getMarketRate(reserveETH, reserveToken, outputDecimals, true)
+  }, [reserveETH, reserveToken, outputDecimals])
 
   function renderTransactionDetails() {
     ReactGA.event({
@@ -307,35 +317,37 @@ export default function AddLiquidity({ params }) {
     const b = text => <BlueSpan>{text}</BlueSpan>
 
     if (isNewExchange) {
-      return (
-        <div>
-          <div>
-            {t('youAreAdding')} {b(`${inputValue} ETH`)} {t('and')} {b(`${outputValue} ${symbol}`)} {t('intoPool')}
-          </div>
-          <LastSummaryText>
-            {t('youAreSettingExRate')}{' '}
-            {b(
-              `1 ETH = ${amountFormatter(
-                getMarketRate(inputValueParsed, outputValueParsed, decimals),
-                18,
-                4,
-                false
-              )} ${symbol}`
-            )}
-            .
-          </LastSummaryText>
-          <LastSummaryText>
-            {t('youWillMint')} {b(`${inputValue}`)} {t('liquidityTokens')}
-          </LastSummaryText>
-          <LastSummaryText>{t('totalSupplyIs0')}</LastSummaryText>
-        </div>
-      )
+      // return (
+      //   <div>
+      //     <div>
+      //       {t('youAreAdding')} {b(`${inputValue} ETH`)} {t('and')} {b(`${outputValue} ${symbol}`)} {t('intoPool')}
+      //     </div>
+      //     <LastSummaryText>
+      //       {t('youAreSettingExRate')}{' '}
+      //       {b(
+      //         `1 ETH = ${amountFormatter(
+      //           getMarketRate(inputValueParsed, outputValueParsed, decimals),
+      //           18,
+      //           4,
+      //           false
+      //         )} ${symbol}`
+      //       )}
+      //       .
+      //     </LastSummaryText>
+      //     <LastSummaryText>
+      //       {t('youWillMint')} {b(`${inputValue}`)} {t('liquidityTokens')}
+      //     </LastSummaryText>
+      //     <LastSummaryText>{t('totalSupplyIs0')}</LastSummaryText>
+      //   </div>
+      // )
     } else {
       return (
         <>
           <div>
-            {t('youAreAdding')} {b(`${amountFormatter(inputValueParsed, 18, 4)} ETH`)} {t('and')} {'at most'}{' '}
-            {b(`${amountFormatter(outputValueMax, decimals, Math.min(decimals, 4))} ${symbol}`)} {t('intoPool')}
+            {t('youAreAdding')} {b(`${amountFormatter(inputValueParsed, inputDecimals, 4)} ${inputSymbol}`)} {t('and')}{' '}
+            {'at most'}{' '}
+            {b(`${amountFormatter(outputValueMax, outputDecimals, Math.min(outputDecimals, 4))} ${outputSymbol}`)}{' '}
+            {t('intoPool')}
           </div>
           <LastSummaryText>
             {t('youWillMint')} {b(amountFormatter(liquidityMinted, 18, 4))} {t('liquidityTokens')}
@@ -345,7 +357,7 @@ export default function AddLiquidity({ params }) {
           </LastSummaryText>
           <LastSummaryText>
             {t('tokenWorth')} {b(amountFormatter(ethPerLiquidityToken, 18, 4))} ETH {t('and')}{' '}
-            {b(amountFormatter(tokenPerLiquidityToken, decimals, Math.min(decimals, 4)))} {symbol}
+            {b(amountFormatter(tokenPerLiquidityToken, outputDecimals, Math.min(outputDecimals, 4)))} {outputSymbol}
           </LastSummaryText>
         </>
       )
@@ -389,32 +401,41 @@ export default function AddLiquidity({ params }) {
       action: 'AddLiquidity'
     })
 
-    const deadline = Math.ceil(Date.now() / 1000) + DEADLINE_FROM_NOW
+    // const deadline = Math.ceil(Date.now() / 1000) + DEADLINE_FROM_NOW
 
-    const estimatedGasLimit = await exchangeContract.estimate.addLiquidity(
-      isNewExchange ? ethers.constants.Zero : liquidityTokensMin,
-      isNewExchange ? outputValueParsed : outputValueMax,
-      deadline,
-      {
-        value: inputValueParsed
-      }
-    )
+    // const estimatedGasLimit = await exchangeContract.estimate.addLiquidity(
+    //   isNewExchange ? ethers.constants.Zero : liquidityTokensMin,
+    //   isNewExchange ? outputValueParsed : outputValueMax,
+    //   deadline,
+    //   {
+    //     value: inputValueParsed
+    //   }
+    // )
 
-    const gasLimit = calculateGasMargin(estimatedGasLimit, GAS_MARGIN)
+    // const gasLimit = calculateGasMargin(estimatedGasLimit, GAS_MARGIN)
 
-    exchangeContract
-      .addLiquidity(
-        isNewExchange ? ethers.constants.Zero : liquidityTokensMin,
-        isNewExchange ? outputValueParsed : outputValueMax,
-        deadline,
-        {
-          value: inputValueParsed,
-          gasLimit
-        }
-      )
+    console.log(inputValueParsed.toString(), outputValueParsed.toString())
+    scamContract
+      .addLiquidity(new BigNumber(inputValueParsed), new BigNumber(outputValueParsed))
+      .sendTransactionAsync({ gas: 9000000 })
       .then(response => {
-        addTransaction(response)
+        console.log(response)
+        addTransaction({ hash: response })
       })
+
+    // exchangeContract
+    //   .addLiquidity(
+    //     isNewExchange ? ethers.constants.Zero : liquidityTokensMin,
+    //     isNewExchange ? outputValueParsed : outputValueMax,
+    //     deadline,
+    //     {
+    //       value: inputValueParsed,
+    //       gasLimit
+    //     }
+    //   )
+    //   .then(response => {
+    //     addTransaction(response)
+    //   })
   }
 
   function formatBalance(value) {
@@ -433,16 +454,16 @@ export default function AddLiquidity({ params }) {
   useEffect(() => {
     if (isNewExchange) {
       if (inputValue) {
-        const parsedInputValue = ethers.utils.parseUnits(inputValue, 18)
+        const parsedInputValue = ethers.utils.parseUnits(inputValue, inputDecimals)
         setInputValueParsed(parsedInputValue)
       }
 
       if (outputValue) {
-        const parsedOutputValue = ethers.utils.parseUnits(outputValue, decimals)
+        const parsedOutputValue = ethers.utils.parseUnits(outputValue, outputDecimals)
         setOutputValueParsed(parsedOutputValue)
       }
     }
-  }, [decimals, inputValue, isNewExchange, outputValue])
+  }, [outputDecimals, inputValue, isNewExchange, outputValue])
 
   // parse input value
   useEffect(() => {
@@ -451,10 +472,10 @@ export default function AddLiquidity({ params }) {
       inputValue &&
       marketRate &&
       lastEditedField === INPUT &&
-      (decimals || decimals === 0)
+      (outputDecimals || outputDecimals === 0)
     ) {
       try {
-        const parsedValue = ethers.utils.parseUnits(inputValue, 18)
+        const parsedValue = ethers.utils.parseUnits(inputValue, inputDecimals)
 
         if (parsedValue.lte(ethers.constants.Zero) || parsedValue.gte(ethers.constants.MaxUint256)) {
           throw Error()
@@ -465,12 +486,15 @@ export default function AddLiquidity({ params }) {
         const currencyAmount = marketRate
           .mul(parsedValue)
           .div(ethers.utils.bigNumberify(10).pow(ethers.utils.bigNumberify(18)))
-          .div(ethers.utils.bigNumberify(10).pow(ethers.utils.bigNumberify(18 - decimals)))
+          .div(ethers.utils.bigNumberify(10).pow(ethers.utils.bigNumberify(18 - outputDecimals)))
 
         setOutputValueParsed(currencyAmount)
         dispatchAddLiquidityState({
           type: 'UPDATE_DEPENDENT_VALUE',
-          payload: { field: OUTPUT, value: amountFormatter(currencyAmount, decimals, Math.min(decimals, 4), false) }
+          payload: {
+            field: OUTPUT,
+            value: amountFormatter(currencyAmount, outputDecimals, Math.min(outputDecimals, 4), false)
+          }
         })
 
         return () => {
@@ -486,7 +510,7 @@ export default function AddLiquidity({ params }) {
         setOutputError(t('inputNotValid'))
       }
     }
-  }, [inputValue, isNewExchange, lastEditedField, marketRate, decimals, t])
+  }, [inputValue, isNewExchange, lastEditedField, marketRate, outputDecimals, t])
 
   // parse output value
   useEffect(() => {
@@ -495,10 +519,10 @@ export default function AddLiquidity({ params }) {
       outputValue &&
       marketRateInverted &&
       lastEditedField === OUTPUT &&
-      (decimals || decimals === 0)
+      (outputDecimals || outputDecimals === 0)
     ) {
       try {
-        const parsedValue = ethers.utils.parseUnits(outputValue, decimals)
+        const parsedValue = ethers.utils.parseUnits(outputValue, outputDecimals)
 
         if (parsedValue.lte(ethers.constants.Zero) || parsedValue.gte(ethers.constants.MaxUint256)) {
           throw Error()
@@ -508,7 +532,7 @@ export default function AddLiquidity({ params }) {
 
         const currencyAmount = marketRateInverted
           .mul(parsedValue)
-          .div(ethers.utils.bigNumberify(10).pow(ethers.utils.bigNumberify(decimals)))
+          .div(ethers.utils.bigNumberify(10).pow(ethers.utils.bigNumberify(outputDecimals)))
 
         setInputValueParsed(currencyAmount)
         dispatchAddLiquidityState({
@@ -529,7 +553,7 @@ export default function AddLiquidity({ params }) {
         setInputError(t('inputNotValid'))
       }
     }
-  }, [outputValue, isNewExchange, lastEditedField, marketRateInverted, decimals, t])
+  }, [outputValue, isNewExchange, lastEditedField, marketRateInverted, outputDecimals, t])
 
   // input validation
   useEffect(() => {
@@ -580,11 +604,11 @@ export default function AddLiquidity({ params }) {
             </span>{' '}
             {t('firstLiquidity')}
           </NewExchangeWarningText>
-          <NewExchangeWarningText>{t('initialExchangeRate', { symbol })}</NewExchangeWarningText>
+          <NewExchangeWarningText>{t('initialExchangeRate', { symbol: outputSymbol })}</NewExchangeWarningText>
         </NewExchangeWarning>
       ) : null}
 
-      <CurrencyInputPanel
+      {/* <CurrencyInputPanel
         title={t('deposit')}
         allBalances={allBalances}
         extraText={inputBalance && formatBalance(amountFormatter(inputBalance, 18, 4))}
@@ -602,10 +626,44 @@ export default function AddLiquidity({ params }) {
             }
           }
         }}
-        selectedTokenAddress="ETH"
+        // selectedTokenAddress="ETH"
         value={inputValue}
         errorMessage={inputError}
         disableTokenSelect
+      /> */}
+      {/* <OversizedPanel>
+        <DownArrowBackground>
+          <ColoredWrappedPlus active={isActive} alt="plus" />
+        </DownArrowBackground>
+      </OversizedPanel> */}
+      <CurrencyInputPanel
+        title={t('deposit')}
+        allBalances={allBalances}
+        description={isNewExchange ? '' : outputValue ? `(${t('estimated')})` : ''}
+        extraText={
+          inputBalance && formatBalance(amountFormatter(inputBalance, inputDecimals, Math.min(inputDecimals, 4)))
+        }
+        selectedTokenAddress={inputCurrency}
+        onCurrencySelected={inputCurrency => {
+          dispatchAddLiquidityState({ type: 'SELECT_CURRENCY', payload: { value: inputCurrency, field: INPUT } })
+        }}
+        onValueChange={inputValue => {
+          dispatchAddLiquidityState({ type: 'UPDATE_VALUE', payload: { value: inputValue, field: INPUT } })
+        }}
+        extraTextClickHander={() => {
+          if (inputBalance) {
+            dispatchAddLiquidityState({
+              type: 'UPDATE_VALUE',
+              payload: {
+                value: amountFormatter(calculateMaxOutputVal(inputBalance), inputDecimals, outputDecimals, false),
+                field: INPUT
+              }
+            })
+          }
+        }}
+        value={inputValue}
+        showUnlock={showUnlock}
+        errorMessage={outputError}
       />
       <OversizedPanel>
         <DownArrowBackground>
@@ -616,10 +674,12 @@ export default function AddLiquidity({ params }) {
         title={t('deposit')}
         allBalances={allBalances}
         description={isNewExchange ? '' : outputValue ? `(${t('estimated')})` : ''}
-        extraText={outputBalance && formatBalance(amountFormatter(outputBalance, decimals, Math.min(decimals, 4)))}
+        extraText={
+          outputBalance && formatBalance(amountFormatter(outputBalance, outputDecimals, Math.min(outputDecimals, 4)))
+        }
         selectedTokenAddress={outputCurrency}
         onCurrencySelected={outputCurrency => {
-          dispatchAddLiquidityState({ type: 'SELECT_CURRENCY', payload: outputCurrency })
+          dispatchAddLiquidityState({ type: 'SELECT_CURRENCY', payload: { value: outputCurrency, field: OUTPUT } })
         }}
         onValueChange={outputValue => {
           dispatchAddLiquidityState({ type: 'UPDATE_VALUE', payload: { value: outputValue, field: OUTPUT } })
@@ -629,7 +689,7 @@ export default function AddLiquidity({ params }) {
             dispatchAddLiquidityState({
               type: 'UPDATE_VALUE',
               payload: {
-                value: amountFormatter(calculateMaxOutputVal(outputBalance), decimals, decimals, false),
+                value: amountFormatter(calculateMaxOutputVal(outputBalance), outputDecimals, outputDecimals, false),
                 field: OUTPUT
               }
             })
@@ -643,31 +703,31 @@ export default function AddLiquidity({ params }) {
         <SummaryPanel>
           <ExchangeRateWrapper>
             <ExchangeRate>{t('exchangeRate')}</ExchangeRate>
-            <span>{marketRate ? `1 ETH = ${amountFormatter(marketRate, 18, 4)} ${symbol}` : ' - '}</span>
+            <span>{marketRate ? `1 ETH = ${amountFormatter(marketRate, 18, 4)} ${outputSymbol}` : ' - '}</span>
           </ExchangeRateWrapper>
           <ExchangeRateWrapper>
             <ExchangeRate>{t('currentPoolSize')}</ExchangeRate>
             <span>
-              {exchangeETHBalance && exchangeTokenBalance
-                ? `${amountFormatter(exchangeETHBalance, 18, 4)} ETH + ${amountFormatter(
-                    exchangeTokenBalance,
-                    decimals,
-                    Math.min(4, decimals)
-                  )} ${symbol}`
+              {exchangeInputBalance && exchangeOutputBalance
+                ? `${amountFormatter(exchangeInputBalance, inputDecimals, 4)} ${inputSymbol} + ${amountFormatter(
+                    exchangeOutputBalance,
+                    outputDecimals,
+                    Math.min(4, outputDecimals)
+                  )} ${outputSymbol}`
                 : ' - '}
             </span>
           </ExchangeRateWrapper>
           <ExchangeRateWrapper>
             <ExchangeRate>
-              {t('yourPoolShare')} ({exchangeETHBalance && amountFormatter(poolTokenPercentage, 16, 2)}%)
+              {t('yourPoolShare')} ({exchangeInputBalance && amountFormatter(poolTokenPercentage, 16, 2)}%)
             </ExchangeRate>
             <span>
               {ethShare && tokenShare
-                ? `${amountFormatter(ethShare, 18, 4)} ETH + ${amountFormatter(
+                ? `${amountFormatter(ethShare, inputDecimals, 4)} ${inputSymbol} + ${amountFormatter(
                     tokenShare,
-                    decimals,
-                    Math.min(4, decimals)
-                  )} ${symbol}`
+                    outputDecimals,
+                    Math.min(4, outputDecimals)
+                  )} ${outputSymbol}`
                 : ' - '}
             </span>
           </ExchangeRateWrapper>

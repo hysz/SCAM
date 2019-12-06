@@ -53,11 +53,62 @@ import { ScamContract } from '../generated-wrappers/scam';
 
     await usdcContract.mint(Web3Wrapper.toBaseUnitAmount(new BigNumber(1000), 6)).awaitTransactionSuccessAsync();
     await daiContract.mint(Web3Wrapper.toBaseUnitAmount(new BigNumber(1000), 18)).awaitTransactionSuccessAsync();
+    await usdcContract.approve(scamContract.address, new BigNumber(2).pow(256).minus(1)).awaitTransactionSuccessAsync();
+    await daiContract.approve(scamContract.address, new BigNumber(2).pow(256).minus(1)).awaitTransactionSuccessAsync();
+    console.log('adding liquidity');
+    await scamContract
+        .addLiquidity(
+            Web3Wrapper.toBaseUnitAmount(new BigNumber(1), 18),
+            Web3Wrapper.toBaseUnitAmount(new BigNumber(1), 6),
+        )
+        .awaitTransactionSuccessAsync();
+    await scamContract
+        .addLiquidity(
+            Web3Wrapper.toBaseUnitAmount(new BigNumber(100), 18),
+            Web3Wrapper.toBaseUnitAmount(new BigNumber(100), 6),
+        )
+        .awaitTransactionSuccessAsync();
+    // {
+    //     address xAddress;                                   // address of token x
+    //     address yAddress;                                   // address of token y
+    //     int256 x;                                           // contract's balance of token x (fixed point)
+    //     int256 y;                                           // contract's balance of token y (fixed point)
+    //     uint256 l;                                          // total liquidity token balance
+    //     int256 pBarX;                                       // expected future price of x in terms of y (fixed point)
+    //     int256 pBarXInverted;                               // inverted expected future price of x in terms of y (fixed point)
+    //     uint256 rhoNumerator;
+    //     int256 rhoRatio;
+    //     int256 fee;
+    //     uint256 bisectionIterations;
+    //     uint256 t;                                          // most recent block
+    //     mapping (address => uint256) liquidityBalance;
+    // }
+    console.log(await scamContract.gState().callAsync());
+    const [
+        xAddress,
+        yAddress,
+        x,
+        y,
+        totalLiquidityTokenBalance,
+        _pBarX,
+        _pBarXInv,
+        _rhoNumerator,
+        _rhoRatio,
+        _fee,
+        _bisectionIter,
+        _t,
+    ] = await scamContract.gState().callAsync();
     console.log({
         scam: scamContract.address,
         dai: daiContract.address,
         usdc: usdcContract.address,
-        gState: await scamContract.gState().callAsync(),
+        gState: {
+            xAddress,
+            yAddress,
+            x,
+            y,
+            totalLiquidityTokenBalance,
+        },
     });
     process.exit(0);
 })().catch(err => {

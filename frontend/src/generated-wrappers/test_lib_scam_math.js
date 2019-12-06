@@ -256,7 +256,6 @@ var TestLibScamMathContract = /** @class */ (function (_super) {
             },
         };
     };
-    ;
     /**
      * @ignore
      */

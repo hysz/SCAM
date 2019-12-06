@@ -173,7 +173,66 @@ var StateContract = /** @class */ (function (_super) {
      * @returns      The contract ABI
      */
     StateContract.ABI = function () {
-        var abi = [];
+        var abi = [
+            {
+                constant: true,
+                inputs: [],
+                name: 'gState',
+                outputs: [
+                    {
+                        name: 'xAddress',
+                        type: 'address',
+                    },
+                    {
+                        name: 'yAddress',
+                        type: 'address',
+                    },
+                    {
+                        name: 'x',
+                        type: 'int256',
+                    },
+                    {
+                        name: 'y',
+                        type: 'int256',
+                    },
+                    {
+                        name: 'l',
+                        type: 'uint256',
+                    },
+                    {
+                        name: 'pBarX',
+                        type: 'int256',
+                    },
+                    {
+                        name: 'pBarXInverted',
+                        type: 'int256',
+                    },
+                    {
+                        name: 'rhoNumerator',
+                        type: 'uint256',
+                    },
+                    {
+                        name: 'rhoRatio',
+                        type: 'int256',
+                    },
+                    {
+                        name: 'fee',
+                        type: 'int256',
+                    },
+                    {
+                        name: 'bisectionIterations',
+                        type: 'uint256',
+                    },
+                    {
+                        name: 't',
+                        type: 'uint256',
+                    },
+                ],
+                payable: false,
+                stateMutability: 'view',
+                type: 'function',
+            },
+        ];
         return abi;
     };
     StateContract.prototype.getFunctionSignature = function (methodName) {
@@ -202,6 +261,33 @@ var StateContract = /** @class */ (function (_super) {
         var abiEncoder = self._lookupAbiEncoder(functionSignature);
         return abiEncoder.getSelector();
     };
+    StateContract.prototype.gState = function () {
+        var self = this;
+        var functionSignature = 'gState()';
+        return {
+            callAsync: function (callData, defaultBlock) {
+                if (callData === void 0) { callData = {}; }
+                return __awaiter(this, void 0, void 0, function () {
+                    var rawCallResult, abiEncoder;
+                    return __generator(this, function (_a) {
+                        switch (_a.label) {
+                            case 0:
+                                base_contract_1.BaseContract._assertCallParams(callData, defaultBlock);
+                                return [4 /*yield*/, self._performCallAsync(__assign({}, callData, { data: this.getABIEncodedTransactionData() }), defaultBlock)];
+                            case 1:
+                                rawCallResult = _a.sent();
+                                abiEncoder = self._lookupAbiEncoder(functionSignature);
+                                return [2 /*return*/, abiEncoder.strictDecodeReturnValue(rawCallResult)];
+                        }
+                    });
+                });
+            },
+            getABIEncodedTransactionData: function () {
+                return self._strictEncodeArguments(functionSignature, []);
+            },
+        };
+    };
+    ;
     StateContract.contractName = 'State';
     return StateContract;
 }(base_contract_1.BaseContract));
