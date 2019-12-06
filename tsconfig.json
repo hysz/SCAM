@@ -19,7 +19,7 @@
         "resolveJsonModule": true
     },
     "exclude": ["./contracts/extensions/**/*"],
-    "include": ["./src/**/*", "./test/**/*", "./generated-wrappers/**/*"],
+    "include": ["./src/**/*", "./test/**/*", "./generated-wrappers/**/*", "./migrations/**/*"],
     "files": [
         "generated-artifacts/IERC20.json",
         "generated-artifacts/IEvents.json",
@@ -27,7 +27,6 @@
         "generated-artifacts/LibFixedMath.json",
         "generated-artifacts/LibSafeMath.json",
         "generated-artifacts/LibScamMath.json",
-        "generated-artifacts/LibToken.json",
         "generated-artifacts/Liquidity.json",
         "generated-artifacts/Ownable.json",
         "generated-artifacts/Scam.json",
@@ -41,7 +40,6 @@
         "test/generated-artifacts/LibFixedMath.json",
         "test/generated-artifacts/LibSafeMath.json",
         "test/generated-artifacts/LibScamMath.json",
-        "test/generated-artifacts/LibToken.json",
         "test/generated-artifacts/Liquidity.json",
         "test/generated-artifacts/Ownable.json",
         "test/generated-artifacts/Scam.json",

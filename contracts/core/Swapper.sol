@@ -6,8 +6,8 @@ import "../interfaces/IEvents.sol";
 import "../libs/LibFixedMath.sol";
 import "../libs/LibSafeMath.sol";
 import "../libs/LibScamMath.sol";
-import "../libs/LibToken.sol";
 import "../core/State.sol";
+import "../interfaces/IERC20.sol";
 
 
 contract Swapper is
@@ -33,33 +33,32 @@ contract Swapper is
             int256 amountReceivedFixed = _swap(
                 fromToken,
                 toToken,
-                LibToken.daiToFixed(amount),
+                LibFixedMath.toFixed(amount, 10**18), // DAI
                 state
             );
-            amountReceived = LibToken.usdcFromFixed(amountReceivedFixed);
+            amountReceived = uint256((amountReceivedFixed * int(10**6)).toInteger());
         } else if(fromToken == state.yAddress && toToken == state.xAddress) {
             int256 amountReceivedFixed = _swap(
                 fromToken,
                 toToken,
-                LibToken.usdcToFixed(amount),
+                LibFixedMath.toFixed(amount, 10**6), // USDC
                 state
             );
-            amountReceived = LibToken.daiFromFixed(amountReceivedFixed);
+            amountReceived = uint256((amountReceivedFixed * int(10**18)).toInteger());
         } else {
             revert("Invalid token addresses");
         }
 
         // Make transfers
-        /*
         require(
             IERC20(fromToken).transferFrom(msg.sender, address(this), amount),
             'INSUFFICIENT_FROM_TOKEN_BALANCE'
         );
         require(
-            IERC20(toToken).transferFrom(address(this), msg.sender, amountReceived),
+            // IERC20(toToken).transferFrom(address(this), msg.sender, amountReceived),
+            IERC20(toToken).transfer(msg.sender, amountReceived),
             'INSUFFICIENT_TO_TOKEN_BALANCE'
         );
-        */
 
         // Emit event
         emit IEvents.Fill(

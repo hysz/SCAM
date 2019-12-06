@@ -121,19 +121,19 @@ library LibScamMath {
         }
     }
 
-    function tokenToFixed(uint256 amount, uint256 nDecimals)
+    function scaleUp(int256 a)
         internal
         pure
-        returns (int256 fixedAmount)
+        returns (int256)
     {
-        return LibFixedMath.toFixed(amount, 10**nDecimals);
+        return a.mul(10**10);
     }
 
-    function tokenFromFixed(int256 amount, uint256 nDecimals)
+    function scaleDown(int256 a)
         internal
         pure
-        returns (uint256 tokenAmount)
+        returns (int256)
     {
-        return uint256((amount * int256(10**nDecimals)).toInteger());
+        return a.div(10**10);
     }
 }

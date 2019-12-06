@@ -13,7 +13,7 @@ contract State is
 
     using LibFixedMath for int256;
 
-    IStructs.State gState;
+    IStructs.State public gState;
 
     function _loadGlobalState()
         internal
@@ -28,22 +28,18 @@ contract State is
         gState = state;
     }
 
-    function initState()
+    function initState(address xAddress, address yAddress)
         external
         onlyOwner
-    {
-        _initState();
-    }
-
-    function _initState()
-        internal
     {
         require(
             !gState.isInitialized,
             'Already Initialized'
         );
 
-        gState.pBarX = LibFixedMath.toFixed(uint256(99), uint256(100));  // initial expected price of X given Y
+        gState.xAddress = xAddress;
+        gState.yAddress = yAddress;
+        gState.pBarX = LibFixedMath.toFixed(int256(1));  // initial expected price of X given Y
         gState.rhoNumerator = uint256(99);
         gState.rhoRatio = LibFixedMath.toFixed(uint256(99), uint256(100));
         gState.fee = LibFixedMath.toFixed(uint256(5), uint256(10000));    // 0.0005
