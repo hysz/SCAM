@@ -32,6 +32,12 @@ contract State is
         external
         onlyOwner
     {
+        _initState();
+    }
+
+    function _initState()
+        internal
+    {
         require(
             !gState.isInitialized,
             'Already Initialized'
