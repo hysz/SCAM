@@ -53,12 +53,12 @@ library LibFixedMath {
 
     /// @dev Returns the multiplication of two fixed point numbers, reverting on overflow.
     function mul(int256 a, int256 b) internal pure returns (int256 c) {
-        c = _mul(a, b) / FIXED_1;
+        c = (_mul(a / 10**10, b / 10**10) * 10**10) / FIXED_1;
     }
 
     /// @dev Returns the division of two fixed point numbers.
     function div(int256 a, int256 b) internal pure returns (int256 c) {
-        c = _div(_mul(a, FIXED_1), b);
+        c = _div(_mul(a / 10**10, FIXED_1 / 10**10) * 10**10, b);
     }
 
     /// @dev Performs (a * n) / d, without scaling for precision.
