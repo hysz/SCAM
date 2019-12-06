@@ -33,15 +33,15 @@ contract TestScam is
         );
         gState.eToKappa = LibFixedMath.toFixed(int256(10005), int256(1000));
 
-        swap(
-            gState.xAddress,
+         swap(
             gState.yAddress,
+            gState.xAddress,
             10000
         );
 
         swap(
-            gState.yAddress,
             gState.xAddress,
+            gState.yAddress,
             10000
         );
     }

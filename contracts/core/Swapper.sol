@@ -58,10 +58,10 @@ contract Swapper is
 
         // Compute about of `tokenB`
         int256 deltaB = deltaA
-        .mul(price)
-        .mul(
-            LibFixedMath.one().sub(state.fee)
-        );
+            .mul(price)
+            .mul(
+                LibFixedMath.one().sub(state.fee)
+            );
         deltaB = int256(0).sub(deltaB); // negate
 
         // Edge Cases
