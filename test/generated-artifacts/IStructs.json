@@ -9,14 +9,14 @@
 		"evm": {
 			"bytecode": {
 				"linkReferences": {},
-				"object": "0x6080604052348015600f57600080fd5b50604c80601d6000396000f3fe6080604052600080fdfea365627a7a723158202ef6cfc925ebccc0a16e460aee377f98f44ded02780efb4bcb13c2df1030708e6c6578706572696d656e74616cf564736f6c634300050d0040",
-				"opcodes": "PUSH1 0x80 PUSH1 0x40 MSTORE CALLVALUE DUP1 ISZERO PUSH1 0xF JUMPI PUSH1 0x0 DUP1 REVERT JUMPDEST POP PUSH1 0x4C DUP1 PUSH1 0x1D PUSH1 0x0 CODECOPY PUSH1 0x0 RETURN INVALID PUSH1 0x80 PUSH1 0x40 MSTORE PUSH1 0x0 DUP1 REVERT INVALID LOG3 PUSH6 0x627A7A723158 KECCAK256 0x2E 0xF6 0xCF 0xC9 0x25 0xEB 0xCC 0xC0 LOG1 PUSH15 0x460AEE377F98F44DED02780EFB4BCB SGT 0xC2 0xDF LT ADDRESS PUSH17 0x8E6C6578706572696D656E74616CF56473 PUSH16 0x6C634300050D00400000000000000000 ",
+				"object": "0x6080604052348015600f57600080fd5b50604c80601d6000396000f3fe6080604052600080fdfea365627a7a72315820e3dac5d6cd5428e546c8787b4f8974fcb78bbab830bda8a1baa9862643de39cb6c6578706572696d656e74616cf564736f6c634300050d0040",
+				"opcodes": "PUSH1 0x80 PUSH1 0x40 MSTORE CALLVALUE DUP1 ISZERO PUSH1 0xF JUMPI PUSH1 0x0 DUP1 REVERT JUMPDEST POP PUSH1 0x4C DUP1 PUSH1 0x1D PUSH1 0x0 CODECOPY PUSH1 0x0 RETURN INVALID PUSH1 0x80 PUSH1 0x40 MSTORE PUSH1 0x0 DUP1 REVERT INVALID LOG3 PUSH6 0x627A7A723158 KECCAK256 0xE3 0xDA 0xC5 0xD6 0xCD SLOAD 0x28 0xE5 CHAINID 0xC8 PUSH25 0x7B4F8974FCB78BBAB830BDA8A1BAA9862643DE39CB6C657870 PUSH6 0x72696D656E74 PUSH2 0x6CF5 PUSH5 0x736F6C6343 STOP SDIV 0xD STOP BLOCKHASH ",
 				"sourceMap": "60:1073:7:-;;;;8:9:-1;5:2;;;30:1;27;20:12;5:2;60:1073:7;;;;;;;"
 			},
 			"deployedBytecode": {
 				"linkReferences": {},
-				"object": "0x6080604052600080fdfea365627a7a723158202ef6cfc925ebccc0a16e460aee377f98f44ded02780efb4bcb13c2df1030708e6c6578706572696d656e74616cf564736f6c634300050d0040",
-				"opcodes": "PUSH1 0x80 PUSH1 0x40 MSTORE PUSH1 0x0 DUP1 REVERT INVALID LOG3 PUSH6 0x627A7A723158 KECCAK256 0x2E 0xF6 0xCF 0xC9 0x25 0xEB 0xCC 0xC0 LOG1 PUSH15 0x460AEE377F98F44DED02780EFB4BCB SGT 0xC2 0xDF LT ADDRESS PUSH17 0x8E6C6578706572696D656E74616CF56473 PUSH16 0x6C634300050D00400000000000000000 ",
+				"object": "0x6080604052600080fdfea365627a7a72315820e3dac5d6cd5428e546c8787b4f8974fcb78bbab830bda8a1baa9862643de39cb6c6578706572696d656e74616cf564736f6c634300050d0040",
+				"opcodes": "PUSH1 0x80 PUSH1 0x40 MSTORE PUSH1 0x0 DUP1 REVERT INVALID LOG3 PUSH6 0x627A7A723158 KECCAK256 0xE3 0xDA 0xC5 0xD6 0xCD SLOAD 0x28 0xE5 CHAINID 0xC8 PUSH25 0x7B4F8974FCB78BBAB830BDA8A1BAA9862643DE39CB6C657870 PUSH6 0x72696D656E74 PUSH2 0x6CF5 PUSH5 0x736F6C6343 STOP SDIV 0xD STOP BLOCKHASH ",
 				"sourceMap": "60:1073:7:-;;;;;"
 			}
 		}
@@ -27,9 +27,9 @@
 		}
 	},
 	"sourceCodes": {
-		"interfaces/IStructs.sol": "pragma solidity ^0.5.9;\npragma experimental ABIEncoderV2;\n\n\ninterface IStructs {\n\n    struct State {\n        bool isInitialized;\n        address xAddress;                                   // address of token x\n        address yAddress;                                   // address of token y\n        int256 x;                                           // contract's balance of token x (fixed point)\n        int256 y;                                           // contract's balance of token y (fixed point)\n        int256 pBarX;                                       // expected future price of x in terms of y (fixed point)\n        uint256 rhoNumerator;\n        int256 rhoRatio;\n        int256 fee;\n        uint256 t;                                          // most recent block\n        mapping (address => uint256) liquidityBalance;\n        uint256 l;                                          // total liquidity token balance\n        int256 beta;    // persistence of expercted price - the larger the more persistent\n        int256 eToKappa;   // clamp that prevents the expected price changing by a lot in an expected tx\n    }\n\n}\n"
+		"interfaces/IStructs.sol": "pragma solidity ^0.5.9;\npragma experimental ABIEncoderV2;\n\n\ninterface IStructs {\n\n    struct State {\n        bool isInitialized;\n        address xAddress;                                   // address of token x\n        address yAddress;                                   // address of token y\n        int256 x;                                           // contract's balance of token x (fixed point)\n        int256 y;                                           // contract's balance of token y (fixed point)\n        uint256 l;                                          // total liquidity token balance\n        int256 pBarX;                                       // expected future price of x in terms of y (fixed point)\n        uint256 rhoNumerator;\n        int256 rhoRatio;\n        int256 fee;\n        uint256 t;                                          // most recent block\n        mapping (address => uint256) liquidityBalance;\n        int256 beta;    // persistence of expercted price - the larger the more persistent\n        int256 eToKappa;   // clamp that prevents the expected price changing by a lot in an expected tx\n    }\n\n}\n"
 	},
-	"sourceTreeHashHex": "0x389de03654ff7617519a8cddbfa69ca200feb6633a870975a0b8cd2302e8e63a",
+	"sourceTreeHashHex": "0x52880e27603b6c5c749dbc1fc3dd316760e101df99fa1a5d0362322efd22e7da",
 	"compiler": {
 		"name": "solc",
 		"version": "soljson-v0.5.13+commit.5b0b510c.js",

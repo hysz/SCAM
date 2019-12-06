@@ -32,10 +32,10 @@ contract State is
         external
         onlyOwner
     {
-        _initState();
+        _initState(xAddress, yAddress);
     }
 
-    function _initState()
+    function _initState(address xAddress, address yAddress)
         internal
     {
         require(

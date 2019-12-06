@@ -18,11 +18,8 @@ contract TestScam is
      function runBasicTest()
         external
     {
-        // For us
-        gState.xAddress = 0x0000000000000000000000000000000000000001;
-        gState.yAddress = 0x0000000000000000000000000000000000000002;
 
-        _initState();
+        _initState(0x0000000000000000000000000000000000000001, 0x0000000000000000000000000000000000000002);
 
         // set initial blaances
         gState.x = uint256(500).toFixed();           // initial balance of Token X
