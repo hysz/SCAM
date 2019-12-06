@@ -37,12 +37,14 @@ import * as ethers from 'ethers';
 export type TestScamEventArgs =
     | TestScamBisectEventArgs
     | TestScamFillEventArgs
+    | TestScamFillInternalEventArgs
     | TestScamOwnershipTransferredEventArgs
     | TestScamPriceEventArgs;
 
 export enum TestScamEvents {
     Bisect = 'Bisect',
     Fill = 'Fill',
+    FillInternal = 'FillInternal',
     OwnershipTransferred = 'OwnershipTransferred',
     Price = 'Price',
 }
@@ -55,10 +57,16 @@ export interface TestScamBisectEventArgs extends DecodedLogArgs {
 
 export interface TestScamFillEventArgs extends DecodedLogArgs {
     from: string;
+    fromToken: string;
+    toToken: string;
     amountSpent: BigNumber;
     amountReceived: BigNumber;
-    x: BigNumber;
-    y: BigNumber;
+}
+
+export interface TestScamFillInternalEventArgs extends DecodedLogArgs {
+    from: string;
+    amountSpent: BigNumber;
+    amountReceived: BigNumber;
 }
 
 export interface TestScamOwnershipTransferredEventArgs extends DecodedLogArgs {
@@ -189,6 +197,16 @@ public static async deployFrom0xArtifactAsync(
                         indexed: false,
                     },
                     {
+                        name: 'fromToken',
+                        type: 'address',
+                        indexed: false,
+                    },
+                    {
+                        name: 'toToken',
+                        type: 'address',
+                        indexed: false,
+                    },
+                    {
                         name: 'amountSpent',
                         type: 'uint256',
                         indexed: false,
@@ -198,18 +216,32 @@ public static async deployFrom0xArtifactAsync(
                         type: 'uint256',
                         indexed: false,
                     },
+                ],
+                name: 'Fill',
+                outputs: [
+                ],
+                type: 'event',
+            },
+            { 
+                anonymous: false,
+                inputs: [
                     {
-                        name: 'x',
+                        name: 'from',
+                        type: 'address',
+                        indexed: false,
+                    },
+                    {
+                        name: 'amountSpent',
                         type: 'int256',
                         indexed: false,
                     },
                     {
-                        name: 'y',
+                        name: 'amountReceived',
                         type: 'int256',
                         indexed: false,
                     },
                 ],
-                name: 'Fill',
+                name: 'FillInternal',
                 outputs: [
                 ],
                 type: 'event',
@@ -358,6 +390,10 @@ public static async deployFrom0xArtifactAsync(
                 ],
                 name: 'swap',
                 outputs: [
+                    {
+                        name: 'amountReceived',
+                        type: 'uint256',
+                    },
                 ],
                 payable: false,
                 stateMutability: 'nonpayable',
@@ -692,7 +728,7 @@ public static async deployFrom0xArtifactAsync(
             fromToken: string,
             toToken: string,
             amount: BigNumber,
-    ): ContractTxFunctionObj<void
+    ): ContractTxFunctionObj<BigNumber
 > {
         const self = this as any as TestScamContract;
             assert.isString('fromToken', fromToken);
@@ -731,12 +767,12 @@ public static async deployFrom0xArtifactAsync(
             async callAsync(
                 callData: Partial<CallData> = {},
                 defaultBlock?: BlockParam,
-            ): Promise<void
+            ): Promise<BigNumber
             > {
                 BaseContract._assertCallParams(callData, defaultBlock);
                 const rawCallResult = await self._performCallAsync({ ...callData, data: this.getABIEncodedTransactionData() }, defaultBlock);
                 const abiEncoder = self._lookupAbiEncoder(functionSignature);
-                return abiEncoder.strictDecodeReturnValue<void
+                return abiEncoder.strictDecodeReturnValue<BigNumber
             >(rawCallResult);
             },
             getABIEncodedTransactionData(): string {

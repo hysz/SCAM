@@ -14,6 +14,18 @@
 					},
 					{
 						"indexed": false,
+						"internalType": "address",
+						"name": "fromToken",
+						"type": "address"
+					},
+					{
+						"indexed": false,
+						"internalType": "address",
+						"name": "toToken",
+						"type": "address"
+					},
+					{
+						"indexed": false,
 						"internalType": "uint256",
 						"name": "amountSpent",
 						"type": "uint256"
@@ -23,21 +35,34 @@
 						"internalType": "uint256",
 						"name": "amountReceived",
 						"type": "uint256"
-					},
-					{
-						"indexed": false,
-						"internalType": "int256",
-						"name": "x",
-						"type": "int256"
-					},
-					{
-						"indexed": false,
-						"internalType": "int256",
-						"name": "y",
-						"type": "int256"
 					}
 				],
 				"name": "Fill",
+				"type": "event"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": false,
+						"internalType": "address",
+						"name": "from",
+						"type": "address"
+					},
+					{
+						"indexed": false,
+						"internalType": "int256",
+						"name": "amountSpent",
+						"type": "int256"
+					},
+					{
+						"indexed": false,
+						"internalType": "int256",
+						"name": "amountReceived",
+						"type": "int256"
+					}
+				],
+				"name": "FillInternal",
 				"type": "event"
 			}
 		],
@@ -47,27 +72,27 @@
 		"evm": {
 			"bytecode": {
 				"linkReferences": {},
-				"object": "0x6080604052348015600f57600080fd5b50604c80601d6000396000f3fe6080604052600080fdfea365627a7a723158203b4495f997e55844e2ded82692358aa0b2eaafc818ab314072b1e4ed7ad926026c6578706572696d656e74616cf564736f6c634300050d0040",
-				"opcodes": "PUSH1 0x80 PUSH1 0x40 MSTORE CALLVALUE DUP1 ISZERO PUSH1 0xF JUMPI PUSH1 0x0 DUP1 REVERT JUMPDEST POP PUSH1 0x4C DUP1 PUSH1 0x1D PUSH1 0x0 CODECOPY PUSH1 0x0 RETURN INVALID PUSH1 0x80 PUSH1 0x40 MSTORE PUSH1 0x0 DUP1 REVERT INVALID LOG3 PUSH6 0x627A7A723158 KECCAK256 EXTCODESIZE DIFFICULTY SWAP6 0xF9 SWAP8 0xE5 PC DIFFICULTY 0xE2 0xDE 0xD8 0x26 SWAP3 CALLDATALOAD DUP11 LOG0 0xB2 0xEA 0xAF 0xC8 XOR 0xAB BALANCE BLOCKHASH PUSH19 0xB1E4ED7AD926026C6578706572696D656E7461 PUSH13 0xF564736F6C634300050D004000 ",
-				"sourceMap": "60:220:5:-;;;;8:9:-1;5:2;;;30:1;27;20:12;5:2;60:220:5;;;;;;;"
+				"object": "0x6080604052348015600f57600080fd5b50604c80601d6000396000f3fe6080604052600080fdfea365627a7a7231582027663053d0b7ac6feb4a48208951e6fb759204d35044055592bf20c0d2ee922f6c6578706572696d656e74616cf564736f6c634300050d0040",
+				"opcodes": "PUSH1 0x80 PUSH1 0x40 MSTORE CALLVALUE DUP1 ISZERO PUSH1 0xF JUMPI PUSH1 0x0 DUP1 REVERT JUMPDEST POP PUSH1 0x4C DUP1 PUSH1 0x1D PUSH1 0x0 CODECOPY PUSH1 0x0 RETURN INVALID PUSH1 0x80 PUSH1 0x40 MSTORE PUSH1 0x0 DUP1 REVERT INVALID LOG3 PUSH6 0x627A7A723158 KECCAK256 0x27 PUSH7 0x3053D0B7AC6FEB 0x4A 0x48 KECCAK256 DUP10 MLOAD 0xE6 0xFB PUSH22 0x9204D35044055592BF20C0D2EE922F6C657870657269 PUSH14 0x656E74616CF564736F6C63430005 0xD STOP BLOCKHASH ",
+				"sourceMap": "60:291:6:-;;;;8:9:-1;5:2;;;30:1;27;20:12;5:2;60:291:6;;;;;;;"
 			},
 			"deployedBytecode": {
 				"linkReferences": {},
-				"object": "0x6080604052600080fdfea365627a7a723158203b4495f997e55844e2ded82692358aa0b2eaafc818ab314072b1e4ed7ad926026c6578706572696d656e74616cf564736f6c634300050d0040",
-				"opcodes": "PUSH1 0x80 PUSH1 0x40 MSTORE PUSH1 0x0 DUP1 REVERT INVALID LOG3 PUSH6 0x627A7A723158 KECCAK256 EXTCODESIZE DIFFICULTY SWAP6 0xF9 SWAP8 0xE5 PC DIFFICULTY 0xE2 0xDE 0xD8 0x26 SWAP3 CALLDATALOAD DUP11 LOG0 0xB2 0xEA 0xAF 0xC8 XOR 0xAB BALANCE BLOCKHASH PUSH19 0xB1E4ED7AD926026C6578706572696D656E7461 PUSH13 0xF564736F6C634300050D004000 ",
-				"sourceMap": "60:220:5:-;;;;;"
+				"object": "0x6080604052600080fdfea365627a7a7231582027663053d0b7ac6feb4a48208951e6fb759204d35044055592bf20c0d2ee922f6c6578706572696d656e74616cf564736f6c634300050d0040",
+				"opcodes": "PUSH1 0x80 PUSH1 0x40 MSTORE PUSH1 0x0 DUP1 REVERT INVALID LOG3 PUSH6 0x627A7A723158 KECCAK256 0x27 PUSH7 0x3053D0B7AC6FEB 0x4A 0x48 KECCAK256 DUP10 MLOAD 0xE6 0xFB PUSH22 0x9204D35044055592BF20C0D2EE922F6C657870657269 PUSH14 0x656E74616CF564736F6C63430005 0xD STOP BLOCKHASH ",
+				"sourceMap": "60:291:6:-;;;;;"
 			}
 		}
 	},
 	"sources": {
 		"interfaces/IEvents.sol": {
-			"id": 5
+			"id": 6
 		}
 	},
 	"sourceCodes": {
-		"interfaces/IEvents.sol": "pragma solidity ^0.5.9;\npragma experimental ABIEncoderV2;\n\n\ninterface IEvents {\n\n    event Fill(\n        address from,\n       // address fromToken,\n        //address toToken,\n        uint256 amountSpent,\n        uint256 amountReceived,\n\n        int256 x,\n        int256 y\n    );\n}\n"
+		"interfaces/IEvents.sol": "pragma solidity ^0.5.9;\npragma experimental ABIEncoderV2;\n\n\ninterface IEvents {\n\n    event Fill(\n        address from,\n        address fromToken,\n        address toToken,\n        uint256 amountSpent,\n        uint256 amountReceived\n    );\n\n    event FillInternal(\n        address from,\n        int256 amountSpent,\n        int256 amountReceived\n    );\n}\n"
 	},
-	"sourceTreeHashHex": "0xe148f8225632324613c45a4f0ccd445907290798c304e6374a6858b54415fd1e",
+	"sourceTreeHashHex": "0x7c3b038a0e8d53e34d15311da74fa5f89fb81449861deeb8942719fe87864258",
 	"compiler": {
 		"name": "solc",
 		"version": "soljson-v0.5.13+commit.5b0b510c.js",

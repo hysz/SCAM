@@ -5,9 +5,31 @@
 		"abi": [
 			{
 				"constant": false,
-				"inputs": [],
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "sender",
+						"type": "address"
+					},
+					{
+						"internalType": "address",
+						"name": "recipient",
+						"type": "address"
+					},
+					{
+						"internalType": "uint256",
+						"name": "amount",
+						"type": "uint256"
+					}
+				],
 				"name": "transferFrom",
-				"outputs": [],
+				"outputs": [
+					{
+						"internalType": "bool",
+						"name": "",
+						"type": "bool"
+					}
+				],
 				"payable": false,
 				"stateMutability": "nonpayable",
 				"type": "function"
@@ -33,13 +55,13 @@
 	},
 	"sources": {
 		"interfaces/IERC20.sol": {
-			"id": 4
+			"id": 5
 		}
 	},
 	"sourceCodes": {
-		"interfaces/IERC20.sol": "pragma solidity ^0.5.9;\npragma experimental ABIEncoderV2;\n\n\ninterface IERC20 {\n\n    function transferFrom() external;\n\n}\n"
+		"interfaces/IERC20.sol": "pragma solidity ^0.5.9;\npragma experimental ABIEncoderV2;\n\n\ninterface IERC20 {\n\n    function transferFrom(address sender, address recipient, uint256 amount) external returns (bool);\n\n}\n"
 	},
-	"sourceTreeHashHex": "0x6ebbc87fe86b72338a3dc4ff7427ff0894008a618c7ef143b2e227fc31fda7c7",
+	"sourceTreeHashHex": "0x8881c4c71b509aaf3738b39cc97fa8ac414e5be4e89dac7960a9cc792666ab09",
 	"compiler": {
 		"name": "solc",
 		"version": "soljson-v0.5.13+commit.5b0b510c.js",

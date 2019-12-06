@@ -35,18 +35,26 @@ import * as ethers from 'ethers';
 
 
 export type IEventsEventArgs =
-    | IEventsFillEventArgs;
+    | IEventsFillEventArgs
+    | IEventsFillInternalEventArgs;
 
 export enum IEventsEvents {
     Fill = 'Fill',
+    FillInternal = 'FillInternal',
 }
 
 export interface IEventsFillEventArgs extends DecodedLogArgs {
     from: string;
+    fromToken: string;
+    toToken: string;
     amountSpent: BigNumber;
     amountReceived: BigNumber;
-    x: BigNumber;
-    y: BigNumber;
+}
+
+export interface IEventsFillInternalEventArgs extends DecodedLogArgs {
+    from: string;
+    amountSpent: BigNumber;
+    amountReceived: BigNumber;
 }
 
 
@@ -141,6 +149,16 @@ public static async deployFrom0xArtifactAsync(
                         indexed: false,
                     },
                     {
+                        name: 'fromToken',
+                        type: 'address',
+                        indexed: false,
+                    },
+                    {
+                        name: 'toToken',
+                        type: 'address',
+                        indexed: false,
+                    },
+                    {
                         name: 'amountSpent',
                         type: 'uint256',
                         indexed: false,
@@ -150,18 +168,32 @@ public static async deployFrom0xArtifactAsync(
                         type: 'uint256',
                         indexed: false,
                     },
+                ],
+                name: 'Fill',
+                outputs: [
+                ],
+                type: 'event',
+            },
+            { 
+                anonymous: false,
+                inputs: [
                     {
-                        name: 'x',
+                        name: 'from',
+                        type: 'address',
+                        indexed: false,
+                    },
+                    {
+                        name: 'amountSpent',
                         type: 'int256',
                         indexed: false,
                     },
                     {
-                        name: 'y',
+                        name: 'amountReceived',
                         type: 'int256',
                         indexed: false,
                     },
                 ],
-                name: 'Fill',
+                name: 'FillInternal',
                 outputs: [
                 ],
                 type: 'event',

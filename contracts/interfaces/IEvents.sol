@@ -6,12 +6,15 @@ interface IEvents {
 
     event Fill(
         address from,
-       // address fromToken,
-        //address toToken,
+        address fromToken,
+        address toToken,
         uint256 amountSpent,
-        uint256 amountReceived,
+        uint256 amountReceived
+    );
 
-        int256 x,
-        int256 y
+    event FillInternal(
+        address from,
+        int256 amountSpent,
+        int256 amountReceived
     );
 }

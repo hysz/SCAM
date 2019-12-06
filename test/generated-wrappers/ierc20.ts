@@ -118,9 +118,25 @@ public static async deployFrom0xArtifactAsync(
             { 
                 constant: false,
                 inputs: [
+                    {
+                        name: 'sender',
+                        type: 'address',
+                    },
+                    {
+                        name: 'recipient',
+                        type: 'address',
+                    },
+                    {
+                        name: 'amount',
+                        type: 'uint256',
+                    },
                 ],
                 name: 'transferFrom',
                 outputs: [
+                    {
+                        name: '',
+                        type: 'bool',
+                    },
                 ],
                 payable: false,
                 stateMutability: 'nonpayable',
@@ -158,10 +174,16 @@ public static async deployFrom0xArtifactAsync(
     }
 
     public transferFrom(
-    ): ContractTxFunctionObj<void
+            sender: string,
+            recipient: string,
+            amount: BigNumber,
+    ): ContractTxFunctionObj<boolean
 > {
         const self = this as any as IERC20Contract;
-        const functionSignature = 'transferFrom()';
+            assert.isString('sender', sender);
+            assert.isString('recipient', recipient);
+            assert.isBigNumber('amount', amount);
+        const functionSignature = 'transferFrom(address,address,uint256)';
 
         return {
             async sendTransactionAsync(
@@ -194,16 +216,19 @@ public static async deployFrom0xArtifactAsync(
             async callAsync(
                 callData: Partial<CallData> = {},
                 defaultBlock?: BlockParam,
-            ): Promise<void
+            ): Promise<boolean
             > {
                 BaseContract._assertCallParams(callData, defaultBlock);
                 const rawCallResult = await self._performCallAsync({ ...callData, data: this.getABIEncodedTransactionData() }, defaultBlock);
                 const abiEncoder = self._lookupAbiEncoder(functionSignature);
-                return abiEncoder.strictDecodeReturnValue<void
+                return abiEncoder.strictDecodeReturnValue<boolean
             >(rawCallResult);
             },
             getABIEncodedTransactionData(): string {
-                return self._strictEncodeArguments(functionSignature, []);
+                return self._strictEncodeArguments(functionSignature, [sender.toLowerCase(),
+            recipient.toLowerCase(),
+            amount
+            ]);
             },
         }
     };

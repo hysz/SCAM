@@ -23,13 +23,67 @@ contract Swapper is
         address toToken,
         uint256 amount
     )
-        //external
         public
+        returns (uint256 amountReceived)
     {
         IStructs.State memory state = _loadGlobalState();
 
+        if (fromToken == state.xAddress && toToken == state.yAddress) {
+            int256 amountReceivedFixed = _swap(
+                fromToken,
+                toToken,
+                LibFixedMath.toFixed(amount, 10**18), // DAI
+                state
+            );
+            amountReceived = uint256((amountReceivedFixed * int(10**18)).toInteger());
+        } else if(fromToken == state.yAddress && toToken == state.xAddress) {
+            int256 amountReceivedFixed = _swap(
+                fromToken,
+                toToken,
+                LibFixedMath.toFixed(amount, 10**6), // USDC
+                state
+            );
+            amountReceived = uint256((amountReceivedFixed * int(10**6)).toInteger());
+        } else {
+            revert("Invalid token addresses");
+        }
+
+        // Make transfers
+        /*
+        require(
+            IERC20(fromToken).transferFrom(msg.sender, address(this), amount),
+            'INSUFFICIENT_FROM_TOKEN_BALANCE'
+        );
+        require(
+            IERC20(toToken).transferFrom(address(this), msg.sender, amountReceived),
+            'INSUFFICIENT_TO_TOKEN_BALANCE'
+        );
+        */
+
+        // Emit event
+        /*
+        emit IEvents.Fill(
+            msg.sender,
+            fromToken,
+            toToken,
+            amount,
+            amountReceived
+        );
+        */
+
+        return amountReceived;
+    }
+
+    function _swap(
+        address fromToken,
+        address toToken,
+        int256 deltaA,
+        IStructs.State memory state
+    )
+        internal
+        returns (int256 amountReceived)
+    {
         // Compute initial balances (fixed point).
-        int256 deltaA = LibFixedMath.toFixed(amount);
         int256 a = 0;
         int256 b = 0;
         int256 pBarA = 0;
@@ -86,52 +140,29 @@ contract Swapper is
             newPBarA = LibFixedMath.one().div(state.eToKappa).mul(pBarA);
         }
 
-
-
         // Update state
         state.t = _getCurrentBlockNumber();
         if (fromIsX) {
             state.x = a.add(deltaA);
             state.y = b.add(deltaB);
             state.pBarX = newPBarA;
-
-            emit Price(
-                price,
-                deltaB,
-                state.pBarX,
-                pA
-            );
-
         } else {
             state.x = b.add(deltaB);
             state.y = a.add(deltaA);
             state.pBarX = LibFixedMath.one().div(newPBarA);
-
-            emit Price(
-                price,
-                deltaB,
-                state.pBarX,
-                pA
-            );
         }
 
         // Update state
         _saveGlobalState(state);
 
-        // Make transfers
-        //IERC20(fromToken).transferFrom(msg.sender, address(this), uint256(deltaA));
-        //IERC20(toToken).transferFrom(address(this), msg.sender, uint256(deltaB));
-
-        // Emit event
-        emit IEvents.Fill(
-            msg.sender,
-          //  fromToken,
-           // toToken,
-            uint256(deltaA),
-            uint256(-deltaB),
-            state.x,
-            state.y
+        emit IEvents.FillInternal(
+                msg.sender,
+                deltaA,
+                deltaB
         );
+
+        amountReceived = -deltaB;
+        return amountReceived;
     }
 
     event Bisect(
