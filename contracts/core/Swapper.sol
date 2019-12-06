@@ -6,6 +6,7 @@ import "../interfaces/IEvents.sol";
 import "../libs/LibFixedMath.sol";
 import "../libs/LibSafeMath.sol";
 import "../libs/LibScamMath.sol";
+import "../libs/LibToken.sol";
 import "../core/State.sol";
 import "../interfaces/IERC20.sol";
 
@@ -33,18 +34,18 @@ contract Swapper is
             int256 amountReceivedFixed = _swap(
                 fromToken,
                 toToken,
-                LibFixedMath.toFixed(amount, 10**18), // DAI
+                LibToken.daiToFixed(amount),
                 state
             );
-            amountReceived = uint256((amountReceivedFixed * int(10**6)).toInteger());
+            amountReceived = LibToken.usdcFromFixed(amountReceivedFixed);
         } else if(fromToken == state.yAddress && toToken == state.xAddress) {
             int256 amountReceivedFixed = _swap(
                 fromToken,
                 toToken,
-                LibFixedMath.toFixed(amount, 10**6), // USDC
+                LibToken.usdcToFixed(amount),
                 state
             );
-            amountReceived = uint256((amountReceivedFixed * int(10**18)).toInteger());
+            amountReceived = LibToken.daiFromFixed(amountReceivedFixed);
         } else {
             revert("Invalid token addresses");
         }

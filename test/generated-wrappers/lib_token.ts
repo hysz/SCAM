@@ -37,19 +37,19 @@ import * as ethers from 'ethers';
 /* istanbul ignore next */
 // tslint:disable:no-parameter-reassignment
 // tslint:disable-next-line:class-name
-export class TestLibScamMathContract extends BaseContract {
+export class LibTokenContract extends BaseContract {
     /**
      * @ignore
      */
-public static deployedBytecode = '0x6080604052348015600f57600080fd5b506004361060285760003560e01c8063bdd010a214602d575b600080fd5b604d60048036036040811015604157600080fd5b5080359060200135605f565b60408051918252519081900360200190f35b6000606f838363ffffffff607816565b90505b92915050565b6000816085575060016072565b816001141560935750816072565b6002820660ae5760a88380026002845b046078565b90506072565b60dc83800260027fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff850160a3565b83029050607256fea265627a7a72315820d89e9b43640ba4a4f3e8d7622cfb1d19685b2325d9ea06b40bcf3e469537bc2064736f6c634300050d0032';
-public static contractName = 'TestLibScamMath';
+public static deployedBytecode: string | undefined;
+public static contractName = 'LibToken';
     private readonly _methodABIIndex: { [name: string]: number } = {};
 public static async deployFrom0xArtifactAsync(
         artifact: ContractArtifact | SimpleContractArtifact,
         supportedProvider: SupportedProvider,
         txDefaults: Partial<TxData>,
         logDecodeDependencies: { [contractName: string]: (ContractArtifact | SimpleContractArtifact) },
-    ): Promise<TestLibScamMathContract> {
+    ): Promise<LibTokenContract> {
         assert.doesConformToSchema('txDefaults', txDefaults, schemas.txDataSchema, [
             schemas.addressSchema,
             schemas.numberSchema,
@@ -67,7 +67,7 @@ public static async deployFrom0xArtifactAsync(
                 logDecodeDependenciesAbiOnly[key] = logDecodeDependencies[key].compilerOutput.abi;
             }
         }
-        return TestLibScamMathContract.deployAsync(bytecode, abi, provider, txDefaults, logDecodeDependenciesAbiOnly, );
+        return LibTokenContract.deployAsync(bytecode, abi, provider, txDefaults, logDecodeDependenciesAbiOnly, );
     }
     public static async deployAsync(
         bytecode: string,
@@ -75,7 +75,7 @@ public static async deployFrom0xArtifactAsync(
         supportedProvider: SupportedProvider,
         txDefaults: Partial<TxData>,
         logDecodeDependencies: { [contractName: string]: ContractAbi },
-    ): Promise<TestLibScamMathContract> {
+    ): Promise<LibTokenContract> {
         assert.isHexString('bytecode', bytecode);
         assert.doesConformToSchema('txDefaults', txDefaults, schemas.txDataSchema, [
             schemas.addressSchema,
@@ -103,8 +103,8 @@ public static async deployFrom0xArtifactAsync(
         const txHash = await web3Wrapper.sendTransactionAsync(txDataWithDefaults);
         logUtils.log(`transactionHash: ${txHash}`);
         const txReceipt = await web3Wrapper.awaitTransactionSuccessAsync(txHash);
-        logUtils.log(`TestLibScamMath successfully deployed at ${txReceipt.contractAddress}`);
-        const contractInstance = new TestLibScamMathContract(txReceipt.contractAddress as string, provider, txDefaults, logDecodeDependencies);
+        logUtils.log(`LibToken successfully deployed at ${txReceipt.contractAddress}`);
+        const contractInstance = new LibTokenContract(txReceipt.contractAddress as string, provider, txDefaults, logDecodeDependencies);
         contractInstance.constructorArgs = [];
         return contractInstance;
     }
@@ -115,89 +115,37 @@ public static async deployFrom0xArtifactAsync(
      */
     public static ABI(): ContractAbi {
         const abi = [
-            {
-                constant: true,
-                inputs: [
-                    {
-                        name: 'x',
-                        type: 'uint256',
-                    },
-                    {
-                        name: 'y',
-                        type: 'uint256',
-                    },
-                ],
-                name: 'fastExpontentiationFn',
-                outputs: [
-                    {
-                        name: '',
-                        type: 'uint256',
-                    },
-                ],
-                payable: false,
-                stateMutability: 'pure',
-                type: 'function',
-            },
         ] as ContractAbi;
         return abi;
     }
 
     public getFunctionSignature(methodName: string): string {
         const index = this._methodABIIndex[methodName];
-        const methodAbi = TestLibScamMathContract.ABI()[index] as MethodAbi; // tslint:disable-line:no-unnecessary-type-assertion
+        const methodAbi = LibTokenContract.ABI()[index] as MethodAbi; // tslint:disable-line:no-unnecessary-type-assertion
         const functionSignature = methodAbiToFunctionSignature(methodAbi);
         return functionSignature;
     }
     public getABIDecodedTransactionData<T>(methodName: string, callData: string): T {
         const functionSignature = this.getFunctionSignature(methodName);
-        const self = (this as any) as TestLibScamMathContract;
+        const self = (this as any) as LibTokenContract;
         const abiEncoder = self._lookupAbiEncoder(functionSignature);
         const abiDecodedCallData = abiEncoder.strictDecode<T>(callData);
         return abiDecodedCallData;
     }
     public getABIDecodedReturnData<T>(methodName: string, callData: string): T {
         const functionSignature = this.getFunctionSignature(methodName);
-        const self = (this as any) as TestLibScamMathContract;
+        const self = (this as any) as LibTokenContract;
         const abiEncoder = self._lookupAbiEncoder(functionSignature);
         const abiDecodedCallData = abiEncoder.strictDecodeReturnValue<T>(callData);
         return abiDecodedCallData;
     }
     public getSelector(methodName: string): string {
         const functionSignature = this.getFunctionSignature(methodName);
-        const self = (this as any) as TestLibScamMathContract;
+        const self = (this as any) as LibTokenContract;
         const abiEncoder = self._lookupAbiEncoder(functionSignature);
         return abiEncoder.getSelector();
     }
 
-    public fastExpontentiationFn(
-            x: BigNumber,
-            y: BigNumber,
-    ): ContractFunctionObj<BigNumber
-> {
-        const self = this as any as TestLibScamMathContract;
-            assert.isBigNumber('x', x);
-            assert.isBigNumber('y', y);
-        const functionSignature = 'fastExpontentiationFn(uint256,uint256)';
-
-        return {
-            async callAsync(
-                callData: Partial<CallData> = {},
-                defaultBlock?: BlockParam,
-            ): Promise<BigNumber
-            > {
-                BaseContract._assertCallParams(callData, defaultBlock);
-                const rawCallResult = await self._evmExecAsync(this.getABIEncodedTransactionData());
-                const abiEncoder = self._lookupAbiEncoder(functionSignature);
-                return abiEncoder.strictDecodeReturnValue<BigNumber
-            >(rawCallResult);
-            },
-            getABIEncodedTransactionData(): string {
-                return self._strictEncodeArguments(functionSignature, [x,
-            y
-            ]);
-            },
-        };
-    }
 
 
     constructor(
@@ -205,11 +153,11 @@ public static async deployFrom0xArtifactAsync(
         supportedProvider: SupportedProvider,
         txDefaults?: Partial<TxData>,
         logDecodeDependencies?: { [contractName: string]: ContractAbi },
-        deployedBytecode: string | undefined = TestLibScamMathContract.deployedBytecode,
+        deployedBytecode: string | undefined = LibTokenContract.deployedBytecode,
     ) {
-        super('TestLibScamMath', TestLibScamMathContract.ABI(), address, supportedProvider, txDefaults, logDecodeDependencies, deployedBytecode);
+        super('LibToken', LibTokenContract.ABI(), address, supportedProvider, txDefaults, logDecodeDependencies, deployedBytecode);
         classUtils.bindAll(this, ['_abiEncoderByFunctionSignature', 'address', '_web3Wrapper']);
-TestLibScamMathContract.ABI().forEach((item, index) => {
+LibTokenContract.ABI().forEach((item, index) => {
             if (item.type === 'function') {
                 const methodAbi = item as MethodAbi;
                 this._methodABIIndex[methodAbi.name] = index;

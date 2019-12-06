@@ -9,6 +9,7 @@ export * from '../generated-wrappers/ierc20';
 export * from '../generated-wrappers/lib_fixed_math';
 export * from '../generated-wrappers/lib_safe_math';
 export * from '../generated-wrappers/lib_scam_math';
+export * from '../generated-wrappers/lib_token';
 export * from '../generated-wrappers/liquidity';
 export * from '../generated-wrappers/ownable';
 export * from '../generated-wrappers/scam';
