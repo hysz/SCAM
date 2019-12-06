@@ -145,7 +145,7 @@ contract Swapper is
         int256 aPlusAmount = a.add(deltaA);
 
         //
-        for (uint256 i = 0; i < /*state.bisectionIterations*/ 1; ++i) {
+        for (uint256 i = 0; i < /*state.bisectionIterations*/ 20; ++i) {
             int256 mid = LibScamMath.computeMidpoint(lowerBound, upperBound);
             int256 lhs1 = LibScamMath.computeBaseToNinetyNine(mid.div(pBarA));
             int256 lhs = aPlusAmount

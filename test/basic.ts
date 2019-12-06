@@ -33,9 +33,9 @@ blockchainTests.only('Test Scam', env => {
     describe('Scam', () => {
         it('runBasicTest', async () => {
             const tx = await testContract.runBasicTest().awaitTransactionSuccessAsync();
-            /*
             console.log(JSON.stringify(tx, null, 4));
 
+            /*
             console.log((tx.logs[0] as any).args.a.toString(10));
             console.log((tx.logs[0] as any).args.b.toString(10));
             console.log((tx.logs[0] as any).args.pBarA.toString(10));
@@ -46,9 +46,14 @@ blockchainTests.only('Test Scam', env => {
 
            //85070591730234615865843651857942052864
 
+           /*
             console.log(fromFixed((tx.logs[1] as any).args.lhs1));
             console.log(fromFixed((tx.logs[1] as any).args.mid));
             console.log(fromFixed((tx.logs[1] as any).args.lhs));
+                */
+
+            console.log(fromFixed((tx.logs[tx.logs.length-1] as any).args.price));
+
         });
     });
 });
