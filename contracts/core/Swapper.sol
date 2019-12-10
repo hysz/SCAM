@@ -51,6 +51,7 @@ contract Swapper is
         }
 
         // Make transfers
+        /*
         require(
             IERC20(fromToken).transferFrom(msg.sender, address(this), amount),
             'INSUFFICIENT_FROM_TOKEN_BALANCE'
@@ -60,6 +61,7 @@ contract Swapper is
             IERC20(toToken).transfer(msg.sender, amountReceived),
             'INSUFFICIENT_TO_TOKEN_BALANCE'
         );
+        */
 
         // Emit event
         emit IEvents.Fill(

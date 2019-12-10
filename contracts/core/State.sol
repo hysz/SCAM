@@ -15,24 +15,28 @@ contract State is
 
     IStructs.State public gState;
 
-    function _loadGlobalState()
-        internal
-        returns (IStructs.State memory state)
-    {
-        return gState;
-    }
-
-    function _saveGlobalState(IStructs.State memory state)
-        internal
-    {
-        gState = state;
-    }
-
     function initState(address xAddress, address yAddress)
         external
         onlyOwner
     {
         _initState(xAddress, yAddress);
+    }
+
+    function _loadGlobalState()
+        internal
+        returns (IStructs.State memory state)
+    {
+        state = gState;
+        return state;
+    }
+
+    function _saveGlobalState(IStructs.State memory state)
+        internal
+    {
+        gState.x = state.x;
+        gState.y = state.y;
+        gState.pBarX = state.pBarX;
+        gState.t = state.t;
     }
 
     function _initState(address xAddress, address yAddress)

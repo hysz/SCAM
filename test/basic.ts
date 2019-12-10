@@ -28,12 +28,20 @@ blockchainTests.only('Test Scam', env => {
             env.txDefaults,
             artifacts,
         );
+
+        await testContract.init().awaitTransactionSuccessAsync();
     });
 
     describe('Scam', () => {
+        it('one iteration', async () => {
+
+        })
+        it('twenty iterations', async () => {
+
+        })
         it('runBasicTest', async () => {
             const tx = await testContract.runBasicTest().awaitTransactionSuccessAsync();
-            console.log(JSON.stringify(tx, null, 4));
+            console.log(JSON.stringify(tx.gasUsed, null, 4));
 
             /*
             console.log((tx.logs[0] as any).args.a.toString(10));

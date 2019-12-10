@@ -1,4 +1,4 @@
-pragma solidity ^0.5.9;
+pragma solidity 0.5.9;
 pragma experimental ABIEncoderV2;
 
 import "../interfaces/IStructs.sol";
@@ -13,25 +13,29 @@ contract TestScam is
     using LibFixedMath for uint256;
     using LibFixedMath for int256;
 
-    uint256 block;
+    //uint256 block;
 
-     function runBasicTest()
+    function init()
         external
     {
-
-        _initState(0x0000000000000000000000000000000000000001, 0x0000000000000000000000000000000000000002);
+         _initState(0x0000000000000000000000000000000000000001, 0x0000000000000000000000000000000000000002);
 
         // set initial blaances
         gState.x = uint256(500).toFixed();           // initial balance of Token X
         gState.y = uint256(1000).toFixed();            // initial balance of Token Y
+    }
 
-        block = 570;
+     function runBasicTest()
+        external
+    {
+        //block = 570;
         swap(
             gState.xAddress,
             gState.yAddress,
             75 * 10**18
         );
 
+/*
         block = 1570;
         swap(
             gState.xAddress,
@@ -45,12 +49,13 @@ contract TestScam is
             gState.xAddress,
             220 * 10**6
         );
+        */
     }
 
     function _getCurrentBlockNumber()
         internal
         returns (uint256)
     {
-        return block;
+        return block.number; // block
     }
 }
