@@ -87,7 +87,7 @@ blockchainTests.only('Test Scam', env => {
             console.log('deltaA: ', fromFixed((tx.logs[0] as any).args.deltaA));
             console.log('rhoRatio: ', fromFixed((tx.logs[0] as any).args.rhoRatio));
             console.log('term4: ', fromFixed((tx.logs[0] as any).args.term4));
-            console.log('rl: ', fromFixed((tx.logs[0] as any).args.k13));
+            console.log('rh: ', fromFixed((tx.logs[0] as any).args.k13));
 
         });
     });

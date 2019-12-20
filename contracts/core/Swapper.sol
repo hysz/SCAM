@@ -267,6 +267,41 @@ contract Swapper is
         return term5;
     }
 
+    event E(
+        int256 term2,
+        int256 term3
+    );
+
+    function _computeStep2(
+        int256 a,
+        int256 b,
+        int256 pA,
+        int256 pBarA,
+        int256 deltaA,
+        int256 k8,
+        int256 k12,
+        IStructs.State memory state
+    )
+        internal
+        returns (int256)
+    {
+        int256 term1 = k12.div(k8);
+        int256 term2 = state.rhoRatio.add(
+            LibFixedMath.one()
+            .sub(state.rhoRatio)
+            .mul(k12)
+        );
+        int256 term3 = LibFixedMath.one().add(
+            LibFixedMath.one()
+            .sub(state.rhoRatio)
+            .mul(k8)
+        );
+        int256 term4 = term2.div(term3);
+        return term1 < term4
+            ? term1
+            : term4;
+    }
+
     function _bracket(
         int256 a,
         int256 b,
@@ -311,6 +346,17 @@ contract Swapper is
             state
         );
 
+        int256 rh = _computeStep2(
+            a,
+            b,
+            pA,
+            pBarA,
+            deltaA,
+            k8,
+            k12,
+            state
+        );
+
         emit T(
             a,
             b,
@@ -319,7 +365,7 @@ contract Swapper is
             deltaA,
             state.rhoRatio,
             delta,
-            rl
+            rh
         );
 
         /*
