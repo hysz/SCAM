@@ -80,6 +80,7 @@ blockchainTests.only('Test Scam', env => {
             // console.log('amountReceivved: ', (tx.logs[tx.logs.length-1] as any).args.amountReceived.toString(10));
 
 
+            /*
             console.log('a: ', fromFixed((tx.logs[0] as any).args.a));
             console.log('b: ', fromFixed((tx.logs[0] as any).args.b));
             console.log('pA: ', fromFixed((tx.logs[0] as any).args.pA));
@@ -88,6 +89,22 @@ blockchainTests.only('Test Scam', env => {
             console.log('rhoRatio: ', fromFixed((tx.logs[0] as any).args.rhoRatio));
             console.log('term4: ', fromFixed((tx.logs[0] as any).args.term4));
             console.log('rh: ', fromFixed((tx.logs[0] as any).args.k13));
+
+*/
+
+console.log('numerator: ', fromFixed((tx.logs[0] as any).args.numerator));
+console.log('denominator: ', fromFixed((tx.logs[0] as any).args.denominator));
+
+
+            console.log('rl: ', fromFixed((tx.logs[0] as any).args.rl));
+            console.log('rh: ', fromFixed((tx.logs[0] as any).args.rh));
+            console.log('yl: ', fromFixed((tx.logs[0] as any).args.yl));
+            console.log('yh: ', fromFixed((tx.logs[0] as any).args.yh));
+
+
+            console.log('price: ', fromFixed((tx.logs[0] as any).args.price));
+
+
 
         });
     });

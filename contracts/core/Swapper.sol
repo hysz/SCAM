@@ -20,6 +20,8 @@ contract Swapper is
 
     event Price(int256 price, int256 deltaB, int256 newPBarX, int256 pA);
 
+    event Price2(int256 price);
+
     function swap(
         address fromToken,
         address toToken,
@@ -110,7 +112,7 @@ contract Swapper is
             state.rhoRatio
         );
 
-        _bracket(
+        int256 price = _bracket(
             a,
             b,
             pA,
@@ -118,10 +120,12 @@ contract Swapper is
             deltaA,
             state
         );
+        emit Price2(price);
 
         return 0;
 
         // Compute
+        /*
         (int256 price) = _bisect(
             a,
             b,
@@ -130,7 +134,7 @@ contract Swapper is
             deltaA,
             state
         );
-
+        */
 
 /*
 
@@ -213,13 +217,13 @@ contract Swapper is
         int256 pA,
         int256 pBarA,
         int256 deltaA,
-        int256 k13,
         IStructs.State memory state
     )
         internal
         returns (int256)
     {
         int256 two = LibFixedMath.toFixed(int256(2));
+        int256 k13 = two.sub(state.rhoRatio).mul(a).mul(pA).sub(state.rhoRatio.mul(b));
 
         int256 term1 = k13.square().add(
             LibFixedMath.toFixed(int256(4))
@@ -310,9 +314,9 @@ contract Swapper is
         IStructs.State memory state
     )
         internal
-        returns (int256)
+        returns (int256 newRh, int256 yl)
     {
-        int256 yl = LibScamMath.computeBaseToOneHundred(rl);
+        yl = LibScamMath.computeBaseToOneHundred(rl);
         int256 term1 = state.rhoRatio.mul(yl)
             .add(
                 LibFixedMath.one()
@@ -328,9 +332,101 @@ contract Swapper is
             );
         int term3 = rl.mul(term1).div(term2);
 
-        return term3 < rh
+        newRh = term3 < rh
             ? term3
             : rh;
+
+        return (newRh, yl);
+    }
+
+    event EGGG(
+        int256 rl,
+        int256 rh,
+        int256 yl,
+        int256 yh
+    );
+
+    function _computeA(int256 rl, int256 rh)
+        internal
+        returns (int256)
+    {
+        return rl.mul(LibFixedMath.toFixed(int256(4)))
+            .add(rh.mul(LibFixedMath.toFixed(int256(6))))
+            .div(LibFixedMath.toFixed(int256(10)));
+    }
+
+     function _computeStep4(
+        int256 rl,
+        int256 rh,
+        int256 k8,
+        int256 k12,
+        int256 yl,
+        IStructs.State memory state
+    )
+        internal
+        returns (
+            int256 newRl,
+            int256 newRh,
+            int256 newYl,
+            int256 newYh
+        )
+    {
+        // compute yBis
+        int256 term1 = _computeA(rl, rh);
+        int256 yBis = LibScamMath.computeBaseToOneHundred(term1);
+
+        //
+        int256 term2 = k12.sub(k8.mul(term1));
+        if (yBis <= term2) {
+            return (
+                term1,
+                rh,
+                yBis,
+                LibScamMath.computeBaseToOneHundred(rh)
+            );
+        } else {
+            return (
+                rl,
+                term1,
+                yl,
+                yBis
+            );
+       }
+    }
+
+    function _computeStep5(
+        int256 rl,
+        int256 rh,
+        int256 yl,
+        int256 yh,
+        int256 k8,
+        int256 k12
+    )
+        internal
+        returns (int256)
+    {
+        int256 term1 = yh.mul(rl)
+            .sub(yl.mul(rh))
+            .add(k12.mul(rh.sub(rl)));
+        int256 term2 = yh
+            .sub(yl)
+            .add(k8.mul(rh.sub(rl)));
+        int256 term3 = term1.div(term2);
+
+        return term3 > rl
+            ? term3
+            : rl;
+    }
+
+    function _computeStep6(
+        int256 rl
+    )
+        internal
+        returns (int256)
+    {
+        return rl < LibFixedMath.toFixed(int256(9), int256(10))
+            ? 0
+            : rl;
     }
 
     function _bracket(
@@ -342,10 +438,9 @@ contract Swapper is
         IStructs.State memory state
     )
         internal
-        //returns ()
+        returns (int256)
     {
         // Cache constants that are used throughout bracketing algorithm.
-        int256 two = LibFixedMath.toFixed(int256(2));
         int256 k8 = a.mul(
             pA
             .mul(deltaA)
@@ -354,7 +449,6 @@ contract Swapper is
         int256 k12 = a.div(
             a.add(deltaA)
         );
-        int256 k13 = two.sub(state.rhoRatio).mul(a).mul(pA).sub(state.rhoRatio.mul(b));
 
         //////// Run bracketing ///////
         int256 delta = _computeStep0(
@@ -363,7 +457,6 @@ contract Swapper is
             pA,
             pBarA,
             deltaA,
-            k13,
             state
         );
 
@@ -388,7 +481,8 @@ contract Swapper is
             state
         );
 
-        rh = _computeStep3(
+        int256 yl;
+        (rh, yl) = _computeStep3(
             rl,
             rh,
             k8,
@@ -396,75 +490,30 @@ contract Swapper is
             state
         );
 
-        emit T(
-            a,
-            b,
-            pA,
-            pBarA,
-            deltaA,
-            state.rhoRatio,
-            delta,
-            rh
+        int256 yh;
+        (rl, rh, yl, yh) = _computeStep4(
+            rl,
+            rh,
+            k8,
+            k12,
+            yl,
+            state
         );
 
-        /*
-
-        int256 u = v.sub(v % two);
-        int256 sqrtV = u.div(two).mul(
-            v.div(u)
-            .ln()
-            .div(two)
-            .exp()
-        );
-        */
-
-
-
-        /*
-
-        // Step 1
-        int256 rl = LibFixedMath.min(
-            // lhs
-            k12.div(k8),
-
-            // rhs
-            a.mul(b.sub(delta.mul(pA)))
-            .div(b.mul(a.add(delta)))
-            .ln()
-            .mul(LibFixedMath.one().sub(state.rhoRatio))
-            .exp()
+        rl = _computeStep5(
+            rl,
+            rh,
+            yl,
+            yh,
+            k8,
+            k12
         );
 
-        // Step 2
-        int256 rh = LibFixedMath.min(
-            // lhs
-            k12.div(k8),
+        // Step 6
+        rl = _computeStep6(rl);
 
-            // rhs
-            state.rhoRatio.add(LibFixedMath.one().sub(state.rhoRatio.mul(k12))
-            .div(
-                LibFixedMath.one().add(
-                    LibFixedMath.one().sub(state.rhoRatio).mul(k8)
-                )
-            )
-        );
-
-        // Step 3
-        int256 tao = LibFixedMath.toFixed(int256(1), int256(10));
-        if (rh.sub(rl) > (state.baseFee.add(LibFixedMath.one().sub(rh)).mul(tao))) {
-
-        }
-
-        // Step 4
-        if (rh.sub(rl) > (state.baseFee.add(LibFixedMath.one().sub(rh)).mul(tao))) {
-
-        }
-
-        // Step 5
-        if (rh.sub(rl) > (state.baseFee.add(LibFixedMath.one().sub(rh)).mul(tao))) {
-
-        }
-        */
+        // Step 7
+        return rl.mul(pA);
     }
 
     function _bisect(
