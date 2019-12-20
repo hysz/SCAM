@@ -112,7 +112,20 @@ contract Swapper is
             state.rhoRatio
         );
 
+/*
         int256 price = _bracket(
+            a,
+            b,
+            pA,
+            pBarA,
+            deltaA,
+            state
+        );
+        */
+
+
+        // Compute
+        (int256 price) = _bisect(
             a,
             b,
             pA,
@@ -123,18 +136,6 @@ contract Swapper is
         emit Price2(price);
 
         return 0;
-
-        // Compute
-        /*
-        (int256 price) = _bisect(
-            a,
-            b,
-            pA,
-            pBarA,
-            deltaA,
-            state
-        );
-        */
 
 /*
 
@@ -542,11 +543,13 @@ contract Swapper is
                 .mul(lhs1)
                 .mul(mid)
                 .add(deltaA.mul(mid));
-            emit Bisect(
+
+            /*emit Bisect(
                 lhs1,
                 mid,
                 lhs
             );
+            */
             if (lhs > b) {
                 upperBound = mid;
             } else {
