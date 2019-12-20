@@ -302,6 +302,37 @@ contract Swapper is
             : term4;
     }
 
+    function _computeStep3(
+        int256 rl,
+        int256 rh,
+        int256 k8,
+        int256 k12,
+        IStructs.State memory state
+    )
+        internal
+        returns (int256)
+    {
+        int256 yl = LibScamMath.computeBaseToOneHundred(rl);
+        int256 term1 = state.rhoRatio.mul(yl)
+            .add(
+                LibFixedMath.one()
+                .sub(state.rhoRatio)
+                .mul(k12)
+            );
+        int256 term2 = yl
+            .add(
+                LibFixedMath.one()
+                .sub(state.rhoRatio)
+                .mul(k8)
+                .mul(rl)
+            );
+        int term3 = rl.mul(term1).div(term2);
+
+        return term3 < rh
+            ? term3
+            : rh;
+    }
+
     function _bracket(
         int256 a,
         int256 b,
@@ -352,6 +383,14 @@ contract Swapper is
             pA,
             pBarA,
             deltaA,
+            k8,
+            k12,
+            state
+        );
+
+        rh = _computeStep3(
+            rl,
+            rh,
             k8,
             k12,
             state

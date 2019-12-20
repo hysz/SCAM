@@ -106,6 +106,24 @@ library LibScamMath {
         return baseToNinetyNine;
     }
 
+     /// @dev Computes base^100
+    function computeBaseToOneHundred(
+        int256 base
+    )
+        internal
+        returns (int256)
+    {
+        int256 baseSquared = base.mul(base);
+        int256 baseCubed = base.mul(baseSquared);
+        int256 baseToSix = baseCubed.mul(baseCubed);
+        int256 baseToTwelve = baseToSix.mul(baseToSix);
+        int256 baseToTwentyFour = baseToTwelve.mul(baseToTwelve);
+        int256 baseToFourtyEight = baseToTwentyFour.mul(baseToTwentyFour);
+        int256 baseToFifty = baseToFourtyEight.mul(baseSquared);
+        int256 baseToHundred = baseToFifty.mul(baseToFifty);
+        return baseToHundred;
+    }
+
     function fastExponentiation(uint256 x, uint256 y)
         internal
         pure
