@@ -92,17 +92,10 @@ blockchainTests.only('Test Scam', env => {
 
 */
 
-console.log('numerator: ', fromFixed((tx.logs[0] as any).args.numerator));
-console.log('denominator: ', fromFixed((tx.logs[0] as any).args.denominator));
+            console.log('lhs: ', fromFixed((tx.logs[0] as any).args.lhs));
+            console.log('rhs: ', fromFixed((tx.logs[0] as any).args.rhs));
 
-
-            console.log('rl: ', fromFixed((tx.logs[0] as any).args.rl));
-            console.log('rh: ', fromFixed((tx.logs[0] as any).args.rh));
-            console.log('yl: ', fromFixed((tx.logs[0] as any).args.yl));
-            console.log('yh: ', fromFixed((tx.logs[0] as any).args.yh));
-
-
-            console.log('price: ', fromFixed((tx.logs[0] as any).args.price));
+            console.log('price: ', fromFixed((tx.logs[tx.logs.length-1] as any).args.price));
 
 
 

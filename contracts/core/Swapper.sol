@@ -112,7 +112,8 @@ contract Swapper is
             state.rhoRatio
         );
 
-/*
+        // Compute
+
         int256 price = _bracket(
             a,
             b,
@@ -121,10 +122,10 @@ contract Swapper is
             deltaA,
             state
         );
-        */
 
 
-        // Compute
+
+        /*
         (int256 price) = _bisect(
             a,
             b,
@@ -133,6 +134,7 @@ contract Swapper is
             deltaA,
             state
         );
+        */
         emit Price2(price);
 
         return 0;
@@ -430,6 +432,32 @@ contract Swapper is
             : rl;
     }
 
+    function _shouldImprovePrecision(
+        int256 rl,
+        int256 rh,
+        int256 fee
+    )
+        internal
+        returns (bool shouldImprovePrecision)
+    {
+        int256 lhs = rh.sub(rl);
+        int256 tao = LibFixedMath.toFixed(int256(1), int256(10));
+        int256 rhs = tao.mul(
+            fee.add(
+                LibFixedMath.one().sub(rh)
+            )
+        );
+
+        emit L(lhs,rhs);
+
+        return lhs > rhs;
+    }
+
+    event L(
+        int256 lhs,
+        int256 rhs
+    );
+
     function _bracket(
         int256 a,
         int256 b,
@@ -482,33 +510,40 @@ contract Swapper is
             state
         );
 
-        int256 yl;
-        (rh, yl) = _computeStep3(
-            rl,
-            rh,
-            k8,
-            k12,
-            state
-        );
 
-        int256 yh;
-        (rl, rh, yl, yh) = _computeStep4(
-            rl,
-            rh,
-            k8,
-            k12,
-            yl,
-            state
-        );
+        if (_shouldImprovePrecision(rl, rh, state.fee)) {
+            int256 yl;
+            (rh, yl) = _computeStep3(
+                rl,
+                rh,
+                k8,
+                k12,
+                state
+            );
 
-        rl = _computeStep5(
-            rl,
-            rh,
-            yl,
-            yh,
-            k8,
-            k12
-        );
+            if (_shouldImprovePrecision(rl, rh, state.fee)) {
+                int256 yh;
+                (rl, rh, yl, yh) = _computeStep4(
+                    rl,
+                    rh,
+                    k8,
+                    k12,
+                    yl,
+                    state
+                );
+
+                if (_shouldImprovePrecision(rl, rh, state.fee)) {
+                    rl = _computeStep5(
+                        rl,
+                        rh,
+                        yl,
+                        yh,
+                        k8,
+                        k12
+                    );
+                }
+            }
+        }
 
         // Step 6
         rl = _computeStep6(rl);
@@ -543,13 +578,6 @@ contract Swapper is
                 .mul(lhs1)
                 .mul(mid)
                 .add(deltaA.mul(mid));
-
-            /*emit Bisect(
-                lhs1,
-                mid,
-                lhs
-            );
-            */
             if (lhs > b) {
                 upperBound = mid;
             } else {
