@@ -39,6 +39,7 @@ library LibScamMath {
         }
         result = term3.mul(pBarA);
 
+/*
         emit TestMidpointOnBondCurve(
             a,
             b,
@@ -46,6 +47,7 @@ library LibScamMath {
             rhoRatio,
             result.toInteger()
         );
+        */
 
         return result;
     }

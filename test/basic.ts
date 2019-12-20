@@ -34,6 +34,7 @@ blockchainTests.only('Test Scam', env => {
 
     describe('Scam', () => {
         it('one iteration', async () => {
+            //console.log(JSON.stringify(fromFixed(new BigNumber('695445694379160913696754225765070929920'))));
 
         })
         it('twenty iterations', async () => {
@@ -41,7 +42,7 @@ blockchainTests.only('Test Scam', env => {
         })
         it('runBasicTest', async () => {
             const tx = await testContract.runBasicTest().awaitTransactionSuccessAsync();
-            console.log(JSON.stringify(tx.gasUsed, null, 4));
+            console.log(JSON.stringify(tx, null, 4));
 
             /*
             console.log((tx.logs[0] as any).args.a.toString(10));
@@ -75,8 +76,19 @@ blockchainTests.only('Test Scam', env => {
 
 
 
-            console.log('amountSpent: ', (tx.logs[tx.logs.length-1] as any).args.amountSpent.toString(10));
-             console.log('amountReceivved: ', (tx.logs[tx.logs.length-1] as any).args.amountReceived.toString(10));
+          //  console.log('amountSpent: ', (tx.logs[tx.logs.length-1] as any).args.amountSpent.toString(10));
+            // console.log('amountReceivved: ', (tx.logs[tx.logs.length-1] as any).args.amountReceived.toString(10));
+
+
+            console.log('a: ', fromFixed((tx.logs[0] as any).args.a));
+            console.log('b: ', fromFixed((tx.logs[0] as any).args.b));
+            console.log('pA: ', fromFixed((tx.logs[0] as any).args.pA));
+            console.log('pBarA: ', fromFixed((tx.logs[0] as any).args.pBarA));
+            console.log('deltaA: ', fromFixed((tx.logs[0] as any).args.deltaA));
+            console.log('rhoRatio: ', fromFixed((tx.logs[0] as any).args.rhoRatio));
+            console.log('term4: ', fromFixed((tx.logs[0] as any).args.term4));
+            console.log('rl: ', fromFixed((tx.logs[0] as any).args.k13));
+
         });
     });
 });

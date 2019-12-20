@@ -102,14 +102,37 @@ contract Swapper is
             revert("Invalid token addresses");
         }
 
-        // Compute
-        (int256 pA, int256 price) = _bisect(
+        // Compute initial midpoint on bond curve; this will be the initial lower bound.
+        int256 pA = LibScamMath.computeMidpointOnBondCurve(
             a,
             b,
+            pBarA,
+            state.rhoRatio
+        );
+
+        _bracket(
+            a,
+            b,
+            pA,
             pBarA,
             deltaA,
             state
         );
+
+        return 0;
+
+        // Compute
+        (int256 price) = _bisect(
+            a,
+            b,
+            pA,
+            pBarA,
+            deltaA,
+            state
+        );
+
+
+/*
 
         // Compute about of `tokenB`
         int256 deltaB = deltaA
@@ -164,6 +187,7 @@ contract Swapper is
 
         amountReceived = -deltaB;
         return amountReceived;
+        */
     }
 
     event Bisect(
@@ -172,24 +196,203 @@ contract Swapper is
         int256 lhs
     );
 
-    function _bisect(
+    event T(
         int256 a,
         int256 b,
+        int256 pA,
+        int256 pBarA,
+        int256 deltaA,
+        int256 rhoRatio,
+        int256 term4,
+        int256 k13
+    );
+
+    function _computeStep0(
+        int256 a,
+        int256 b,
+        int256 pA,
+        int256 pBarA,
+        int256 deltaA,
+        int256 k13,
+        IStructs.State memory state
+    )
+        internal
+        returns (int256)
+    {
+        int256 two = LibFixedMath.toFixed(int256(2));
+
+        int256 term1 = k13.square().add(
+            LibFixedMath.toFixed(int256(4))
+            .mul(pA)
+            .mul(a)
+            .mul(b)
+        );
+        int256 term2 = -(LibFixedMath.one()
+            .div(term1)
+            .ln()
+            .div(two));
+
+
+        int256 term3 = (term2 <= 0)
+            ? term2.exp()
+            : LibFixedMath.one().div(
+                (-term2).exp()
+            );
+
+        int256 term4 = (-k13)
+            .add(term3)
+            .div(two.mul(pA));
+
+        int256 delta = LibFixedMath.min(deltaA, term4);
+        return delta;
+    }
+
+    function _computeStep1(
+        int256 a,
+        int256 b,
+        int256 pA,
+        int256 pBarA,
+        int256 deltaA,
+        int256 delta,
+        IStructs.State memory state
+    )
+        internal
+        returns (int256)
+    {
+        int256 term1 = a.mul(b.sub(delta.mul(pA)));
+        int256 term2 = b.mul(a.add(delta));
+        int256 term3 = term1.div(term2).ln();
+        int256 term4 = LibFixedMath.one().sub(state.rhoRatio).mul(term3);
+        int256 term5 = term4.exp().mul(delta).div(deltaA);
+        return term5;
+    }
+
+    function _bracket(
+        int256 a,
+        int256 b,
+        int256 pA,
         int256 pBarA,
         int256 deltaA,
         IStructs.State memory state
     )
         internal
-        returns (int256 pA, int256 r)
+        //returns ()
     {
-        // Compute initial midpoint on bond curve; this will be the initial lower bound.
-        pA = LibScamMath.computeMidpointOnBondCurve(
+        // Cache constants that are used throughout bracketing algorithm.
+        int256 two = LibFixedMath.toFixed(int256(2));
+        int256 k8 = a.mul(
+            pA
+            .mul(deltaA)
+            .div(a.mul(b).add(b.mul(deltaA)))
+        );
+        int256 k12 = a.div(
+            a.add(deltaA)
+        );
+        int256 k13 = two.sub(state.rhoRatio).mul(a).mul(pA).sub(state.rhoRatio.mul(b));
+
+        //////// Run bracketing ///////
+        int256 delta = _computeStep0(
             a,
             b,
+            pA,
             pBarA,
-            state.rhoRatio
+            deltaA,
+            k13,
+            state
         );
 
+        int256 rl = _computeStep1(
+            a,
+            b,
+            pA,
+            pBarA,
+            deltaA,
+            delta,
+            state
+        );
+
+        emit T(
+            a,
+            b,
+            pA,
+            pBarA,
+            deltaA,
+            state.rhoRatio,
+            delta,
+            rl
+        );
+
+        /*
+
+        int256 u = v.sub(v % two);
+        int256 sqrtV = u.div(two).mul(
+            v.div(u)
+            .ln()
+            .div(two)
+            .exp()
+        );
+        */
+
+
+
+        /*
+
+        // Step 1
+        int256 rl = LibFixedMath.min(
+            // lhs
+            k12.div(k8),
+
+            // rhs
+            a.mul(b.sub(delta.mul(pA)))
+            .div(b.mul(a.add(delta)))
+            .ln()
+            .mul(LibFixedMath.one().sub(state.rhoRatio))
+            .exp()
+        );
+
+        // Step 2
+        int256 rh = LibFixedMath.min(
+            // lhs
+            k12.div(k8),
+
+            // rhs
+            state.rhoRatio.add(LibFixedMath.one().sub(state.rhoRatio.mul(k12))
+            .div(
+                LibFixedMath.one().add(
+                    LibFixedMath.one().sub(state.rhoRatio).mul(k8)
+                )
+            )
+        );
+
+        // Step 3
+        int256 tao = LibFixedMath.toFixed(int256(1), int256(10));
+        if (rh.sub(rl) > (state.baseFee.add(LibFixedMath.one().sub(rh)).mul(tao))) {
+
+        }
+
+        // Step 4
+        if (rh.sub(rl) > (state.baseFee.add(LibFixedMath.one().sub(rh)).mul(tao))) {
+
+        }
+
+        // Step 5
+        if (rh.sub(rl) > (state.baseFee.add(LibFixedMath.one().sub(rh)).mul(tao))) {
+
+        }
+        */
+    }
+
+    function _bisect(
+        int256 a,
+        int256 b,
+        int256 pA,
+        int256 pBarA,
+        int256 deltaA,
+        IStructs.State memory state
+    )
+        internal
+        returns (int256 r)
+    {
         // Compute initial bounds.
         int256 lowerBound = 0;
         int256 upperBound = pA;
@@ -217,7 +420,7 @@ contract Swapper is
             }
         }
 
-        return (pA, lowerBound);
+        return lowerBound;
     }
 
     function _getCurrentBlockNumber()

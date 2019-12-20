@@ -38,6 +38,14 @@ library LibFixedMath {
         f = FIXED_1;
     }
 
+    function min(int256 a, int256 b) internal pure returns (int256 c) {
+        return (a <= b) ? a : b;
+    }
+
+    function square(int256 a) internal pure returns (int256 c) {
+        return mul(a, a);
+    }
+
     /// @dev Returns the addition of two fixed point numbers, reverting on overflow.
     function add(int256 a, int256 b) internal pure returns (int256 c) {
         c = _add(a, b);

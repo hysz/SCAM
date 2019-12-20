@@ -22,7 +22,7 @@ contract TestScam is
 
         // set initial blaances
         gState.x = uint256(500).toFixed();           // initial balance of Token X
-        gState.y = uint256(1000).toFixed();            // initial balance of Token Y
+        gState.y = uint256(1000).toFixed();          // initial balance of Token Y
     }
 
      function runBasicTest()
