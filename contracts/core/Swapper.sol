@@ -499,6 +499,7 @@ contract Swapper is
             state
         );
 
+/*
         int256 rh = _computeStep2(
             a,
             b,
@@ -544,6 +545,7 @@ contract Swapper is
                 }
             }
         }
+        */
 
         // Step 6
         rl = _computeStep6(rl);

@@ -1,4 +1,4 @@
-import {blockchainTests, Numberish} from '@0x/contracts-test-utils';
+import {blockchainTests, Numberish, Token} from '@0x/contracts-test-utils';
 
 import { TestScamContract } from '../src';
 
@@ -6,7 +6,8 @@ import { artifacts } from './artifacts';
 
 import { BigNumber } from '@0x/utils';
 
-
+import { UNIT_TESTS } from './unit_tests';
+import { StateContract } from './generated-wrappers/state';
 
 blockchainTests.only('Test Scam', env => {
     let testContract: TestScamContract;
@@ -95,10 +96,82 @@ blockchainTests.only('Test Scam', env => {
             console.log('lhs: ', fromFixed((tx.logs[0] as any).args.lhs));
             console.log('rhs: ', fromFixed((tx.logs[0] as any).args.rhs));
 
-            console.log('price: ', fromFixed((tx.logs[tx.logs.length-1] as any).args.price));
+            console.log('price: ', fromFixed((tx.logs[tx.logs.length-2] as any).args.price));
 
 
 
+        });
+        it('Run Unit Tests', async () => {
+            interface BondCurveParams {
+                rho: BigNumber;
+                lambda: BigNumber;
+                beta: BigNumber;
+            }
+            interface ContractState {
+                x: BigNumber;
+                y: BigNumber;
+                pBarX: BigNumber;
+                t: BigNumber;
+            }
+            enum Token {
+                X,
+                Y
+            }
+            interface Trade {
+                takerToken: Token;
+                takerAmount: BigNumber;
+                blockNumber: BigNumber;
+            }
+            interface UnitTest {
+                params: BondCurveParams;
+                initialState: ContractState;
+                finalState: ContractState;
+                trades: Trade[];
+            }
+
+            const unitTests = [];
+            let i = 0;
+            for (const test of UNIT_TESTS) {
+                console.log(JSON.stringify(test, null, 4));
+                let unitTest: UnitTest = {
+                    params: {
+                        rho: new BigNumber(test.parameters_rho),
+                        lambda: new BigNumber(test.parameters_lambda),
+                        beta: new BigNumber(test.parameters_beta),
+                    },
+                    initialState: {
+                        x: new BigNumber(test.initial_state_x),
+                        y: new BigNumber(test.initial_state_y),
+                        pBarX: new BigNumber(test.initial_state_p_bar_x),
+                        t: new BigNumber(0),
+                    },
+                    finalState: {
+                        x: new BigNumber(test.final_state_x),
+                        y: new BigNumber(test.final_state_y),
+                        pBarX: new BigNumber(test.final_state_p_bar_x),
+                        t: new BigNumber(test.final_state_t),
+                    },
+                    trades: [],
+                };
+
+                for (let tradeNumber = 1; tradeNumber <= test.number_of_transactions; tradeNumber++) {
+                    const takerToken: Token = (test as any)[`transaction_type_${tradeNumber}`] == 'X' ? Token.X : Token.Y;
+                    const takerAmount: BigNumber = (test as any)[`transaction_size_${tradeNumber}`];
+                    const blockNumber: BigNumber = (test as any)[`transaction_block_num_${tradeNumber}`];
+                    const trade: Trade = {
+                        takerToken,
+                        takerAmount,
+                        blockNumber,
+                    }
+                    unitTest.trades.push(trade);
+                }
+
+                unitTests.push(unitTest);
+                console.log(JSON.stringify(unitTest, null, 4));
+
+
+                break;
+            }
         });
     });
 });
