@@ -17,3 +17,4 @@ export * from '../generated-wrappers/state';
 export * from '../generated-wrappers/swapper';
 export * from '../generated-wrappers/test_lib_scam_math';
 export * from '../generated-wrappers/test_scam';
+export * from '../generated-wrappers/unit_test_scam';

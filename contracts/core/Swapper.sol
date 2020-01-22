@@ -114,6 +114,7 @@ contract Swapper is
 
         // Compute
 
+/*
         int256 price = _bracket(
             a,
             b,
@@ -122,10 +123,9 @@ contract Swapper is
             deltaA,
             state
         );
+        */
 
 
-
-        /*
         (int256 price) = _bisect(
             a,
             b,
@@ -134,7 +134,6 @@ contract Swapper is
             deltaA,
             state
         );
-        */
         emit Price2(price);
 
         return 0;

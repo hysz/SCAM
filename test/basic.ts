@@ -41,7 +41,7 @@ blockchainTests.only('Test Scam', env => {
         it('twenty iterations', async () => {
 
         })
-        it('runBasicTest', async () => {
+        it.skip('runBasicTest', async () => {
             const tx = await testContract.runBasicTest().awaitTransactionSuccessAsync();
             console.log(JSON.stringify(tx, null, 4));
 
@@ -98,6 +98,8 @@ blockchainTests.only('Test Scam', env => {
 
             console.log('price: ', fromFixed((tx.logs[tx.logs.length-2] as any).args.price));
 
+            throw new Error(`GAS USED = ${tx.gasUsed}`);
+
 
 
         });
@@ -118,6 +120,7 @@ blockchainTests.only('Test Scam', env => {
                 Y
             }
             interface Trade {
+                makerToken: Token;
                 takerToken: Token;
                 takerAmount: BigNumber;
                 blockNumber: BigNumber;
@@ -156,9 +159,11 @@ blockchainTests.only('Test Scam', env => {
 
                 for (let tradeNumber = 1; tradeNumber <= test.number_of_transactions; tradeNumber++) {
                     const takerToken: Token = (test as any)[`transaction_type_${tradeNumber}`] == 'X' ? Token.X : Token.Y;
+                    const makerToken: Token = takerToken == Token.Y ? Token.X : Token.Y;
                     const takerAmount: BigNumber = (test as any)[`transaction_size_${tradeNumber}`];
                     const blockNumber: BigNumber = (test as any)[`transaction_block_num_${tradeNumber}`];
                     const trade: Trade = {
+                        makerToken,
                         takerToken,
                         takerAmount,
                         blockNumber,

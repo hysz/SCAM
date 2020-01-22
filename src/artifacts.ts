@@ -19,6 +19,7 @@ import * as State from '../generated-artifacts/State.json';
 import * as Swapper from '../generated-artifacts/Swapper.json';
 import * as TestLibScamMath from '../generated-artifacts/TestLibScamMath.json';
 import * as TestScam from '../generated-artifacts/TestScam.json';
+import * as UnitTestScam from '../generated-artifacts/UnitTestScam.json';
 export const artifacts = {
     Scam: Scam as ContractArtifact,
     Liquidity: Liquidity as ContractArtifact,
@@ -34,4 +35,5 @@ export const artifacts = {
     LibToken: LibToken as ContractArtifact,
     TestLibScamMath: TestLibScamMath as ContractArtifact,
     TestScam: TestScam as ContractArtifact,
+    UnitTestScam: UnitTestScam as ContractArtifact,
 };
