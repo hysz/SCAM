@@ -69,6 +69,9 @@ contract UnitTestScam is
         gState.x = c.x;
         gState.y = c.y;
 
+        int256 madeIt = c.x.mul(LibToken.daiToFixed(trades[0].takerAmount));
+        revert('made it');
+
         // _initState(0x0000000000000000000000000000000000000000, 0x0000000000000000000000000000000000000001);
 
 
@@ -76,7 +79,7 @@ contract UnitTestScam is
         // Run trades
         for (uint i = 0; i < trades.length; ++i) {
             //blockNumber = trades[i].blockNumber;
-            swap(trades[i].takerToken, trades[i].makerToken, trades[i].takerAmount);
+            //swap(trades[i].takerToken, trades[i].makerToken, trades[i].takerAmount);
            // revert('made it to first');
         }
         blockNumber = 0;
@@ -87,9 +90,18 @@ contract UnitTestScam is
         return ContractState({
             x: gState.x,
             y: gState.y,
-            pBarX: uint256(500).toFixed(),
+            pBarX: madeIt,//uint256(500).toFixed(),
             t: 0
         });
+    }
+
+    function testMul(int256 i, int256 j) public returns (int256) {
+        return i.mul(j);
+    }
+
+
+    function testMantissa(int256 i) public returns (int256) {
+        return i.toMantissa();
     }
 
     function _getCurrentBlockNumber()

@@ -467,6 +467,10 @@ contract Swapper is
         internal
         returns (int256)
     {
+        deltaA =  b.mul(deltaA);
+
+
+        revert('made it to k8');
         // Cache constants that are used throughout bracketing algorithm.
         int256 k8 = a.mul(
             pA
@@ -476,6 +480,8 @@ contract Swapper is
         int256 k12 = a.div(
             a.add(deltaA)
         );
+
+
 
         //////// Run bracketing ///////
         int256 delta = _computeStep0(

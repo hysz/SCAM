@@ -4,7 +4,7 @@ import { UnitTestScamContract } from '../src';
 
 import { artifacts } from './artifacts';
 
-import { BigNumber } from '@0x/utils';
+import { AbiEncoder, BigNumber } from '@0x/utils';
 
 import { UNIT_TESTS } from './unit_tests';
 import { StateContract } from './generated-wrappers/state';
@@ -174,7 +174,7 @@ blockchainTests.only('Test Scam', env => {
                     const trade: Trade = {
                         makerToken,
                         takerToken,
-                        takerAmount: toToken(takerAmount),
+                        takerAmount: toFixed(takerAmount), //// CHANGE TO TOTOKEN
                         blockNumber,
                     }
                     unitTest.trades.push(trade);
@@ -184,20 +184,49 @@ blockchainTests.only('Test Scam', env => {
                 console.log(JSON.stringify(unitTest, null, 4));
 
                 // Run unit test
+                /*
                 const c = await testContract.runUnitTest(
                     unitTest.params,
                     unitTest.initialState,
                     unitTest.trades
                 ).callAsync();
+                */
+
+            console.log("1 = ", toFixed(1));
+
+            console.log(`${fromFixed(unitTest.initialState.x)} x ${fromFixed(unitTest.trades[0].takerAmount)}`);
+
+
+            const retval = await testContract.testMul(
+                unitTest.initialState.x,
+                unitTest.trades[0].takerAmount
+            ).callAsync();
+            console.log(fromFixed(retval));
+            const bn = new BigNumber('70529148338767.600603668831929993401808543886157403277442772398642293980770429284452050048496');
+            console.log('CORRECT VALUE = ', bn);
 
 
 
+                break;
 
+
+
+            const fixedBn = toFixed(bn).dividedToIntegerBy(1);
+            console.log('int: ', bn);
+
+            const mantissa = await testContract.testMantissa(fixedBn).callAsync();
+
+            console.log('encoded mantissa: ', AbiEncoder.create('int').encode(mantissa));
+            console.log('encoded init val: ', AbiEncoder.create('int').encode(fixedBn));
+            console.log('man: ', fromFixed(mantissa));
+
+            /*
                 console.log(JSON.stringify(c, null, 4));
                 console.log('x ', fromFixed(c.x));
                 console.log('y ', fromFixed(c.y));
                 console.log('pBarX ', fromFixed(c.pBarX));
                 console.log('t ', fromFixed(c.t));
+                */
 
 
                 break;

@@ -18,6 +18,8 @@ pragma solidity ^0.5.9;
 /// @dev Signed, fixed-point, 127-bit precision math library.
 library LibFixedMath {
 
+    //
+    int256 private constant MANTISSA_MASK = int256(0x7fffffffffffffffffffffffffffffff);
     // 1
     int256 private constant FIXED_1 = int256(0x0000000000000000000000000000000080000000000000000000000000000000);
     // 2**255
@@ -61,10 +63,21 @@ library LibFixedMath {
 
     /// @dev Returns the multiplication of two fixed point numbers, reverting on overflow.
     function mul(int256 a, int256 b) internal pure returns (int256 c) {
+
+        int256 integerPart = _mul(FIXED_1, _mul(toInteger(a), toInteger(b)));
+        int256 lFractionPart = _mul(toMantissa(a), toInteger(b));
+        int256 rFractionPart = _mul(toInteger(a), toMantissa(b));
+        int256 bothFractionPart = _div(_mul(toMantissa(a), toMantissa(b)), FIXED_1);
+
+        return _add(_add(_add(integerPart, lFractionPart), rFractionPart), bothFractionPart);
+
+        revert('got fraction part');
+
+
         int256 base = FIXED_1;
         if (b != 0) {
-            b /= 2**40;
-            base = 2**87;
+            b /= 2**50;
+            base = 2**77;
         }
 
         int256 product = _mul(a, b);
@@ -146,6 +159,10 @@ library LibFixedMath {
     /// @dev Convert a fixed-point number to an integer.
     function toInteger(int256 f) internal pure returns (int256 n) {
         return f / FIXED_1;
+    }
+
+    function toMantissa(int256 f) internal pure returns (int256 n) {
+        return f & MANTISSA_MASK;
     }
 
     /// @dev Get the natural logarithm of a fixed-point number 0 < `x` <= LN_MAX_VAL
