@@ -165,7 +165,7 @@ library LibFixedMath {
     }
 
     function toMantissa(int256 f) internal pure returns (int256 n) {
-        return f & MANTISSA_MASK;
+        return f > 0 ? (f & MANTISSA_MASK) : -(-f & MANTISSA_MASK);
     }
 
     /// @dev Get the natural logarithm of a fixed-point number 0 < `x` <= LN_MAX_VAL

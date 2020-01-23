@@ -185,6 +185,7 @@ blockchainTests.only('Test Scam', env => {
 
                 // Run unit test
 
+
                 const c = await testContract.runUnitTest(
                     unitTest.params,
                     unitTest.initialState,
@@ -192,23 +193,30 @@ blockchainTests.only('Test Scam', env => {
                 ).callAsync();
 
 
-                /*
+
+
             console.log("1 = ", toFixed(1));
 
-            console.log(`${fromFixed(unitTest.initialState.x)} x ${fromFixed(unitTest.trades[0].takerAmount)}`);
+            const a = unitTest.initialState.x.times(-1);
+            const b = unitTest.trades[0].takerAmount.times(-1);
+
+            console.log(`${fromFixed(a)} x ${fromFixed(b)}`);
+
+            console.log('encoded neg a: ', AbiEncoder.create('int').encode(a));
 
 
             const retval = await testContract.testMul(
-                unitTest.initialState.x,
-                unitTest.trades[0].takerAmount
+                a,
+                b,
             ).callAsync();
             console.log(fromFixed(retval));
-            const bn = new BigNumber('70529148338767.600603668831929993401808543886157403277442772398642293980770429284452050048496');
+            const bn = fromFixed(a).multipliedBy(fromFixed(b));
             console.log('CORRECT VALUE = ', bn);
 
 
 
                 break;
+                /*
 
 
 
