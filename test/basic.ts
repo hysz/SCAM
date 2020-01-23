@@ -174,7 +174,7 @@ blockchainTests.only('Test Scam', env => {
                     const trade: Trade = {
                         makerToken,
                         takerToken,
-                        takerAmount: toFixed(takerAmount), //// CHANGE TO TOTOKEN
+                        takerAmount: toToken(takerAmount), //// CHANGE TO TOTOKEN
                         blockNumber,
                     }
                     unitTest.trades.push(trade);
@@ -184,14 +184,15 @@ blockchainTests.only('Test Scam', env => {
                 console.log(JSON.stringify(unitTest, null, 4));
 
                 // Run unit test
-                /*
+
                 const c = await testContract.runUnitTest(
                     unitTest.params,
                     unitTest.initialState,
                     unitTest.trades
                 ).callAsync();
-                */
 
+
+                /*
             console.log("1 = ", toFixed(1));
 
             console.log(`${fromFixed(unitTest.initialState.x)} x ${fromFixed(unitTest.trades[0].takerAmount)}`);
@@ -226,7 +227,8 @@ blockchainTests.only('Test Scam', env => {
                 console.log('y ', fromFixed(c.y));
                 console.log('pBarX ', fromFixed(c.pBarX));
                 console.log('t ', fromFixed(c.t));
-                */
+
+            */
 
 
                 break;

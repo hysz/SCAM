@@ -71,6 +71,8 @@ library LibFixedMath {
 
         return _add(_add(_add(integerPart, lFractionPart), rFractionPart), bothFractionPart);
 
+
+/* OLD
         revert('got fraction part');
 
 
@@ -82,6 +84,7 @@ library LibFixedMath {
 
         int256 product = _mul(a, b);
         c = product / base;
+*/
     }
 
     /// @dev Returns the division of two fixed point numbers.
