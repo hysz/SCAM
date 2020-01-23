@@ -77,18 +77,15 @@ contract UnitTestScam is
         for (uint i = 0; i < trades.length; ++i) {
             blockNumber = trades[i].blockNumber;
             swap(trades[i].takerToken, trades[i].makerToken, trades[i].takerAmount);
-           // revert('made it to first');
         }
         blockNumber = 0;
-
-
 
         // Return final state
         return ContractState({
             x: gState.x,
             y: gState.y,
             pBarX: gState.pBarX,
-            t: 0
+            t: gState.t
         });
     }
 

@@ -135,9 +135,6 @@ contract Swapper is
         emit Price2(price);
         */
 
-        return 0;
-
-/*
 
         // Compute about of `tokenB`
         int256 deltaB = deltaA
@@ -192,7 +189,6 @@ contract Swapper is
 
         amountReceived = -deltaB;
         return amountReceived;
-        */
     }
 
     event Bisect(
@@ -504,9 +500,7 @@ contract Swapper is
             delta,
             state
         );
-        revert('done sompute step 1');
 
-/*
         int256 rh = _computeStep2(
             a,
             b,
@@ -552,7 +546,6 @@ contract Swapper is
                 }
             }
         }
-        */
 
         // Step 6
         rl = _computeStep6(rl);

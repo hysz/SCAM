@@ -158,9 +158,9 @@ blockchainTests.only('Test Scam', env => {
                         t: new BigNumber(0),
                     },
                     finalState: {
-                        x: toFixed(test.final_state_x),
-                        y: toFixed(test.final_state_y),
-                        pBarX: toFixed(test.final_state_p_bar_x),
+                        x: new BigNumber(test.final_state_x),
+                        y: new BigNumber(test.final_state_y),
+                        pBarX: new BigNumber(test.final_state_p_bar_x),
                         t: new BigNumber(test.final_state_t),
                     },
                     trades: [],
@@ -184,15 +184,22 @@ blockchainTests.only('Test Scam', env => {
                 console.log(JSON.stringify(unitTest, null, 4));
 
                 // Run unit test
-
-
-                /*
                 const c = await testContract.runUnitTest(
                     unitTest.params,
                     unitTest.initialState,
                     unitTest.trades
                 ).callAsync();
-*/
+
+                const actualFinalState = {
+                    x: fromFixed(c.x),
+                    y: fromFixed(c.y),
+                    pBarX: fromFixed(c.pBarX),
+                    t: c.t,
+
+                }
+                console.log('***EXPECTED***\n', JSON.stringify(unitTest.finalState, null, 4));
+                console.log('***ACTUAL***\n', JSON.stringify(actualFinalState, null, 4));
+
 
 
 
