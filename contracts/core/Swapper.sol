@@ -44,7 +44,7 @@ contract Swapper is
             int256 amountReceivedFixed = _swap(
                 fromToken,
                 toToken,
-                LibToken.usdcToFixed(amount),
+                LibToken.daiToFixed(amount),
                 state
             );
             amountReceived = LibToken.daiFromFixed(amountReceivedFixed);
@@ -113,8 +113,6 @@ contract Swapper is
         );
 
         // Compute
-
-/*
         int256 price = _bracket(
             a,
             b,
@@ -123,9 +121,9 @@ contract Swapper is
             deltaA,
             state
         );
-        */
 
 
+/*
         (int256 price) = _bisect(
             a,
             b,
@@ -135,6 +133,7 @@ contract Swapper is
             state
         );
         emit Price2(price);
+        */
 
         return 0;
 

@@ -36,6 +36,13 @@ contract UnitTestScam is
         uint256 blockNumber;
     }
 
+    function greg()
+    external
+    {
+
+    }
+
+
 
     function runUnitTest(
         BondCurveParams calldata p,
@@ -45,6 +52,7 @@ contract UnitTestScam is
         external
         returns (ContractState memory)
     {
+
         // Init
         gState.xAddress = address(0x0000000000000000000000000000000000000000);
         gState.yAddress = address(0x0000000000000000000000000000000000000001);
@@ -56,24 +64,34 @@ contract UnitTestScam is
         gState.eToKappa = LibFixedMath.toFixed(int256(10005), int256(1000));
         gState.isInitialized = true;
 
+
         // Set token supplies
         gState.x = c.x;
         gState.y = c.y;
 
+        // _initState(0x0000000000000000000000000000000000000000, 0x0000000000000000000000000000000000000001);
+
+
+
         // Run trades
         for (uint i = 0; i < trades.length; ++i) {
-            blockNumber = trades[i].blockNumber;
+            //blockNumber = trades[i].blockNumber;
             swap(trades[i].takerToken, trades[i].makerToken, trades[i].takerAmount);
+           // revert('made it to first');
         }
+        blockNumber = 0;
+
+
 
         // Return final state
         return ContractState({
             x: gState.x,
             y: gState.y,
-            pBarX: gState.pBarX,
-            t: gState.t
+            pBarX: uint256(500).toFixed(),
+            t: 0
         });
     }
+
     function _getCurrentBlockNumber()
         internal
         returns (uint256)

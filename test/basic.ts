@@ -1,6 +1,6 @@
 import {blockchainTests, Numberish, Token} from '@0x/contracts-test-utils';
 
-import { TestScamContract } from '../src';
+import { UnitTestScamContract } from '../src';
 
 import { artifacts } from './artifacts';
 
@@ -10,27 +10,34 @@ import { UNIT_TESTS } from './unit_tests';
 import { StateContract } from './generated-wrappers/state';
 
 blockchainTests.only('Test Scam', env => {
-    let testContract: TestScamContract;
+    let testContract: UnitTestScamContract;
 
     const printAsDecimal = (value: any) => {
 
     }
 
     const FIXED_POINT_BASE = new BigNumber(2).pow(127);
+    const TOKEN_BASE = new BigNumber(10).pow(18);
 
     const fromFixed = (n: Numberish): BigNumber => {
         return new BigNumber(n).dividedBy(FIXED_POINT_BASE);
     }
+    const toFixed = (n: Numberish): BigNumber => {
+        return new BigNumber(n).multipliedBy(FIXED_POINT_BASE).dividedToIntegerBy(1);
+    }
+    const toToken = (n: Numberish): BigNumber => {
+        return new BigNumber(n).multipliedBy(TOKEN_BASE).dividedToIntegerBy(1);
+    }
 
     before(async() => {
-        testContract = await TestScamContract.deployFrom0xArtifactAsync(
-            artifacts.TestScam,
+        testContract = await UnitTestScamContract.deployFrom0xArtifactAsync(
+            artifacts.UnitTestScam,
             env.provider,
             env.txDefaults,
             artifacts,
         );
 
-        await testContract.init().awaitTransactionSuccessAsync();
+        //await testContract.init().awaitTransactionSuccessAsync();
     });
 
     describe('Scam', () => {
@@ -42,8 +49,8 @@ blockchainTests.only('Test Scam', env => {
 
         })
         it.skip('runBasicTest', async () => {
-            const tx = await testContract.runBasicTest().awaitTransactionSuccessAsync();
-            console.log(JSON.stringify(tx, null, 4));
+           // const tx = await testContract.runBasicTest().awaitTransactionSuccessAsync();
+           // console.log(JSON.stringify(tx, null, 4));
 
             /*
             console.log((tx.logs[0] as any).args.a.toString(10));
@@ -92,6 +99,7 @@ blockchainTests.only('Test Scam', env => {
             console.log('rh: ', fromFixed((tx.logs[0] as any).args.k13));
 
 */
+/*
 
             console.log('lhs: ', fromFixed((tx.logs[0] as any).args.lhs));
             console.log('rhs: ', fromFixed((tx.logs[0] as any).args.rhs));
@@ -99,6 +107,7 @@ blockchainTests.only('Test Scam', env => {
             console.log('price: ', fromFixed((tx.logs[tx.logs.length-2] as any).args.price));
 
             throw new Error(`GAS USED = ${tx.gasUsed}`);
+            */
 
 
 
@@ -106,7 +115,7 @@ blockchainTests.only('Test Scam', env => {
         it('Run Unit Tests', async () => {
             interface BondCurveParams {
                 rho: BigNumber;
-                lambda: BigNumber;
+                baseFee: BigNumber;
                 beta: BigNumber;
             }
             interface ContractState {
@@ -120,8 +129,8 @@ blockchainTests.only('Test Scam', env => {
                 Y
             }
             interface Trade {
-                makerToken: Token;
-                takerToken: Token;
+                makerToken: string;
+                takerToken: string;
                 takerAmount: BigNumber;
                 blockNumber: BigNumber;
             }
@@ -135,44 +144,60 @@ blockchainTests.only('Test Scam', env => {
             const unitTests = [];
             let i = 0;
             for (const test of UNIT_TESTS) {
-                console.log(JSON.stringify(test, null, 4));
+                //.log(JSON.stringify(test, null, 4));
                 let unitTest: UnitTest = {
                     params: {
-                        rho: new BigNumber(test.parameters_rho),
-                        lambda: new BigNumber(test.parameters_lambda),
-                        beta: new BigNumber(test.parameters_beta),
+                        rho: toFixed(test.parameters_rho),
+                        baseFee: toFixed(test.parameters_lambda),
+                        beta: toFixed(test.parameters_beta),
                     },
                     initialState: {
-                        x: new BigNumber(test.initial_state_x),
-                        y: new BigNumber(test.initial_state_y),
-                        pBarX: new BigNumber(test.initial_state_p_bar_x),
+                        x: toFixed(test.initial_state_x),
+                        y: toFixed(test.initial_state_y),
+                        pBarX: toFixed(test.initial_state_p_bar_x),
                         t: new BigNumber(0),
                     },
                     finalState: {
-                        x: new BigNumber(test.final_state_x),
-                        y: new BigNumber(test.final_state_y),
-                        pBarX: new BigNumber(test.final_state_p_bar_x),
+                        x: toFixed(test.final_state_x),
+                        y: toFixed(test.final_state_y),
+                        pBarX: toFixed(test.final_state_p_bar_x),
                         t: new BigNumber(test.final_state_t),
                     },
                     trades: [],
                 };
 
                 for (let tradeNumber = 1; tradeNumber <= test.number_of_transactions; tradeNumber++) {
-                    const takerToken: Token = (test as any)[`transaction_type_${tradeNumber}`] == 'X' ? Token.X : Token.Y;
-                    const makerToken: Token = takerToken == Token.Y ? Token.X : Token.Y;
+                    const takerToken: string = (test as any)[`transaction_type_${tradeNumber}`] == 'X' ? "0x0000000000000000000000000000000000000000" : "0x0000000000000000000000000000000000000001";
+                    const makerToken: string = takerToken == "0x0000000000000000000000000000000000000001" ? "0x0000000000000000000000000000000000000000" : "0x0000000000000000000000000000000000000001";
                     const takerAmount: BigNumber = (test as any)[`transaction_size_${tradeNumber}`];
                     const blockNumber: BigNumber = (test as any)[`transaction_block_num_${tradeNumber}`];
                     const trade: Trade = {
                         makerToken,
                         takerToken,
-                        takerAmount,
+                        takerAmount: toToken(takerAmount),
                         blockNumber,
                     }
                     unitTest.trades.push(trade);
                 }
-
                 unitTests.push(unitTest);
+
                 console.log(JSON.stringify(unitTest, null, 4));
+
+                // Run unit test
+                const c = await testContract.runUnitTest(
+                    unitTest.params,
+                    unitTest.initialState,
+                    unitTest.trades
+                ).callAsync();
+
+
+
+
+                console.log(JSON.stringify(c, null, 4));
+                console.log('x ', fromFixed(c.x));
+                console.log('y ', fromFixed(c.y));
+                console.log('pBarX ', fromFixed(c.pBarX));
+                console.log('t ', fromFixed(c.t));
 
 
                 break;
