@@ -96,6 +96,10 @@ contract UnitTestScam is
         return i.mul(j);
     }
 
+    function testDiv(int256 i, int256 j) public returns (int256) {
+        return i.div(j);
+    }
+
 
     function testMantissa(int256 i) public returns (int256) {
         return i.toMantissa();

@@ -64,7 +64,7 @@ library LibFixedMath {
     /// @dev Returns the multiplication of two fixed point numbers, reverting on overflow.
     function mul(int256 a, int256 b) internal pure returns (int256 c) {
 
-        int256 integerPart = _mul(FIXED_1, _mul(toInteger(a), toInteger(b)));
+        int256 integerPart = _mul(FIXED_1, _mul(toInteger(a), toInteger(b))); // @TODO I think the FIXCED_1 should be moved in, in case one is a shrinking?
         int256 lFractionPart = _mul(toMantissa(a), toInteger(b));
         int256 rFractionPart = _mul(toInteger(a), toMantissa(b));
         int256 bothFractionPart = _div(_mul(toMantissa(a), toMantissa(b)), FIXED_1);
@@ -89,7 +89,24 @@ library LibFixedMath {
 
     /// @dev Returns the division of two fixed point numbers.
     function div(int256 a, int256 b) internal pure returns (int256 c) {
-        c = _div(_mul(a, FIXED_1 / 2**40), b) * 2**40;
+        int256 aInteger = toInteger(a);
+        if (aInteger != 0) {
+            return _mul(toInteger(a), _div(_mul(a, _div(FIXED_1, toInteger(a))), b));
+        } else {
+            return _div(_mul(a, FIXED_1), b);
+        }
+
+     //  return
+
+
+       /* int256 integerPart = _mul(toInteger(a), _div(FIXED_1, toInteger(b))));
+        int256 fractionPart = 0;//_div(_mul(toMantissa(a), FIXED_1), b);
+        return _add(integerPart, fractionPart);*/
+
+
+       // c = _div(mul(a, FIXED_1), b);
+
+        //c = _div(_mul(a, FIXED_1 / 2**50), b) * 2**50;
     }
 
     /// @dev Performs (a * n) / d, without scaling for precision.

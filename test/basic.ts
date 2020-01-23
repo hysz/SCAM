@@ -186,14 +186,46 @@ blockchainTests.only('Test Scam', env => {
                 // Run unit test
 
 
+                /*
                 const c = await testContract.runUnitTest(
                     unitTest.params,
                     unitTest.initialState,
                     unitTest.trades
                 ).callAsync();
+*/
 
 
 
+/********* DIVISION *********/
+
+/*
+                const a = toFixed(new BigNumber('1'));
+                const b = toFixed(new BigNumber('4'));
+*/
+/*
+                const a = toFixed(new BigNumber('1.25'));
+                const b = toFixed(new BigNumber('4.5'));
+*/
+/*
+                const a = toFixed(new BigNumber('0.25'));
+                const b = toFixed(new BigNumber('4.5'));
+*/
+                const a = toFixed(new BigNumber('0.25'));
+                const b = toFixed(new BigNumber('0.1'));
+
+
+
+                console.log(`${fromFixed(a)} x ${fromFixed(b)}`);
+
+                const retval = await testContract.testDiv(
+                    a,
+                    b,
+                ).callAsync();
+                console.log(fromFixed(retval));
+                const bn = fromFixed(a).dividedBy(fromFixed(b));
+                console.log('CORRECT VALUE = ', bn);
+
+/********* MULTIPLICATION
 
             console.log("1 = ", toFixed(1));
 
@@ -213,6 +245,7 @@ blockchainTests.only('Test Scam', env => {
             const bn = fromFixed(a).multipliedBy(fromFixed(b));
             console.log('CORRECT VALUE = ', bn);
 
+            */
 
 
                 break;

@@ -266,7 +266,13 @@ contract Swapper is
     {
         int256 term1 = a.mul(b.sub(delta.mul(pA)));
         int256 term2 = b.mul(a.add(delta));
+
+
+
         int256 term3 = term1.div(term2).ln();
+
+
+
         int256 term4 = LibFixedMath.one().sub(state.rhoRatio).mul(term3);
         int256 term5 = term4.exp().mul(delta).div(deltaA);
         return term5;
@@ -477,6 +483,8 @@ contract Swapper is
             a.add(deltaA)
         );
 
+
+
         //////// Run bracketing ///////
         int256 delta = _computeStep0(
             a,
@@ -496,6 +504,7 @@ contract Swapper is
             delta,
             state
         );
+        revert('done sompute step 1');
 
 /*
         int256 rh = _computeStep2(
