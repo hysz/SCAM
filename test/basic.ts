@@ -36,6 +36,11 @@ blockchainTests.only('Test Scam', env => {
     }
 
     const toStandard = (n: Numberish): BigNumber => {
+        const factor = new BigNumber(10).pow(6);
+        return new BigNumber(n).times(factor).dividedToIntegerBy(1).dividedBy(factor);
+    }
+
+    const toFixedStandard = (n: Numberish): BigNumber => {
         const factor = new BigNumber(10).pow(7);
         return new BigNumber(n).times(factor).dividedToIntegerBy(1).dividedBy(factor);
     }
@@ -236,7 +241,7 @@ blockchainTests.only('Test Scam', env => {
             for (const test of UNIT_TESTS) {
                 i += 1;
                 const numberOfTransactions = Number(test.number_of_transactions);
-                if (numberOfTransactions != 1 || i != 49) {
+                if (numberOfTransactions != 1 /*|| i != 299*/) {
                     continue;
                 }
                 //.log(JSON.stringify(test, null, 4));
