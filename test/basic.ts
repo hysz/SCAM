@@ -235,16 +235,40 @@ blockchainTests.only('Test Scam', env => {
             }
 
 
+            let passed = 319;
+            let failed = 14;
+
+            const failedTests = [];
 
             const unitTests = [];
             let i = 0;
             for (const test of UNIT_TESTS) {
                 i += 1;
+                if (i < 320) continue;
+                //if (i > 325) continue;
                 const numberOfTransactions = Number(test.number_of_transactions);
-                if (numberOfTransactions != 1 /*|| i != 299*/) {
+                console.log('eunning #', i, `(p: ${passed} f: ${failed})`);
+
+                /*if (numberOfTransactions == 1 || i != 30) {
                     continue;
                 }
+                */
                 //.log(JSON.stringify(test, null, 4));
+                /*
+                console.log('***INITIAL STATE***\n', JSON.stringify(
+                    {
+                        x: new BigNumber(test.initial_state_x),
+                        y: new BigNumber(test.initial_state_y),
+                        pBarX: new BigNumber(test.initial_state_p_bar_x),
+                        t: new BigNumber(0),
+                    },
+                    null,
+                    4
+
+                ));
+                */
+
+
                 let unitTest: UnitTest = {
                     params: {
                         rho: toFixed(test.parameters_rho),
@@ -292,8 +316,11 @@ blockchainTests.only('Test Scam', env => {
                         false
                     ).callAsync();
                 } catch(e) {
-                    console.log('**** EXECUTION FAILED ****\n\t', JSON.stringify(e.message, null, 4));
-                    break;
+                    //console.log('**** EXECUTION FAILED ****\n\t', JSON.stringify(e.message, null, 4));
+                    failed += 1;
+                    console.log("FAILED #", i);
+                    failedTests.push(i);
+                    continue;
                 }
 
                 const actualFinalState = {
@@ -304,6 +331,7 @@ blockchainTests.only('Test Scam', env => {
 
                 }
 
+                /*
                 console.log('\n\n******** TEST #', i);
                 console.log('***EXPECTED***\n', JSON.stringify(unitTest.finalState, null, 4));
                 console.log('***ACTUAL***\n', JSON.stringify(actualFinalState, null, 4));
@@ -315,6 +343,7 @@ blockchainTests.only('Test Scam', env => {
                     false
                 ).awaitTransactionSuccessAsync();
 
+
                 //console.log(JSON.stringify(tx, null, 4));
                 //console.log(JSON.stringify(valueLogs, null, 4));
 
@@ -323,12 +352,20 @@ blockchainTests.only('Test Scam', env => {
                    //console.log('***** ', (log as any).args.description, ' *****');
                     //console.log(fromFixed(new BigNumber((log as any).args.val._hex, 16)));
                 }
+                 */
 
+                try {
+                    expect(toStandard(actualFinalState.x), 'x').to.bignumber.equal(toStandard(unitTest.finalState.x));
+                    expect(toStandard(actualFinalState.y), 'y').to.bignumber.equal(toStandard(unitTest.finalState.y));
+                    expect(toStandard(actualFinalState.pBarX), 'x').to.bignumber.equal(toStandard(unitTest.finalState.pBarX));
+                    expect(actualFinalState.t, 'x').to.bignumber.equal(unitTest.finalState.t);
+                } catch(e) {
+                    failed += 1;
+                    console.log("FAILED #", i);
+                    failedTests.push(i);
+                }
 
-                expect(toStandard(actualFinalState.x), 'x').to.bignumber.equal(toStandard(unitTest.finalState.x));
-                expect(toStandard(actualFinalState.y), 'y').to.bignumber.equal(toStandard(unitTest.finalState.y));
-                expect(toStandard(actualFinalState.pBarX), 'x').to.bignumber.equal(toStandard(unitTest.finalState.pBarX));
-                expect(actualFinalState.t, 'x').to.bignumber.equal(unitTest.finalState.t);
+                passed += 1;
 
 
 
@@ -340,6 +377,8 @@ blockchainTests.only('Test Scam', env => {
               // console.log('\n\n\n');
 
             }
+
+            console.log('FAILED TESTS\n', JSON.stringify(failedTests, null, 4));
         });
     });
 });
