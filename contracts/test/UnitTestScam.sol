@@ -48,7 +48,8 @@ contract UnitTestScam is
     function runUnitTest(
         BondCurveParams calldata p,
         ContractState calldata c,
-        Trade[] calldata trades
+        Trade[] calldata trades,
+        bool throwOnFailure
     )
         external
         returns (ContractState memory)
@@ -62,6 +63,7 @@ contract UnitTestScam is
         gState.rhoRatio = p.rho;
         gState.fee = p.baseFee;    // 0.0005
         gState.beta = p.beta;
+        gState.t = 0;
 
         // 1.005012520859401063383566241124068580734875538593956360758...
 
@@ -80,22 +82,21 @@ contract UnitTestScam is
         // Run trades
         for (uint i = 0; i < trades.length; ++i) {
             blockNumber = trades[i].blockNumber;
-
-/*
-            swap(
-                trades[i].takerToken,
-                trades[i].makerToken,
-                trades[i].takerAmount
-            );
-            */
-
-            bytes memory swapCalldata = abi.encodeWithSelector(
+            if (throwOnFailure) {
+                swap(
+                    trades[i].takerToken,
+                    trades[i].makerToken,
+                    trades[i].takerAmount
+                );
+            } else {
+                bytes memory swapCalldata = abi.encodeWithSelector(
                 Scam(address(0)).swap.selector,
-                trades[i].takerToken,
-                trades[i].makerToken,
-                trades[i].takerAmount
-            );
-            address(this).call(swapCalldata);
+                    trades[i].takerToken,
+                    trades[i].makerToken,
+                    trades[i].takerAmount
+                );
+                address(this).call(swapCalldata);
+            }
         }
         blockNumber = 0;
 

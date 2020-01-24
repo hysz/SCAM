@@ -236,7 +236,7 @@ blockchainTests.only('Test Scam', env => {
             for (const test of UNIT_TESTS) {
                 i += 1;
                 const numberOfTransactions = Number(test.number_of_transactions);
-                if (numberOfTransactions != 1 /*|| i != 46*/) {
+                if (numberOfTransactions != 1 || i != 49) {
                     continue;
                 }
                 //.log(JSON.stringify(test, null, 4));
@@ -283,7 +283,8 @@ blockchainTests.only('Test Scam', env => {
                     c = await testContract.runUnitTest(
                         unitTest.params,
                         unitTest.initialState,
-                        unitTest.trades
+                        unitTest.trades,
+                        false
                     ).callAsync();
                 } catch(e) {
                     console.log('**** EXECUTION FAILED ****\n\t', JSON.stringify(e.message, null, 4));
@@ -305,7 +306,8 @@ blockchainTests.only('Test Scam', env => {
                 const tx = await testContract.runUnitTest(
                     unitTest.params,
                     unitTest.initialState,
-                    unitTest.trades
+                    unitTest.trades,
+                    false
                 ).awaitTransactionSuccessAsync();
 
                 //console.log(JSON.stringify(tx, null, 4));
