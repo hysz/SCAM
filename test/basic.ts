@@ -142,8 +142,11 @@ blockchainTests.only('Test Scam', env => {
             }
 
             const unitTests = [];
-            let i = 0;
+            let i = 1;
             for (const test of UNIT_TESTS) {
+                if (i++ != 12) {
+                    continue;
+                }
                 //.log(JSON.stringify(test, null, 4));
                 let unitTest: UnitTest = {
                     params: {

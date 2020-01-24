@@ -61,7 +61,10 @@ contract UnitTestScam is
         gState.rhoRatio = p.rho;
         gState.fee = p.baseFee;    // 0.0005
         gState.beta = p.beta;
-        gState.eToKappa = LibFixedMath.toFixed(int256(10005), int256(1000));
+
+        // 1.005012520859401063383566241124068580734875538593956360758...
+
+        gState.eToKappa = LibFixedMath.toFixed(int256(100050012502), int256(100000000000));
         gState.isInitialized = true;
 
 

@@ -69,10 +69,10 @@ library LibScamMath {
         int256 term2 = pBarA.mul(betaToDeltaT);
 
         int256 term3Denominator = LibFixedMath.add(
-            oneMinusBToDeltaT.div(pA),
-            betaToDeltaT.div(pBarA)
+            oneMinusBToDeltaT.mul(pBarA),
+            betaToDeltaT.mul(pA)
         );
-        int256 term3 = LibFixedMath.one().div(term3Denominator);
+        int256 term3 = pA.mul(pBarA).div(term3Denominator);
         int256 result = term1.add(term2).add(term3).div(LibFixedMath.toFixed(int256(2)));
         return result;
     }

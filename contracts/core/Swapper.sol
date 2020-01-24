@@ -160,10 +160,11 @@ contract Swapper is
             pA,
             pBarA
         );
+
         if (newPBarA > state.eToKappa.mul(pBarA)) {
             newPBarA = state.eToKappa.mul(pBarA);
-        } else if(newPBarA < LibFixedMath.one().div(state.eToKappa).mul(pBarA)) {
-            newPBarA = LibFixedMath.one().div(state.eToKappa).mul(pBarA);
+        } else if(newPBarA.mul(state.eToKappa) < pBarA) {
+            newPBarA = pBarA.div(state.eToKappa);
         }
 
         // Update state
