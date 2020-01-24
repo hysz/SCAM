@@ -146,8 +146,9 @@ contract Swapper is
 
         // Edge Cases
         int256 epsilon = LibFixedMath.toFixed(int256(1), int256(100000)); // Good for USDC, may vary w token.
-        if (deltaB > 0) {
-            deltaB = 0;
+        if (deltaB >= 0) {
+            //deltaB = 0;
+            revert('Tried to purchase too much');
         } else if (b.add(deltaB) <= epsilon) {
             deltaB = epsilon.sub(b);
         }

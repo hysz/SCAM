@@ -142,9 +142,10 @@ blockchainTests.only('Test Scam', env => {
             }
 
             const unitTests = [];
-            let i = 1;
+            let i = 0;
             for (const test of UNIT_TESTS) {
-                if (i++ != 12) {
+                i += 1;
+                if (test.number_of_transactions != 1 || i != 39) {
                     continue;
                 }
                 //.log(JSON.stringify(test, null, 4));
@@ -184,14 +185,20 @@ blockchainTests.only('Test Scam', env => {
                 }
                 unitTests.push(unitTest);
 
-                console.log(JSON.stringify(unitTest, null, 4));
+              //
 
                 // Run unit test
-                const c = await testContract.runUnitTest(
-                    unitTest.params,
-                    unitTest.initialState,
-                    unitTest.trades
-                ).callAsync();
+                let c: ContractState;
+                try {
+
+                    c = await testContract.runUnitTest(
+                        unitTest.params,
+                        unitTest.initialState,
+                        unitTest.trades
+                    ).callAsync();
+                } catch(e) {
+                    continue;
+                }
 
                 const actualFinalState = {
                     x: fromFixed(c.x),
@@ -200,6 +207,15 @@ blockchainTests.only('Test Scam', env => {
                     t: c.t,
 
                 }
+
+                console.log('******** ', i);
+              //  console.log('x: ', /*unitTest.finalState.x, '\n   ', actualFinalState.x, '\n   ',*/ unitTest.finalState.x.minus(actualFinalState.x));
+             //   console.log('y: ', /*unitTest.finalState.y, '\n   ', actualFinalState.y, '\n   ',*/ unitTest.finalState.y.minus(actualFinalState.y));
+             //   console.log('pBarX: ', /*unitTest.finalState.pBarX, '\n   ', actualFinalState.pBarX, '\n   ',*/ unitTest.finalState.pBarX.minus(actualFinalState.pBarX));
+             //   console.log('t: ', /*unitTest.finalState.t, '\n   ', actualFinalState.t, '\n   ',*/ unitTest.finalState.t.minus(actualFinalState.t));
+              // console.log('\n\n\n');
+
+                console.log(JSON.stringify(test, null, 4));
                 console.log('***EXPECTED***\n', JSON.stringify(unitTest.finalState, null, 4));
                 console.log('***ACTUAL***\n', JSON.stringify(actualFinalState, null, 4));
 
@@ -220,6 +236,7 @@ blockchainTests.only('Test Scam', env => {
                 const a = toFixed(new BigNumber('0.25'));
                 const b = toFixed(new BigNumber('4.5'));
 */
+/*
                 const a = toFixed(new BigNumber('0.25'));
                 const b = toFixed(new BigNumber('0.1'));
 
@@ -234,6 +251,7 @@ blockchainTests.only('Test Scam', env => {
                 console.log(fromFixed(retval));
                 const bn = fromFixed(a).dividedBy(fromFixed(b));
                 console.log('CORRECT VALUE = ', bn);
+                */
 
 /********* MULTIPLICATION
 
@@ -258,7 +276,7 @@ blockchainTests.only('Test Scam', env => {
             */
 
 
-                break;
+             //   break;
                 /*
 
 
@@ -282,7 +300,7 @@ blockchainTests.only('Test Scam', env => {
             */
 
 
-                break;
+               // break;
             }
         });
     });
