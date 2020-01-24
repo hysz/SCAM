@@ -136,22 +136,41 @@ contract Swapper is
         */
 
 
+        if (price < 0)  {
+            revert('price cannot be < 0');
+        } else if (price == 0) {
+            revert('price cannot be zero');
+        }
+
         // Compute about of `tokenB`
+
+
         int256 deltaB = deltaA
             .mul(price)
             .mul(
                 LibFixedMath.one().sub(state.fee)
             );
-        deltaB = int256(0).sub(deltaB); // negate
+        deltaB = -deltaB;
+
+        if (deltaB >= 0) {
+            revert('deltaB is greater or equal to zero');
+        }
 
         // Edge Cases
-        int256 epsilon = LibFixedMath.toFixed(int256(1), int256(100000)); // Good for USDC, may vary w token.
-        if (deltaB >= 0) {
-            //deltaB = 0;
-            revert('Tried to purchase too much');
-        } else if (b.add(deltaB) <= epsilon) {
+        int256 epsilon = LibFixedMath.toFixed(int256(1), int256(100000));
+        if (b.add(deltaB) <= epsilon) {
             deltaB = epsilon.sub(b);
+            deltaB = (deltaB < 0) ? deltaB : 0;
         }
+
+        // Round up to favor the contract
+        // We impose a dust amount of 1/10^6. This is the minimum token amount.
+        deltaB += LibFixedMath.toFixed(int256(1), int256(10**6));
+
+        if (deltaB >= 0) {
+            revert('Tried to purchase too much');
+        }
+
 
         // Handle additional edge cases
         int256 newPBarA = LibScamMath.computeNewPBarA(
@@ -311,6 +330,20 @@ contract Swapper is
             : term4;
     }
 
+    function _rhoPow(
+        int256 base,
+        int256 rho
+    )
+        internal
+        returns (int256)
+    {
+        int256 term1 = LibFixedMath.one().div(
+            LibFixedMath.one().sub(rho)
+        );
+        int256 term2 = base.ln();
+        return term1.mul(term2).exp();
+    }
+
     function _computeStep3(
         int256 rl,
         int256 rh,
@@ -321,7 +354,8 @@ contract Swapper is
         internal
         returns (int256 newRh, int256 yl)
     {
-        yl = LibScamMath.computeBaseToOneHundred(rl);
+        yl = _rhoPow(rl, state.rhoRatio);
+
         int256 term1 = state.rhoRatio.mul(yl)
             .add(
                 LibFixedMath.one()
@@ -378,7 +412,7 @@ contract Swapper is
     {
         // compute yBis
         int256 term1 = _computeA(rl, rh);
-        int256 yBis = LibScamMath.computeBaseToOneHundred(term1);
+        int256 yBis =  _rhoPow(term1, state.rhoRatio);
 
         //
         int256 term2 = k12.sub(k8.mul(term1));
@@ -427,11 +461,10 @@ contract Swapper is
         int256 rl
     )
         internal
-        returns (int256)
     {
-        return rl < LibFixedMath.toFixed(int256(9), int256(10))
-            ? 0
-            : rl;
+        if (rl < LibFixedMath.toFixed(int256(95), int256(100))) {
+            revert('Order too large');
+        }
     }
 
     function _shouldImprovePrecision(
@@ -458,6 +491,11 @@ contract Swapper is
     event L(
         int256 lhs,
         int256 rhs
+    );
+
+    event VALUE(
+        string description,
+        int256 val
     );
 
     function _bracket(
@@ -493,6 +531,8 @@ contract Swapper is
             state
         );
 
+        emit VALUE("delta after step0", delta);
+
         int256 rl = _computeStep1(
             a,
             b,
@@ -502,6 +542,8 @@ contract Swapper is
             delta,
             state
         );
+
+        emit VALUE("rl after step 1", rl);
 
         int256 rh = _computeStep2(
             a,
@@ -514,6 +556,8 @@ contract Swapper is
             state
         );
 
+        emit VALUE("rh after step 2", rh);
+
 
         if (_shouldImprovePrecision(rl, rh, state.fee)) {
             int256 yl;
@@ -524,6 +568,8 @@ contract Swapper is
                 k12,
                 state
             );
+            emit VALUE("rh after step 3", rh);
+            emit VALUE("yl after step 3", yl);
 
             if (_shouldImprovePrecision(rl, rh, state.fee)) {
                 int256 yh;
@@ -536,6 +582,11 @@ contract Swapper is
                     state
                 );
 
+                emit VALUE("rl after step 4", rl);
+                emit VALUE("rh after step 4", rh);
+                emit VALUE("yl after step 4", yl);
+                emit VALUE("yh after step 4", yh);
+
                 if (_shouldImprovePrecision(rl, rh, state.fee)) {
                     rl = _computeStep5(
                         rl,
@@ -545,12 +596,16 @@ contract Swapper is
                         k8,
                         k12
                     );
+
+                    emit VALUE("rl after step 5", rl);
                 }
             }
         }
 
         // Step 6
-        rl = _computeStep6(rl);
+        _computeStep6(rl);
+
+        emit VALUE("final price", rl.mul(pA));
 
         // Step 7
         return rl.mul(pA);

@@ -181,6 +181,29 @@ library LibFixedMath {
         }
     }
 
+/*
+    function ceil(int256 f, int256 digits) internal pure returns (int256) {
+        int256 integer = toInteger(f);
+        int256 mantissa = toMantissa(f);
+        int256 mantissaShifted = _mul(f, 10**(digits + 1));
+        if (mantissaShifted % 10 == 0) {
+            mantissaShifted /= 10;
+        } else {
+            mantissaShifted /= 10;
+            mantissaShifted += 1;
+        }
+        int256 newMantissa = toMantissa(toInteger(mantissaShifted));
+
+        return toFraction(f, newMantissa);
+
+        // IDEAL: return _div(_add(f, 10**digits - 1), 10**digits);
+    }
+    */
+
+    function toFraction(int256 integer, int256 mantissa) internal pure returns (int256) {
+        return integer | mantissa;
+    }
+
     /// @dev Returns 1 / `x`, where `x` is a fixed-point number.
     function invert(int256 f) internal pure returns (int256 c) {
         c = _div(FIXED_1_SQUARED, f);

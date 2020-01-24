@@ -9,6 +9,8 @@ import { AbiEncoder, BigNumber } from '@0x/utils';
 import { UNIT_TESTS } from './unit_tests';
 import { StateContract } from './generated-wrappers/state';
 
+import * as _ from 'lodash';
+
 blockchainTests.only('Test Scam', env => {
     let testContract: UnitTestScamContract;
 
@@ -229,7 +231,7 @@ blockchainTests.only('Test Scam', env => {
             let i = 0;
             for (const test of UNIT_TESTS) {
                 i += 1;
-                if (test.number_of_transactions != 1 /*|| i != 1*/) {
+                if (test.number_of_transactions != 1 || i != 46) {
                     continue;
                 }
                 //.log(JSON.stringify(test, null, 4));
@@ -295,10 +297,28 @@ blockchainTests.only('Test Scam', env => {
                 console.log('***EXPECTED***\n', JSON.stringify(unitTest.finalState, null, 4));
                 console.log('***ACTUAL***\n', JSON.stringify(actualFinalState, null, 4));
 
+                const tx = await testContract.runUnitTest(
+                    unitTest.params,
+                    unitTest.initialState,
+                    unitTest.trades
+                ).awaitTransactionSuccessAsync();
+
+                //console.log(JSON.stringify(tx, null, 4));
+                //console.log(JSON.stringify(valueLogs, null, 4));
+
+                const valueLogs = _.filter(tx.logs, (log) => {return (log as any).event === "VALUE"});
+                for (const log of valueLogs) {
+                    console.log('***** ', (log as any).args.description, ' *****');
+                    console.log(fromFixed(new BigNumber((log as any).args.val._hex, 16)));
+                }
+
+
                 expect(actualFinalState.x, 'x').to.bignumber.equal(unitTest.finalState.x);
                 expect(actualFinalState.y, 'y').to.bignumber.equal(unitTest.finalState.y);
                 expect(actualFinalState.pBarX, 'x').to.bignumber.equal(unitTest.finalState.pBarX);
                 expect(actualFinalState.t, 'x').to.bignumber.equal(unitTest.finalState.t);
+
+
 
 
               //  console.log('x: ', /*unitTest.finalState.x, '\n   ', actualFinalState.x, '\n   ',*/ unitTest.finalState.x.minus(actualFinalState.x));
