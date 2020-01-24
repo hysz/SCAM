@@ -32,7 +32,12 @@ blockchainTests.only('Test Scam', env => {
     }
 
     const toTestUnits = (n: Numberish): BigNumber => {
-        return new BigNumber(n).times(100000000).integerValue(BigNumber.ROUND_HALF_UP).dividedBy(100000000);
+        return new BigNumber(n).times(new BigNumber(10).pow(18)).integerValue(BigNumber.ROUND_HALF_UP).dividedBy(new BigNumber(10).pow(18));
+    }
+
+    const toStandard = (n: Numberish): BigNumber => {
+        const factor = new BigNumber(10).pow(7);
+        return new BigNumber(n).times(factor).dividedToIntegerBy(1).dividedBy(factor);
     }
 
     before(async() => {
@@ -194,7 +199,6 @@ blockchainTests.only('Test Scam', env => {
 
         });
 
-
         it.only('Run Unit Tests', async () => {
             interface BondCurveParams {
                 rho: BigNumber;
@@ -231,7 +235,8 @@ blockchainTests.only('Test Scam', env => {
             let i = 0;
             for (const test of UNIT_TESTS) {
                 i += 1;
-                if (test.number_of_transactions != 1 || i != 46) {
+                const numberOfTransactions = Number(test.number_of_transactions);
+                if (numberOfTransactions != 1 || i != 46) {
                     continue;
                 }
                 //.log(JSON.stringify(test, null, 4));
@@ -257,7 +262,7 @@ blockchainTests.only('Test Scam', env => {
                     trades: [],
                 };
 
-                for (let tradeNumber = 1; tradeNumber <= test.number_of_transactions; tradeNumber++) {
+                for (let tradeNumber = 1; tradeNumber <= numberOfTransactions; tradeNumber++) {
                     const takerToken: string = (test as any)[`transaction_type_${tradeNumber}`] == 'X' ? "0x0000000000000000000000000000000000000000" : "0x0000000000000000000000000000000000000001";
                     const makerToken: string = takerToken == "0x0000000000000000000000000000000000000001" ? "0x0000000000000000000000000000000000000000" : "0x0000000000000000000000000000000000000001";
                     const takerAmount: BigNumber = (test as any)[`transaction_size_${tradeNumber}`];
@@ -286,9 +291,9 @@ blockchainTests.only('Test Scam', env => {
                 }
 
                 const actualFinalState = {
-                    x: toTestUnits(fromFixed(c.x)),
-                    y: toTestUnits(fromFixed(c.y)),
-                    pBarX: toTestUnits(fromFixed(c.pBarX)),
+                    x: fromFixed(c.x),
+                    y: fromFixed(c.y),
+                    pBarX: fromFixed(c.pBarX),
                     t: c.t,
 
                 }
@@ -308,14 +313,14 @@ blockchainTests.only('Test Scam', env => {
 
                 const valueLogs = _.filter(tx.logs, (log) => {return (log as any).event === "VALUE"});
                 for (const log of valueLogs) {
-                    console.log('***** ', (log as any).args.description, ' *****');
-                    console.log(fromFixed(new BigNumber((log as any).args.val._hex, 16)));
+                   //console.log('***** ', (log as any).args.description, ' *****');
+                    //console.log(fromFixed(new BigNumber((log as any).args.val._hex, 16)));
                 }
 
 
-                expect(actualFinalState.x, 'x').to.bignumber.equal(unitTest.finalState.x);
-                expect(actualFinalState.y, 'y').to.bignumber.equal(unitTest.finalState.y);
-                expect(actualFinalState.pBarX, 'x').to.bignumber.equal(unitTest.finalState.pBarX);
+                expect(toStandard(actualFinalState.x), 'x').to.bignumber.equal(toStandard(unitTest.finalState.x));
+                expect(toStandard(actualFinalState.y), 'y').to.bignumber.equal(toStandard(unitTest.finalState.y));
+                expect(toStandard(actualFinalState.pBarX), 'x').to.bignumber.equal(toStandard(unitTest.finalState.pBarX));
                 expect(actualFinalState.t, 'x').to.bignumber.equal(unitTest.finalState.t);
 
 
