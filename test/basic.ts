@@ -1,4 +1,4 @@
-import {blockchainTests, Numberish, Token} from '@0x/contracts-test-utils';
+import {blockchainTests, Numberish, Token, expect} from '@0x/contracts-test-utils';
 
 import { UnitTestScamContract } from '../src';
 
@@ -27,6 +27,10 @@ blockchainTests.only('Test Scam', env => {
     }
     const toToken = (n: Numberish): BigNumber => {
         return new BigNumber(n).multipliedBy(TOKEN_BASE).dividedToIntegerBy(1);
+    }
+
+    const toTestUnits = (n: Numberish): BigNumber => {
+        return new BigNumber(n).times(100000000).integerValue(BigNumber.ROUND_HALF_UP).dividedBy(100000000);
     }
 
     before(async() => {
@@ -219,11 +223,13 @@ blockchainTests.only('Test Scam', env => {
                 trades: Trade[];
             }
 
+
+
             const unitTests = [];
             let i = 0;
             for (const test of UNIT_TESTS) {
                 i += 1;
-                if (/*test.number_of_transactions != 1 ||*/ i != 1) {
+                if (test.number_of_transactions != 1 /*|| i != 1*/) {
                     continue;
                 }
                 //.log(JSON.stringify(test, null, 4));
@@ -278,23 +284,29 @@ blockchainTests.only('Test Scam', env => {
                 }
 
                 const actualFinalState = {
-                    x: fromFixed(c.x),
-                    y: fromFixed(c.y),
-                    pBarX: fromFixed(c.pBarX),
+                    x: toTestUnits(fromFixed(c.x)),
+                    y: toTestUnits(fromFixed(c.y)),
+                    pBarX: toTestUnits(fromFixed(c.pBarX)),
                     t: c.t,
 
                 }
 
-                console.log('******** ', i);
+                console.log('\n\n******** TEST #', i);
+                console.log('***EXPECTED***\n', JSON.stringify(unitTest.finalState, null, 4));
+                console.log('***ACTUAL***\n', JSON.stringify(actualFinalState, null, 4));
+
+                expect(actualFinalState.x, 'x').to.bignumber.equal(unitTest.finalState.x);
+                expect(actualFinalState.y, 'y').to.bignumber.equal(unitTest.finalState.y);
+                expect(actualFinalState.pBarX, 'x').to.bignumber.equal(unitTest.finalState.pBarX);
+                expect(actualFinalState.t, 'x').to.bignumber.equal(unitTest.finalState.t);
+
+
               //  console.log('x: ', /*unitTest.finalState.x, '\n   ', actualFinalState.x, '\n   ',*/ unitTest.finalState.x.minus(actualFinalState.x));
              //   console.log('y: ', /*unitTest.finalState.y, '\n   ', actualFinalState.y, '\n   ',*/ unitTest.finalState.y.minus(actualFinalState.y));
              //   console.log('pBarX: ', /*unitTest.finalState.pBarX, '\n   ', actualFinalState.pBarX, '\n   ',*/ unitTest.finalState.pBarX.minus(actualFinalState.pBarX));
              //   console.log('t: ', /*unitTest.finalState.t, '\n   ', actualFinalState.t, '\n   ',*/ unitTest.finalState.t.minus(actualFinalState.t));
               // console.log('\n\n\n');
 
-                console.log(JSON.stringify(test, null, 4));
-                console.log('***EXPECTED***\n', JSON.stringify(unitTest.finalState, null, 4));
-                console.log('***ACTUAL***\n', JSON.stringify(actualFinalState, null, 4));
             }
         });
     });
