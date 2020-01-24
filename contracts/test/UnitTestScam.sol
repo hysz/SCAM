@@ -81,13 +81,14 @@ contract UnitTestScam is
         for (uint i = 0; i < trades.length; ++i) {
             blockNumber = trades[i].blockNumber;
 
+/*
             swap(
                 trades[i].takerToken,
                 trades[i].makerToken,
                 trades[i].takerAmount
             );
+            */
 
-/*
             bytes memory swapCalldata = abi.encodeWithSelector(
                 Scam(address(0)).swap.selector,
                 trades[i].takerToken,
@@ -95,7 +96,6 @@ contract UnitTestScam is
                 trades[i].takerAmount
             );
             address(this).call(swapCalldata);
-            */
         }
         blockNumber = 0;
 

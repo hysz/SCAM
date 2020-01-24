@@ -236,7 +236,7 @@ blockchainTests.only('Test Scam', env => {
             for (const test of UNIT_TESTS) {
                 i += 1;
                 const numberOfTransactions = Number(test.number_of_transactions);
-                if (numberOfTransactions != 1 || i != 46) {
+                if (numberOfTransactions != 1 /*|| i != 46*/) {
                     continue;
                 }
                 //.log(JSON.stringify(test, null, 4));
