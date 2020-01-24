@@ -20,6 +20,7 @@ contract UnitTestScam is
         int256 rho;
         int256 baseFee;
         int256 beta;
+        int256 kappa;
     }
 
     struct ContractState {
@@ -64,7 +65,7 @@ contract UnitTestScam is
 
         // 1.005012520859401063383566241124068580734875538593956360758...
 
-        gState.eToKappa = LibFixedMath.toFixed(int256(100050012502), int256(100000000000));
+        gState.eToKappa = LibFixedMath.one().div(LibFixedMath.exp(-p.kappa));
         gState.isInitialized = true;
 
 
@@ -79,7 +80,14 @@ contract UnitTestScam is
         // Run trades
         for (uint i = 0; i < trades.length; ++i) {
             blockNumber = trades[i].blockNumber;
-            swap(trades[i].takerToken, trades[i].makerToken, trades[i].takerAmount);
+
+            bytes memory swapCalldata = abi.encodeWithSelector(
+                Scam(address(0)).swap.selector,
+                trades[i].takerToken,
+                trades[i].makerToken,
+                trades[i].takerAmount
+            );
+            address(this).call(swapCalldata);
         }
         blockNumber = 0;
 
@@ -100,9 +108,17 @@ contract UnitTestScam is
         return i.div(j);
     }
 
+    function testPow(int256 i, int256 j) public returns (int256) {
+        return i.pow(j);
+    }
+
 
     function testMantissa(int256 i) public returns (int256) {
         return i.toMantissa();
+    }
+
+    function getRanges() public returns (int256,int256,int256,int256) {
+        return LibFixedMath.getRanges();
     }
 
     function _getCurrentBlockNumber()

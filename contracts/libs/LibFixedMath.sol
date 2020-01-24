@@ -35,6 +35,11 @@ library LibFixedMath {
     // -63.875
     int256 private constant EXP_MIN_VAL = -int256(0x0000000000000000000000000000001ff0000000000000000000000000000000);
 
+
+    function getRanges() internal pure returns (int256,int256,int256,int256) {
+        return (LN_MIN_VAL, LN_MAX_VAL, EXP_MIN_VAL, EXP_MAX_VAL);
+    }
+
     /// @dev Get one as a fixed-point number.
     function one() internal pure returns (int256 f) {
         f = FIXED_1;
@@ -85,6 +90,42 @@ library LibFixedMath {
         int256 product = _mul(a, b);
         c = product / base;
 */
+    }
+
+    function pow(int256 base, int256 power) internal pure returns (int256) {
+        // KEY INSIGHT --> e^(0.5*ln(7)) - 1/e^(0.5*ln(1/7))
+        // So I think a^x = e^(xln(a)) = 1/e^(xln(1/a))
+
+        // 1 Sanity check on `ln`
+        int256 ePower;
+        bool invert;
+        if (base <= 0) {
+            revert('Invalid ln() value');
+        } else if (base < FIXED_1) {
+            ePower = mul(power, ln(base));
+        } else {
+            // Make smaller
+            ePower = mul(power, ln(_div(FIXED_1, base)));
+            invert = true;
+        }
+
+        // 2 Sanity check on ePower\
+        if (ePower < 0) {
+            invert = invert ? false : true;
+            ePower = abs(ePower);
+        }
+
+        // Comput e^ePower
+        // Key Insight --> e^x = 1/e^(-x)
+        /*
+        int256 exp;
+        if (ePower < FIXED_1) {
+            return exp(ePower);
+        } else {
+            return div(FIXED_1, )
+        }
+        */
+        return exp(ePower);
     }
 
     /// @dev Returns the division of two fixed point numbers.

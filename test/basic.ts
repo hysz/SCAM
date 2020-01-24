@@ -112,11 +112,89 @@ blockchainTests.only('Test Scam', env => {
 
 
         });
-        it('Run Unit Tests', async () => {
+        it.skip('Multiplication', async () => {
+            console.log("1 = ", toFixed(1));
+
+           /* const a = unitTest.initialState.x.times(-1);
+            const b = unitTest.trades[0].takerAmount.times(-1);
+
+            console.log(`${fromFixed(a)} x ${fromFixed(b)}`);
+
+            console.log('encoded neg a: ', AbiEncoder.create('int').encode(a));
+
+
+            const retval = await testContract.testMul(
+                a,
+                b,
+            ).callAsync();
+            console.log(fromFixed(retval));
+            const bn = fromFixed(a).multipliedBy(fromFixed(b));
+            console.log('CORRECT VALUE = ', bn);
+            */
+        });
+
+        it.skip('Division', async () => {
+            const a = toFixed(new BigNumber('1'));
+            const b = toFixed(new BigNumber('4'));
+
+/*
+                const a = toFixed(new BigNumber('1.25'));
+                const b = toFixed(new BigNumber('4.5'));
+*/
+/*
+                const a = toFixed(new BigNumber('0.25'));
+                const b = toFixed(new BigNumber('4.5'));
+*/
+/*
+                const a = toFixed(new BigNumber('0.25'));
+                const b = toFixed(new BigNumber('0.1'));
+*/
+
+
+                console.log(`${fromFixed(a)} x ${fromFixed(b)}`);
+
+                const retval = await testContract.testDiv(
+                    a,
+                    b,
+                ).callAsync();
+                console.log(fromFixed(retval));
+                const bn = fromFixed(a).dividedBy(fromFixed(b));
+                console.log('CORRECT VALUE = ', bn);
+        });
+
+        it.skip('Mantissa', async () => {
+            const bn = new BigNumber(7.234);
+            const fixedBn = toFixed(bn).dividedToIntegerBy(1);
+            console.log('int: ', bn);
+
+            const mantissa = await testContract.testMantissa(fixedBn).callAsync();
+
+            console.log('encoded mantissa: ', AbiEncoder.create('int').encode(mantissa));
+            console.log('encoded init val: ', AbiEncoder.create('int').encode(fixedBn));
+            console.log('man: ', fromFixed(mantissa));
+        });
+
+        it.skip('Pow', async () => {
+            const ranges = await testContract.getRanges().callAsync();
+            console.log(`LN: [${fromFixed(ranges[0])}..${fromFixed(ranges[1])}]`);
+            console.log(`EXP: [${fromFixed(ranges[2])}..${fromFixed(ranges[3])}]`);
+
+            const base = toFixed(2);
+            const power = toFixed(2);
+
+            const val = await testContract.testPow(base, power).callAsync();
+            console.log('VAL: ', fromFixed(val));
+
+
+        });
+
+
+        it.only('Run Unit Tests', async () => {
             interface BondCurveParams {
                 rho: BigNumber;
                 baseFee: BigNumber;
                 beta: BigNumber;
+                kappa: BigNumber;
             }
             interface ContractState {
                 x: BigNumber;
@@ -145,7 +223,7 @@ blockchainTests.only('Test Scam', env => {
             let i = 0;
             for (const test of UNIT_TESTS) {
                 i += 1;
-                if (test.number_of_transactions != 1 || i != 39) {
+                if (/*test.number_of_transactions != 1 ||*/ i != 1) {
                     continue;
                 }
                 //.log(JSON.stringify(test, null, 4));
@@ -154,6 +232,7 @@ blockchainTests.only('Test Scam', env => {
                         rho: toFixed(test.parameters_rho),
                         baseFee: toFixed(test.parameters_lambda),
                         beta: toFixed(test.parameters_beta),
+                        kappa: toFixed(test.parameters_kappa),
                     },
                     initialState: {
                         x: toFixed(test.initial_state_x),
@@ -185,19 +264,17 @@ blockchainTests.only('Test Scam', env => {
                 }
                 unitTests.push(unitTest);
 
-              //
-
                 // Run unit test
                 let c: ContractState;
                 try {
-
                     c = await testContract.runUnitTest(
                         unitTest.params,
                         unitTest.initialState,
                         unitTest.trades
                     ).callAsync();
                 } catch(e) {
-                    continue;
+                    console.log('**** EXECUTION FAILED ****\n\t', JSON.stringify(e.message, null, 4));
+                    break;
                 }
 
                 const actualFinalState = {
@@ -218,89 +295,6 @@ blockchainTests.only('Test Scam', env => {
                 console.log(JSON.stringify(test, null, 4));
                 console.log('***EXPECTED***\n', JSON.stringify(unitTest.finalState, null, 4));
                 console.log('***ACTUAL***\n', JSON.stringify(actualFinalState, null, 4));
-
-
-
-
-/********* DIVISION *********/
-
-/*
-                const a = toFixed(new BigNumber('1'));
-                const b = toFixed(new BigNumber('4'));
-*/
-/*
-                const a = toFixed(new BigNumber('1.25'));
-                const b = toFixed(new BigNumber('4.5'));
-*/
-/*
-                const a = toFixed(new BigNumber('0.25'));
-                const b = toFixed(new BigNumber('4.5'));
-*/
-/*
-                const a = toFixed(new BigNumber('0.25'));
-                const b = toFixed(new BigNumber('0.1'));
-
-
-
-                console.log(`${fromFixed(a)} x ${fromFixed(b)}`);
-
-                const retval = await testContract.testDiv(
-                    a,
-                    b,
-                ).callAsync();
-                console.log(fromFixed(retval));
-                const bn = fromFixed(a).dividedBy(fromFixed(b));
-                console.log('CORRECT VALUE = ', bn);
-                */
-
-/********* MULTIPLICATION
-
-            console.log("1 = ", toFixed(1));
-
-            const a = unitTest.initialState.x.times(-1);
-            const b = unitTest.trades[0].takerAmount.times(-1);
-
-            console.log(`${fromFixed(a)} x ${fromFixed(b)}`);
-
-            console.log('encoded neg a: ', AbiEncoder.create('int').encode(a));
-
-
-            const retval = await testContract.testMul(
-                a,
-                b,
-            ).callAsync();
-            console.log(fromFixed(retval));
-            const bn = fromFixed(a).multipliedBy(fromFixed(b));
-            console.log('CORRECT VALUE = ', bn);
-
-            */
-
-
-             //   break;
-                /*
-
-
-
-            const fixedBn = toFixed(bn).dividedToIntegerBy(1);
-            console.log('int: ', bn);
-
-            const mantissa = await testContract.testMantissa(fixedBn).callAsync();
-
-            console.log('encoded mantissa: ', AbiEncoder.create('int').encode(mantissa));
-            console.log('encoded init val: ', AbiEncoder.create('int').encode(fixedBn));
-            console.log('man: ', fromFixed(mantissa));
-
-            /*
-                console.log(JSON.stringify(c, null, 4));
-                console.log('x ', fromFixed(c.x));
-                console.log('y ', fromFixed(c.y));
-                console.log('pBarX ', fromFixed(c.pBarX));
-                console.log('t ', fromFixed(c.t));
-
-            */
-
-
-               // break;
             }
         });
     });
