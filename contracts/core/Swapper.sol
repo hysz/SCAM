@@ -421,7 +421,7 @@ contract Swapper is
                 term1,
                 rh,
                 yBis,
-                LibScamMath.computeBaseToOneHundred(rh)
+                _rhoPow(rh, state.rhoRatio)
             );
         } else {
             return (

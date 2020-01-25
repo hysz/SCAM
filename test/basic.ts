@@ -244,7 +244,7 @@ blockchainTests.only('Test Scam', env => {
             let i = 0;
             for (const test of UNIT_TESTS) {
                 i += 1;
-                if (i < 320) continue;
+                if (i !== 865) continue;
                 //if (i > 325) continue;
                 const numberOfTransactions = Number(test.number_of_transactions);
                 console.log('eunning #', i, `(p: ${passed} f: ${failed})`);
@@ -254,7 +254,7 @@ blockchainTests.only('Test Scam', env => {
                 }
                 */
                 //.log(JSON.stringify(test, null, 4));
-                /*
+
                 console.log('***INITIAL STATE***\n', JSON.stringify(
                     {
                         x: new BigNumber(test.initial_state_x),
@@ -266,7 +266,7 @@ blockchainTests.only('Test Scam', env => {
                     4
 
                 ));
-                */
+
 
 
                 let unitTest: UnitTest = {
@@ -331,7 +331,7 @@ blockchainTests.only('Test Scam', env => {
 
                 }
 
-                /*
+
                 console.log('\n\n******** TEST #', i);
                 console.log('***EXPECTED***\n', JSON.stringify(unitTest.finalState, null, 4));
                 console.log('***ACTUAL***\n', JSON.stringify(actualFinalState, null, 4));
@@ -349,11 +349,16 @@ blockchainTests.only('Test Scam', env => {
 
                 const valueLogs = _.filter(tx.logs, (log) => {return (log as any).event === "VALUE"});
                 for (const log of valueLogs) {
-                   //console.log('***** ', (log as any).args.description, ' *****');
-                    //console.log(fromFixed(new BigNumber((log as any).args.val._hex, 16)));
+                   console.log('***** ', (log as any).args.description, ' *****');
+                    console.log(fromFixed(new BigNumber((log as any).args.val._hex, 16)));
                 }
-                 */
 
+
+
+                expect(toStandard(actualFinalState.x), 'x').to.bignumber.equal(toStandard(unitTest.finalState.x));
+                expect(toStandard(actualFinalState.y), 'y').to.bignumber.equal(toStandard(unitTest.finalState.y));
+                expect(toStandard(actualFinalState.pBarX), 'x').to.bignumber.equal(toStandard(unitTest.finalState.pBarX));
+                expect(actualFinalState.t, 'x').to.bignumber.equal(unitTest.finalState.t);
                 try {
                     expect(toStandard(actualFinalState.x), 'x').to.bignumber.equal(toStandard(unitTest.finalState.x));
                     expect(toStandard(actualFinalState.y), 'y').to.bignumber.equal(toStandard(unitTest.finalState.y));
