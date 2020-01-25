@@ -235,19 +235,41 @@ blockchainTests.only('Test Scam', env => {
             }
 
 
-            let passed = 319;
-            let failed = 14;
+            let passed = 0;
+            let failed = 0;
 
-            const failedTests = [];
+            const failedTests = [
+                30,
+                56,
+                91,
+                99,
+                100,
+                135,
+                175,
+                176,
+                186,
+                228,
+                249,
+                268,
+                300,
+                315,
+                330,
+                332,
+                354,
+                363
+            ];
 
             const unitTests = [];
             let i = 0;
             for (const test of UNIT_TESTS) {
                 i += 1;
-                if (i !== 865) continue;
-                //if (i > 325) continue;
                 const numberOfTransactions = Number(test.number_of_transactions);
-                console.log('eunning #', i, `(p: ${passed} f: ${failed})`);
+
+                //if (!failedTests.includes(i)) continue;
+                if (i < 516) continue;
+
+                //if (i < 865 || numberOfTransactions != 1) continue;
+                console.log('Running #', i);//, `(p: ${passed} f: ${failed})`);
 
                 /*if (numberOfTransactions == 1 || i != 30) {
                     continue;

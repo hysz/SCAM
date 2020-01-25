@@ -94,7 +94,7 @@ library LibFixedMath {
 
     function pow(int256 base, int256 power) internal pure returns (int256) {
         // KEY INSIGHT --> e^(0.5*ln(7)) - 1/e^(0.5*ln(1/7))
-        // So I think a^x = e^(xln(a)) = 1/e^(xln(1/a))
+        // So I think x^a = e^(a*ln(x)) = 1/e^(a*ln(1/x))
 
         // 1 Sanity check on `ln`
         int256 ePower;
@@ -105,12 +105,12 @@ library LibFixedMath {
             ePower = mul(power, ln(base));
         } else {
             // Make smaller
-            ePower = mul(power, ln(_div(FIXED_1, base)));
+            ePower = mul(power, ln(div(FIXED_1, base)));
             invert = true;
         }
 
         // 2 Sanity check on ePower\
-        if (ePower < 0) {
+        if (ePower > 0) {
             invert = invert ? false : true;
             ePower = abs(ePower);
         }
@@ -179,29 +179,6 @@ library LibFixedMath {
         } else {
             c = -f;
         }
-    }
-
-/*
-    function ceil(int256 f, int256 digits) internal pure returns (int256) {
-        int256 integer = toInteger(f);
-        int256 mantissa = toMantissa(f);
-        int256 mantissaShifted = _mul(f, 10**(digits + 1));
-        if (mantissaShifted % 10 == 0) {
-            mantissaShifted /= 10;
-        } else {
-            mantissaShifted /= 10;
-            mantissaShifted += 1;
-        }
-        int256 newMantissa = toMantissa(toInteger(mantissaShifted));
-
-        return toFraction(f, newMantissa);
-
-        // IDEAL: return _div(_add(f, 10**digits - 1), 10**digits);
-    }
-    */
-
-    function toFraction(int256 integer, int256 mantissa) internal pure returns (int256) {
-        return integer | mantissa;
     }
 
     /// @dev Returns 1 / `x`, where `x` is a fixed-point number.
