@@ -1,4 +1,4 @@
-export const UNIT_TESTS = [{
+export const UNIT_TEST_TRIALS = [{
 	"trial_num" : "1.000000000000000000",
 	"initial_state_x" : "3287904.226421390194445848",
 	"initial_state_y" : "5136880.024460139684379101",

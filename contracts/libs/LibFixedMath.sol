@@ -93,39 +93,15 @@ library LibFixedMath {
     }
 
     function pow(int256 base, int256 power) internal pure returns (int256) {
-        // KEY INSIGHT --> e^(0.5*ln(7)) - 1/e^(0.5*ln(1/7))
-        // So I think x^a = e^(a*ln(x)) = 1/e^(a*ln(1/x))
-
-        // 1 Sanity check on `ln`
-        int256 ePower;
-        bool invert;
         if (base <= 0) {
             revert('Invalid ln() value');
         } else if (base < FIXED_1) {
-            ePower = mul(power, ln(base));
+            return exp(mul(power, ln(base)));
+        } else if(base == FIXED_1) {
+            return FIXED_1;
         } else {
-            // Make smaller
-            ePower = mul(power, ln(div(FIXED_1, base)));
-            invert = true;
+            return div(FIXED_1, exp(mul(power, ln(div(FIXED_1, base)))));
         }
-
-        // 2 Sanity check on ePower\
-        if (ePower > 0) {
-            invert = invert ? false : true;
-            ePower = abs(ePower);
-        }
-
-        // Comput e^ePower
-        // Key Insight --> e^x = 1/e^(-x)
-        /*
-        int256 exp;
-        if (ePower < FIXED_1) {
-            return exp(ePower);
-        } else {
-            return div(FIXED_1, )
-        }
-        */
-        return exp(ePower);
     }
 
     /// @dev Returns the division of two fixed point numbers.
@@ -136,18 +112,6 @@ library LibFixedMath {
         } else {
             return _div(_mul(a, FIXED_1), b);
         }
-
-     //  return
-
-
-       /* int256 integerPart = _mul(toInteger(a), _div(FIXED_1, toInteger(b))));
-        int256 fractionPart = 0;//_div(_mul(toMantissa(a), FIXED_1), b);
-        return _add(integerPart, fractionPart);*/
-
-
-       // c = _div(mul(a, FIXED_1), b);
-
-        //c = _div(_mul(a, FIXED_1 / 2**50), b) * 2**50;
     }
 
     /// @dev Performs (a * n) / d, without scaling for precision.

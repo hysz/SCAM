@@ -252,23 +252,12 @@ contract Swapper is
             .mul(a)
             .mul(b)
         );
-        int256 term2 = -(LibFixedMath.one()
-            .div(term1)
-            .ln()
-            .div(two));
-
-
-        int256 term3 = (term2 <= 0)
-            ? term2.exp()
-            : LibFixedMath.one().div(
-                (-term2).exp()
-            );
-
-        int256 term4 = (-k13)
-            .add(term3)
+        int256 term2 = term1.pow(LibFixedMath.toFixed(int256(1), int256(2)));
+        int256 term3 = (-k13)
+            .add(term2)
             .div(two.mul(pA));
 
-        int256 delta = LibFixedMath.min(deltaA, term4);
+        int256 delta = LibFixedMath.min(deltaA, term3);
         return delta;
     }
 
@@ -286,13 +275,7 @@ contract Swapper is
     {
         int256 term1 = a.mul(b.sub(delta.mul(pA)));
         int256 term2 = b.mul(a.add(delta));
-
-
-
         int256 term3 = term1.div(term2).ln();
-
-
-
         int256 term4 = LibFixedMath.one().sub(state.rhoRatio).mul(term3);
         int256 term5 = term4.exp().mul(delta).div(deltaA);
         return term5;
