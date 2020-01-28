@@ -5,35 +5,6 @@
  */
 import {ContractArtifact} from 'ethereum-types';
 
-import * as IERC20 from '../generated-artifacts/IERC20.json';
-import * as IEvents from '../generated-artifacts/IEvents.json';
-import * as IStructs from '../generated-artifacts/IStructs.json';
-import * as LibFixedMath from '../generated-artifacts/LibFixedMath.json';
-import * as LibSafeMath from '../generated-artifacts/LibSafeMath.json';
-import * as LibScamMath from '../generated-artifacts/LibScamMath.json';
-import * as LibToken from '../generated-artifacts/LibToken.json';
-import * as Liquidity from '../generated-artifacts/Liquidity.json';
-import * as Ownable from '../generated-artifacts/Ownable.json';
 import * as Scam from '../generated-artifacts/Scam.json';
-import * as State from '../generated-artifacts/State.json';
-import * as Swapper from '../generated-artifacts/Swapper.json';
-import * as TestLibScamMath from '../generated-artifacts/TestLibScamMath.json';
-import * as TestScam from '../generated-artifacts/TestScam.json';
 import * as UnitTestScam from '../generated-artifacts/UnitTestScam.json';
-export const artifacts = {
-    Scam: Scam as ContractArtifact,
-    Liquidity: Liquidity as ContractArtifact,
-    Ownable: Ownable as ContractArtifact,
-    State: State as ContractArtifact,
-    Swapper: Swapper as ContractArtifact,
-    IERC20: IERC20 as ContractArtifact,
-    IEvents: IEvents as ContractArtifact,
-    IStructs: IStructs as ContractArtifact,
-    LibFixedMath: LibFixedMath as ContractArtifact,
-    LibSafeMath: LibSafeMath as ContractArtifact,
-    LibScamMath: LibScamMath as ContractArtifact,
-    LibToken: LibToken as ContractArtifact,
-    TestLibScamMath: TestLibScamMath as ContractArtifact,
-    TestScam: TestScam as ContractArtifact,
-    UnitTestScam: UnitTestScam as ContractArtifact,
-};
+export const artifacts = {Scam: Scam as ContractArtifact, UnitTestScam: UnitTestScam as ContractArtifact};
