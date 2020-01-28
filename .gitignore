@@ -1,6 +1,8 @@
 build/*
 generated-artifacts/*
 generated-wrappers/*
+test/generated-artifacts/*
+test/generated-wrappers/*
 lib/*
 node_modules/*
 ganache.log
