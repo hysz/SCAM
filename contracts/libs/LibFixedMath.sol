@@ -68,28 +68,12 @@ library LibFixedMath {
 
     /// @dev Returns the multiplication of two fixed point numbers, reverting on overflow.
     function mul(int256 a, int256 b) internal pure returns (int256 c) {
-
-        int256 integerPart = _mul(FIXED_1, _mul(toInteger(a), toInteger(b))); // @TODO I think the FIXCED_1 should be moved in, in case one is a shrinking?
+        int256 integerPart = _mul(FIXED_1, _mul(toInteger(a), toInteger(b)));
         int256 lFractionPart = _mul(toMantissa(a), toInteger(b));
         int256 rFractionPart = _mul(toInteger(a), toMantissa(b));
         int256 bothFractionPart = _div(_mul(toMantissa(a), toMantissa(b)), FIXED_1);
 
         return _add(_add(_add(integerPart, lFractionPart), rFractionPart), bothFractionPart);
-
-
-/* OLD
-        revert('got fraction part');
-
-
-        int256 base = FIXED_1;
-        if (b != 0) {
-            b /= 2**50;
-            base = 2**77;
-        }
-
-        int256 product = _mul(a, b);
-        c = product / base;
-*/
     }
 
     function pow(int256 base, int256 power) internal pure returns (int256) {

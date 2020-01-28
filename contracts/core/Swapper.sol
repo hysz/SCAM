@@ -316,20 +316,6 @@ contract Swapper is
             : term4;
     }
 
-    function _rhoPow(
-        int256 base,
-        int256 rho
-    )
-        internal
-        returns (int256)
-    {
-        int256 term1 = LibFixedMath.one().div(
-            LibFixedMath.one().sub(rho)
-        );
-        int256 term2 = base.ln();
-        return term1.mul(term2).exp();
-    }
-
     function _computeStep3(
         int256 rl,
         int256 rh,
@@ -340,7 +326,7 @@ contract Swapper is
         internal
         returns (int256 newRh, int256 yl)
     {
-        yl = _rhoPow(rl, state.rhoRatio);
+        yl = rl.pow(state.rhoRatio);
 
         int256 term1 = state.rhoRatio.mul(yl)
             .add(
@@ -386,7 +372,7 @@ contract Swapper is
         int256 k8,
         int256 k12,
         int256 yl,
-        IStructs.State memory state
+        int256 rhoRatio
     )
         internal
         returns (
@@ -398,16 +384,17 @@ contract Swapper is
     {
         // compute yBis
         int256 term1 = _computeA(rl, rh);
-        int256 yBis =  _rhoPow(term1, state.rhoRatio);
+        int256 yBis = term1.pow(rhoRatio);
 
         //
         int256 term2 = k12.sub(k8.mul(term1));
         if (yBis <= term2) {
+            int256 newRh = rh.pow(rhoRatio);
             return (
                 term1,
                 rh,
                 yBis,
-                _rhoPow(rh, state.rhoRatio)
+                newRh
             );
         } else {
             return (
@@ -565,7 +552,7 @@ contract Swapper is
                     k8,
                     k12,
                     yl,
-                    state
+                    state.rhoRatio
                 );
 
                 emit VALUE("rl after step 4", rl);
@@ -595,42 +582,6 @@ contract Swapper is
 
         // Step 7
         return rl.mul(pA);
-    }
-
-    function _bisect(
-        int256 a,
-        int256 b,
-        int256 pA,
-        int256 pBarA,
-        int256 deltaA,
-        IStructs.State memory state
-    )
-        internal
-        returns (int256 r)
-    {
-        // Compute initial bounds.
-        int256 lowerBound = 0;
-        int256 upperBound = pA;
-
-        // Cache this value for computations.
-        int256 aPlusAmount = a.add(deltaA);
-
-        //
-        for (uint256 i = 0; i < 20; ++i) {
-            int256 mid = LibScamMath.computeMidpoint(lowerBound, upperBound);
-            int256 lhs1 = LibScamMath.computeBaseToNinetyNine(mid.div(pBarA));
-            int256 lhs = aPlusAmount
-                .mul(lhs1)
-                .mul(mid)
-                .add(deltaA.mul(mid));
-            if (lhs > b) {
-                upperBound = mid;
-            } else {
-                lowerBound = mid;
-            }
-        }
-
-        return lowerBound;
     }
 
     function _getCurrentBlockNumber()

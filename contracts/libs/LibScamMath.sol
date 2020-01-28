@@ -87,60 +87,6 @@ library LibScamMath {
         return a.add(b).div(LibFixedMath.one().add(LibFixedMath.one())); // @todo store FIXED_2 as a constant.
     }
 
-    /// @dev Hardcoded for rhoNumerator = 99
-    function computeBaseToNinetyNine(
-        int256 base
-    )
-        internal
-        returns (int256)
-    {
-        // Hack.gif ToDaMoon.gif TopKek.gif
-        int256 baseSquared = base.mul(base);
-        int256 baseCubed = base.mul(baseSquared);
-        int256 baseToSix = baseCubed.mul(baseCubed);
-        int256 baseToTwelve = baseToSix.mul(baseToSix);
-        int256 baseToTwentyFour = baseToTwelve.mul(baseToTwelve);
-        int256 baseToFourtyEight = baseToTwentyFour.mul(baseToTwentyFour);
-        int256 baseToNinetySix = baseToFourtyEight.mul(baseToFourtyEight);
-        int256 baseToNinetyNine = baseToNinetySix.mul(baseCubed);
-        return baseToNinetyNine;
-    }
-
-     /// @dev Computes base^100
-    function computeBaseToOneHundred(
-        int256 base
-    )
-        internal
-        returns (int256)
-    {
-        int256 baseSquared = base.mul(base);
-        int256 baseCubed = base.mul(baseSquared);
-        int256 baseToSix = baseCubed.mul(baseCubed);
-        int256 baseToTwelve = baseToSix.mul(baseToSix);
-        int256 baseToTwentyFour = baseToTwelve.mul(baseToTwelve);
-        int256 baseToFourtyEight = baseToTwentyFour.mul(baseToTwentyFour);
-        int256 baseToFifty = baseToFourtyEight.mul(baseSquared);
-        int256 baseToHundred = baseToFifty.mul(baseToFifty);
-        return baseToHundred;
-    }
-
-    function fastExponentiation(uint256 x, uint256 y)
-        internal
-        pure
-        returns (uint256)
-    {
-
-        if (y == 0) {
-            return 1;
-        } else if (y == 1) {
-            return x;
-        } else if (y % 2 == 0) {
-            return fastExponentiation(x * x, y / 2);
-        } else {
-            return x * fastExponentiation(x * x, (y - 1) / 2);
-        }
-    }
-
     function tokenToFixed(uint256 amount, uint256 nDecimals)
         internal
         pure
