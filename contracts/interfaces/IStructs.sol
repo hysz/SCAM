@@ -15,6 +15,7 @@ interface IStructs {
         uint256 rhoNumerator;
         int256 rhoRatio;
         int256 fee;
+        int256 feeHigh;
         uint256 t;                                          // most recent block
         mapping (address => uint256) liquidityBalance;
         int256 beta;    // persistence of expercted price - the larger the more persistent

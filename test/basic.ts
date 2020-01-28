@@ -208,6 +208,7 @@ blockchainTests.only('Test Scam', env => {
             interface BondCurveParams {
                 rho: BigNumber;
                 baseFee: BigNumber;
+                //baseFeeHigh: BigNumber;
                 beta: BigNumber;
                 kappa: BigNumber;
             }
@@ -238,26 +239,7 @@ blockchainTests.only('Test Scam', env => {
             let passed = 0;
             let failed = 0;
 
-            const failedTests = [
-                30,
-                56,
-                91,
-                99,
-                100,
-                135,
-                175,
-                176,
-                186,
-                228,
-                249,
-                268,
-                300,
-                315,
-                330,
-                332,
-                354,
-                363
-            ];
+            const failedTests = [];
 
             const unitTests = [];
             let i = 0;
@@ -266,7 +248,7 @@ blockchainTests.only('Test Scam', env => {
                 const numberOfTransactions = Number(test.number_of_transactions);
 
                 //if (!failedTests.includes(i)) continue;
-                if (i < 516) continue;
+                //if (i < 516) continue;
 
                 //if (i < 865 || numberOfTransactions != 1) continue;
                 console.log('Running #', i);//, `(p: ${passed} f: ${failed})`);
@@ -295,6 +277,7 @@ blockchainTests.only('Test Scam', env => {
                     params: {
                         rho: toFixed(test.parameters_rho),
                         baseFee: toFixed(test.parameters_lambda),
+                        //baseFeeHigh: toFixed(new BigNumber('0.0002')),
                         beta: toFixed(test.parameters_beta),
                         kappa: toFixed(test.parameters_kappa),
                     },

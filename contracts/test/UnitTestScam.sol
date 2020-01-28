@@ -19,6 +19,7 @@ contract UnitTestScam is
     struct BondCurveParams {
         int256 rho;
         int256 baseFee;
+        //int256 baseFeeHigh;
         int256 beta;
         int256 kappa;
     }
@@ -62,6 +63,7 @@ contract UnitTestScam is
         // UNUSED gState.rhoNumerator = 0;
         gState.rhoRatio = p.rho;
         gState.fee = p.baseFee;    // 0.0005
+        gState.feeHigh = p.baseFee + LibFixedMath.toFixed(int256(2), int256(1000)); /*p.extraFee*/
         gState.beta = p.beta;
         gState.t = 0;
 

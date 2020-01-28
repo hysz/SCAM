@@ -59,5 +59,4 @@ contract State is
         gState.eToKappa = LibFixedMath.toFixed(int256(10005), int256(1000));
         gState.isInitialized = true;
     }
-
 }

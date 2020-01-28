@@ -31,6 +31,9 @@ contract Swapper is
         returns (uint256 amountReceived)
     {
         IStructs.State memory state = _loadGlobalState();
+        if (state.t == _getCurrentBlockNumber()) {
+            state.fee = state.feeHigh;
+        }
 
         if (fromToken == state.xAddress && toToken == state.yAddress) {
             int256 amountReceivedFixed = _swap(
