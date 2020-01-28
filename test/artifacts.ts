@@ -8,7 +8,10 @@ import {ContractArtifact} from 'ethereum-types';
 import * as IERC20 from '../test/generated-artifacts/IERC20.json';
 import * as IEvents from '../test/generated-artifacts/IEvents.json';
 import * as IStructs from '../test/generated-artifacts/IStructs.json';
+import * as LibAMM from '../test/generated-artifacts/LibAMM.json';
+import * as LibBondingCurve from '../test/generated-artifacts/LibBondingCurve.json';
 import * as LibFixedMath from '../test/generated-artifacts/LibFixedMath.json';
+import * as LibRootFinding from '../test/generated-artifacts/LibRootFinding.json';
 import * as LibSafeMath from '../test/generated-artifacts/LibSafeMath.json';
 import * as LibScamMath from '../test/generated-artifacts/LibScamMath.json';
 import * as LibToken from '../test/generated-artifacts/LibToken.json';
@@ -28,7 +31,10 @@ export const artifacts = {
     IERC20: IERC20 as ContractArtifact,
     IEvents: IEvents as ContractArtifact,
     IStructs: IStructs as ContractArtifact,
+    LibAMM: LibAMM as ContractArtifact,
+    LibBondingCurve: LibBondingCurve as ContractArtifact,
     LibFixedMath: LibFixedMath as ContractArtifact,
+    LibRootFinding: LibRootFinding as ContractArtifact,
     LibSafeMath: LibSafeMath as ContractArtifact,
     LibScamMath: LibScamMath as ContractArtifact,
     LibToken: LibToken as ContractArtifact,

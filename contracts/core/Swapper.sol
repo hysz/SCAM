@@ -326,7 +326,8 @@ contract Swapper is
         internal
         returns (int256 newRh, int256 yl)
     {
-        yl = rl.pow(state.rhoRatio);
+        int256 ratio = LibFixedMath.one().div(LibFixedMath.one().sub(state.rhoRatio));
+        yl = rl.pow(ratio);
 
         int256 term1 = state.rhoRatio.mul(yl)
             .add(
@@ -384,17 +385,18 @@ contract Swapper is
     {
         // compute yBis
         int256 term1 = _computeA(rl, rh);
-        int256 yBis = term1.pow(rhoRatio);
+        int256 ratio = LibFixedMath.one().div(LibFixedMath.one().sub(rhoRatio));
+        int256 yBis = term1.pow(ratio);
 
         //
         int256 term2 = k12.sub(k8.mul(term1));
         if (yBis <= term2) {
-            int256 newRh = rh.pow(rhoRatio);
+            int256 newYh = rh.pow(ratio);
             return (
                 term1,
                 rh,
                 yBis,
-                newRh
+                newYh
             );
         } else {
             return (
