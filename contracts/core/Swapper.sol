@@ -85,11 +85,6 @@ contract Swapper is
         internal
         returns (int256 amountReceived)
     {
-        // Compute initial balances (fixed point).
-        int256 a = 0;
-        int256 b = 0;
-        int256 pBarA = 0;
-        bool fromIsX;
 
 
         // Transform stored curve for this trade.
@@ -98,6 +93,8 @@ contract Swapper is
             state.assets,
             takerAsset
         );
+
+        bool fromIsX = state.curve.expectedFuturePrice == curve.expectedFuturePrice;
 
         // Compute initial midpoint on bond curve; this will be the initial lower bound.
         int256 pA = curve.computeMidpointPrice();
@@ -146,8 +143,8 @@ contract Swapper is
 
         // Edge Cases
         int256 epsilon = LibFixedMath.toFixed(int256(1), int256(100000));
-        if (b.add(deltaB) <= epsilon) {
-            deltaB = epsilon.sub(b);
+        if (curve.yReserve.add(deltaB) <= epsilon) {
+            deltaB = epsilon.sub(curve.yReserve);
             deltaB = (deltaB < 0) ? deltaB : 0;
         }
 
@@ -166,43 +163,35 @@ contract Swapper is
             _getCurrentBlockNumber(),
             state.beta,
             pA,
-            pBarA
+            curve.expectedFuturePrice
         );
 
-        if (newPBarA > state.eToKappa.mul(pBarA)) {
-            newPBarA = state.eToKappa.mul(pBarA);
-        } else if(newPBarA.mul(state.eToKappa) < pBarA) {
-            newPBarA = pBarA.div(state.eToKappa);
+        if (newPBarA > state.eToKappa.mul(curve.expectedFuturePrice)) {
+            newPBarA = state.eToKappa.mul(curve.expectedFuturePrice);
+        } else if(newPBarA.mul(state.eToKappa) < curve.expectedFuturePrice) {
+            newPBarA = curve.expectedFuturePrice.div(state.eToKappa);
         }
 
         // Update state
         state.t = _getCurrentBlockNumber();
         if (fromIsX) {
-                a = a.add(deltaA);
-                b = b.add(deltaB);
-                //newPBarA,
-                //curve.slippage
+            curve.xReserve = curve.xReserve.add(deltaA);
+            curve.yReserve = curve.yReserve.add(deltaB);
+            curve.expectedFuturePrice = newPBarA;
         } else {
-            a = b.add(deltaB);
-            b = a.add(deltaA);
-            newPBarA = LibFixedMath.one().div(newPBarA);
+            curve.xReserve = curve.yReserve.add(deltaB);
+            curve.yReserve = curve.xReserve.add(deltaA);
+            curve.expectedFuturePrice = LibFixedMath.one().div(newPBarA);
             //curve.slippage
         }
-
-        state.curve = LibBondingCurve.createBondingCurve(
-                a,
-                b,
-                newPBarA,
-                curve.slippage
-        );
 
         // Update state
         _saveGlobalState(state);
 
         emit IEvents.FillInternal(
-                msg.sender,
-                deltaA,
-                deltaB
+            msg.sender,
+            deltaA,
+            deltaB
         );
 
         amountReceived = -deltaB;

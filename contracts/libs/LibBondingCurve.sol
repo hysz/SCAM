@@ -68,8 +68,8 @@ library LibBondingCurve {
             return createBondingCurve(
                 curve.yReserve,
                 curve.xReserve,
-                curve.expectedFuturePrice,
-                LibFixedMath.one().div(curve.expectedFuturePrice)
+                LibFixedMath.one().div(curve.expectedFuturePrice),
+                curve.slippage
             );
         }
     }
