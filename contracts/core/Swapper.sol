@@ -94,8 +94,6 @@ contract Swapper is
             takerAsset
         );
 
-        bool fromIsX = state.curve.expectedFuturePrice == curve.expectedFuturePrice;
-
         // Compute initial midpoint on bond curve; this will be the initial lower bound.
         int256 pA = curve.computeMidpointPrice();
         int256 rl = curve.computeMaximumPriceInDomain(
@@ -175,8 +173,8 @@ contract Swapper is
         }
 
         // Update curve
-        curve.xReserve.add(deltaA);
-        curve.yReserve.add(deltaB);
+        curve.xReserve  = curve.xReserve.add(deltaA);
+        curve.yReserve = curve.yReserve.add(deltaB);
         curve.expectedFuturePrice = newPBarA;
 
 

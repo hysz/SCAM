@@ -64,6 +64,9 @@ blockchainTests.only('Unit Tests', env => {
                     t: finalStateRaw.t,
                 }
 
+                console.log('EXPECTED FINAL STATE:\n', JSON.stringify(unitTest.finalState, null, 4));
+                console.log('\n\nFINAL STATE:\n', JSON.stringify(finalState, null, 4), '\n\n');
+
                 expect(MathUtils.toStandard(finalState.x), 'x').to.bignumber.equal(MathUtils.toStandard(unitTest.finalState.x));
                 expect(MathUtils.toStandard(finalState.y), 'y').to.bignumber.equal(MathUtils.toStandard(unitTest.finalState.y));
                 expect(MathUtils.toStandard(finalState.pBarX), 'pBarX').to.bignumber.equal(MathUtils.toStandard(unitTest.finalState.pBarX));
