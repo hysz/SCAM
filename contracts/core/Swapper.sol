@@ -409,6 +409,8 @@ contract Swapper is
             curve.xReserve.add(deltaA)
         );
 
+        emit VALUE("rl after step 1", rl);
+
         int256 rh = _computeStep2(
             curve,
             pA,
@@ -417,7 +419,7 @@ contract Swapper is
             k12
         );
 
-        //emit VALUE("rh after step 2", rh);
+        emit VALUE("rh after step 2", rh);
 
 
         if (!_shouldImprovePrecision(rl, rh, fee)) {
@@ -432,8 +434,9 @@ contract Swapper is
             k12,
             curve.slippage
         );
-            //emit VALUE("rh after step 3", rh);
-            //emit VALUE("yl after step 3", yl);
+
+        emit VALUE("rh after step 3", rh);
+        emit VALUE("yl after step 3", yl);
 
         if (!_shouldImprovePrecision(rl, rh, fee)) {
             return rl;
@@ -451,10 +454,10 @@ contract Swapper is
             slippage
         );
 
-        //emit VALUE("rl after step 4", rl);
-        //emit VALUE("rh after step 4", rh);
-        //emit VALUE("yl after step 4", yl);
-        //emit VALUE("yh after step 4", yh);
+        emit VALUE("rl after step 4", rl);
+        emit VALUE("rh after step 4", rh);
+        emit VALUE("yl after step 4", yl);
+        emit VALUE("yh after step 4", yh);
 
         if (!_shouldImprovePrecision(rl, rh, fee)) {
             return rl;
@@ -471,7 +474,7 @@ contract Swapper is
 
         return rl;
 
-        //emit VALUE("rl after step 5", rl);
+        emit VALUE("rl after step 5", rl);
     }
 
     function _getCurrentBlockNumber()

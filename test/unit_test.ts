@@ -1,4 +1,5 @@
 import {blockchainTests, expect} from '@0x/contracts-test-utils';
+import { BigNumber } from '@0x/utils';
 
 import { UnitTestScamContract } from '../src';
 
@@ -29,7 +30,25 @@ blockchainTests.only('Unit Tests', env => {
             return it(`Unit Test ${testNumber}`, async () => {
                 if ([105, 324, 760, 927].includes(testNumber)) {
                     return;
+                } else if(unitTest.trades.length != 1) {
+                    return;
+                } else {
+                    console.log('ACTUALLY RUNNING TEST #', testNumber);
                 }
+
+                const tx = await testContract.runUnitTest(
+                        unitTest.params,
+                        unitTest.initialState,
+                        unitTest.trades,
+                        false
+                    ).awaitTransactionSuccessAsync();
+
+                    const valueLogs = _.filter(tx.logs, (log) => {return (log as any).event === "VALUE"});
+                    for (const log of valueLogs) {
+                        console.log('***** ', (log as any).args.description, ' *****');
+                        console.log(MathUtils.fromFixed(new BigNumber((log as any).args.val._hex, 16)));
+                    }
+
 
                 const finalStateRaw = await testContract.runUnitTest(
                     unitTest.params,
