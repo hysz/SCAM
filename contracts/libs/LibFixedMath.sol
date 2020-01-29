@@ -22,6 +22,16 @@ library LibFixedMath {
     int256 private constant MANTISSA_MASK = int256(0x7fffffffffffffffffffffffffffffff);
     // 1
     int256 private constant FIXED_1 = int256(0x0000000000000000000000000000000080000000000000000000000000000000);
+    // 2
+    int256 private constant FIXED_2 = int256(0x0000000000000000000000000000000100000000000000000000000000000000);
+    // 3
+    int256 private constant FIXED_3 = int256(0x0000000000000000000000000000000180000000000000000000000000000000);
+    // 4
+    int256 private constant FIXED_4 = int256(0x0000000000000000000000000000000200000000000000000000000000000000);
+    // 5
+    int256 private constant FIXED_5 = int256(0x0000000000000000000000000000000280000000000000000000000000000000);
+    // 1/2
+    int256 private constant FIXED_HALF = int256(0x0000000000000000000000000000000040000000000000000000000000000000);
     // 2**255
     int256 private constant MIN_FIXED_VAL = int256(0x8000000000000000000000000000000000000000000000000000000000000000);
     // 1^2 (in fixed-point)
@@ -41,8 +51,28 @@ library LibFixedMath {
     }
 
     /// @dev Get one as a fixed-point number.
-    function one() internal pure returns (int256 f) {
-        f = FIXED_1;
+    function one() internal pure returns (int256) {
+        return FIXED_1;
+    }
+
+    /// @dev Get two as a fixed-point number.
+    function two() internal pure returns (int256) {
+        return FIXED_2;
+    }
+
+    /// @dev Get three as a fixed-point number.
+    function three() internal pure returns (int256) {
+        return FIXED_3;
+    }
+
+    /// @dev Get four as a fixed-point number.
+    function four() internal pure returns (int256) {
+        return FIXED_4;
+    }
+
+    /// @dev Get five as a fixed-point number.
+    function five() internal pure returns (int256) {
+        return FIXED_5;
     }
 
     function min(int256 a, int256 b) internal pure returns (int256 c) {
@@ -51,6 +81,10 @@ library LibFixedMath {
 
     function square(int256 a) internal pure returns (int256 c) {
         return mul(a, a);
+    }
+
+    function sqrt(int256 a) internal pure returns (int256 c) {
+        return pow(a, FIXED_HALF);
     }
 
     /// @dev Returns the addition of two fixed point numbers, reverting on overflow.

@@ -31,23 +31,15 @@ library LibBondingCurve {
     )
         internal
         pure
-        returns (int256 result)
+        returns (int256 price)
     {
-        int term0 = pBarA.mul(a);
-        int term1A = b.div(term0);
-        int term1B = term0.div(b);
-        int term2 = LibFixedMath.one().sub(rhoRatio);
-        int256 term3;
-        if (term1A < LibFixedMath.one()) {
-            term3 = term1A.ln().mul(term2).exp();
-        } else {
-            term3 = LibFixedMath.one().div(
-                term1B.ln().mul(term2).exp()
-            );
-        }
-        result = term3.mul(pBarA);
-
-        return result;
+        int256 term1 = b.div(pBarA.mul(a));
+        int256 term2 = term1.pow(
+            LibFixedMath.one()
+            .sub(rhoRatio)
+        );
+        price = pBarA.mul(term2);
+        return price;
     }
 
     /// @dev Computes the expected future price of token `a` in terms of token `b`.
@@ -73,7 +65,7 @@ library LibBondingCurve {
             betaToDeltaT.mul(pA)
         );
         int256 term3 = pA.mul(pBarA).div(term3Denominator);
-        int256 result = term1.add(term2).add(term3).div(LibFixedMath.toFixed(int256(2)));
+        int256 result = term1.add(term2).add(term3).div(LibFixedMath.two());
         return result;
     }
 
@@ -127,22 +119,27 @@ library LibBondingCurve {
         pure
         returns (int256)
     {
-
-        int256 two = LibFixedMath.toFixed(int256(2));
-        int256 k13 = two.sub(state.rhoRatio).mul(a).mul(pA).sub(state.rhoRatio.mul(b));
+        int256 k13 = LibFixedMath.two()
+            .sub(state.rhoRatio)
+            .mul(a)
+            .mul(pA)
+            .sub(state.rhoRatio.mul(b));
 
         int256 term1 = k13.square().add(
-            LibFixedMath.toFixed(int256(4))
+            LibFixedMath.four()
             .mul(pA)
             .mul(a)
             .mul(b)
         );
-        int256 term2 = term1.pow(LibFixedMath.toFixed(int256(1), int256(2)));
-        int256 term3 = (-k13)
-            .add(term2)
-            .div(two.mul(pA));
 
-        int256 delta = LibFixedMath.min(deltaA, term3);
+        int256 term2 = (-k13)
+            .add(term1.sqrt())
+            .div(
+                LibFixedMath.two()
+                .mul(pA)
+            );
+
+        int256 delta = LibFixedMath.min(deltaA, term2);
         return delta;
     }
 
