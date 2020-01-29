@@ -55,7 +55,7 @@ library LibBondingCurve {
         returns (int256)
     {
         int256 deltaT = LibFixedMath.toFixed(newT - t);
-        int256 betaToDeltaT = deltaT.mul(beta.ln()).exp();
+        int256 betaToDeltaT = beta.pow(deltaT);
         int256 oneMinusBToDeltaT = LibFixedMath.one().sub(betaToDeltaT);
         int256 term1 = pA.mul(oneMinusBToDeltaT);
         int256 term2 = pBarA.mul(betaToDeltaT);
