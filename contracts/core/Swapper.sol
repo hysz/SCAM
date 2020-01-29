@@ -5,7 +5,7 @@ import "../interfaces/IStructs.sol";
 import "../interfaces/IEvents.sol";
 import "../libs/LibFixedMath.sol";
 import "../libs/LibSafeMath.sol";
-import "../libs/LibScamMath.sol";
+import "../libs/LibBondingCurve.sol";
 import "../libs/LibToken.sol";
 import "../core/State.sol";
 import "../interfaces/IERC20.sol";
@@ -108,7 +108,7 @@ contract Swapper is
         }
 
         // Compute initial midpoint on bond curve; this will be the initial lower bound.
-        int256 pA = LibScamMath.computeMidpointOnBondCurve(
+        int256 pA = LibBondingCurve.computeMidpointPrice(
             a,
             b,
             pBarA,
@@ -176,7 +176,7 @@ contract Swapper is
 
 
         // Handle additional edge cases
-        int256 newPBarA = LibScamMath.computeNewPBarA(
+        int256 newPBarA = LibBondingCurve.computeNewPBarA(
             state.t,
             _getCurrentBlockNumber(),
             state.beta,
@@ -232,54 +232,9 @@ contract Swapper is
         int256 k13
     );
 
-    function _computeStep0(
-        int256 a,
-        int256 b,
-        int256 pA,
-        int256 pBarA,
-        int256 deltaA,
-        IStructs.State memory state
-    )
-        internal
-        returns (int256)
-    {
-        int256 two = LibFixedMath.toFixed(int256(2));
-        int256 k13 = two.sub(state.rhoRatio).mul(a).mul(pA).sub(state.rhoRatio.mul(b));
 
-        int256 term1 = k13.square().add(
-            LibFixedMath.toFixed(int256(4))
-            .mul(pA)
-            .mul(a)
-            .mul(b)
-        );
-        int256 term2 = term1.pow(LibFixedMath.toFixed(int256(1), int256(2)));
-        int256 term3 = (-k13)
-            .add(term2)
-            .div(two.mul(pA));
 
-        int256 delta = LibFixedMath.min(deltaA, term3);
-        return delta;
-    }
 
-    function _computeStep1(
-        int256 a,
-        int256 b,
-        int256 pA,
-        int256 pBarA,
-        int256 deltaA,
-        int256 delta,
-        IStructs.State memory state
-    )
-        internal
-        returns (int256)
-    {
-        int256 term1 = a.mul(b.sub(delta.mul(pA)));
-        int256 term2 = b.mul(a.add(delta));
-        int256 term3 = term1.div(term2);
-        int256 term4 = term3.pow(LibFixedMath.one().sub(state.rhoRatio));
-        int256 term5 = term4.mul(delta).div(deltaA);
-        return term5;
-    }
 
     event E(
         int256 term2,
@@ -496,25 +451,14 @@ contract Swapper is
 
 
 
-        //////// Run bracketing ///////
-        int256 delta = _computeStep0(
+        //emit VALUE("delta after step0", delta);
+
+        int256 rl = LibBondingCurve.computeMaximumPriceInDomain(
             a,
             b,
             pA,
             pBarA,
             deltaA,
-            state
-        );
-
-        emit VALUE("delta after step0", delta);
-
-        int256 rl = _computeStep1(
-            a,
-            b,
-            pA,
-            pBarA,
-            deltaA,
-            delta,
             state
         );
 

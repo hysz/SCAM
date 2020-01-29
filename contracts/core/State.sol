@@ -3,7 +3,6 @@ pragma experimental ABIEncoderV2;
 
 import "../interfaces/IStructs.sol";
 import "../libs/LibFixedMath.sol";
-import "../libs/LibScamMath.sol";
 import "./Ownable.sol";
 
 

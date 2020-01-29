@@ -11,7 +11,6 @@ export * from '../test/generated-wrappers/lib_bonding_curve';
 export * from '../test/generated-wrappers/lib_fixed_math';
 export * from '../test/generated-wrappers/lib_root_finding';
 export * from '../test/generated-wrappers/lib_safe_math';
-export * from '../test/generated-wrappers/lib_scam_math';
 export * from '../test/generated-wrappers/lib_token';
 export * from '../test/generated-wrappers/liquidity';
 export * from '../test/generated-wrappers/ownable';

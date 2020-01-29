@@ -13,7 +13,6 @@ import * as LibBondingCurve from '../test/generated-artifacts/LibBondingCurve.js
 import * as LibFixedMath from '../test/generated-artifacts/LibFixedMath.json';
 import * as LibRootFinding from '../test/generated-artifacts/LibRootFinding.json';
 import * as LibSafeMath from '../test/generated-artifacts/LibSafeMath.json';
-import * as LibScamMath from '../test/generated-artifacts/LibScamMath.json';
 import * as LibToken from '../test/generated-artifacts/LibToken.json';
 import * as Liquidity from '../test/generated-artifacts/Liquidity.json';
 import * as Ownable from '../test/generated-artifacts/Ownable.json';
@@ -36,7 +35,6 @@ export const artifacts = {
     LibFixedMath: LibFixedMath as ContractArtifact,
     LibRootFinding: LibRootFinding as ContractArtifact,
     LibSafeMath: LibSafeMath as ContractArtifact,
-    LibScamMath: LibScamMath as ContractArtifact,
     LibToken: LibToken as ContractArtifact,
     TestScam: TestScam as ContractArtifact,
     UnitTestScam: UnitTestScam as ContractArtifact,

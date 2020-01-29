@@ -4,6 +4,23 @@ pragma experimental ABIEncoderV2;
 
 interface IStructs {
 
+    struct Asset {
+        address token;
+        int256 reserve;
+    }
+
+    struct Curve {
+        int256 xReserve;
+        int256 yReserve;
+        int256 expectedFuturePrice;
+        int256 slippage;
+    }
+
+    struct Point {
+        int256 x;
+        int256 y;
+    }
+
     struct State {
         bool isInitialized;
         address xAddress;                                   // address of token x
