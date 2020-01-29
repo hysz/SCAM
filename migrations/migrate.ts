@@ -1,3 +1,7 @@
+/*
+
+Note(@hysz): This no longer works after changing how state is laid out in storage.
+
 #!/usr/bin/env node
 import { artifacts as ERC20Artifacts, DummyERC20TokenContract } from '@0x/contracts-erc20';
 import { devConstants, web3Factory, Web3Wrapper } from '@0x/dev-utils';
@@ -109,3 +113,5 @@ import { ScamContract } from '../generated-wrappers/scam';
     logUtils.log(err);
     process.exit(1);
 });
+
+*/

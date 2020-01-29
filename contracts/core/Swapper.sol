@@ -17,6 +17,7 @@ contract Swapper is
 {
 
     using LibFixedMath for int256;
+    using LibBondingCurve for IStructs.BondingCurve;
 
     event Price(int256 price, int256 deltaB, int256 newPBarX, int256 pA);
 
@@ -35,24 +36,20 @@ contract Swapper is
             state.fee = state.feeHigh;
         }
 
-        if (fromToken == state.xAddress && toToken == state.yAddress) {
+        if (fromToken == state.assets.xAsset) {
             int256 amountReceivedFixed = _swap(
                 fromToken,
-                toToken,
                 LibToken.daiToFixed(amount),
                 state
             );
             amountReceived = LibToken.usdcFromFixed(amountReceivedFixed);
-        } else if(fromToken == state.yAddress && toToken == state.xAddress) {
+        } else {
             int256 amountReceivedFixed = _swap(
                 fromToken,
-                toToken,
                 LibToken.daiToFixed(amount),
                 state
             );
             amountReceived = LibToken.daiFromFixed(amountReceivedFixed);
-        } else {
-            revert("Invalid token addresses");
         }
 
         // Make transfers
@@ -68,7 +65,7 @@ contract Swapper is
         );
         */
 
-        // Emit event
+        // //emit event
         emit IEvents.Fill(
             msg.sender,
             fromToken,
@@ -81,8 +78,7 @@ contract Swapper is
     }
 
     function _swap(
-        address fromToken,
-        address toToken,
+        address takerAsset,
         int256 deltaA,
         IStructs.State memory state
     )
@@ -94,49 +90,38 @@ contract Swapper is
         int256 b = 0;
         int256 pBarA = 0;
         bool fromIsX;
-        if (fromToken == state.xAddress && toToken == state.yAddress) {
-            a = state.x;
-            b = state.y;
-            pBarA = state.pBarX;
-            fromIsX = true;
-        } else if(fromToken == state.yAddress && toToken == state.xAddress) {
-            a = state.y;
-            b = state.x;
-            pBarA = LibFixedMath.one().div(state.pBarX);
-        } else {
-            revert("Invalid token addresses");
-        }
+
+
+        // Transform stored curve for this trade.
+        IStructs.BondingCurve memory curve = LibBondingCurve.transformStoredBondingCurveForTrade(
+            state.curve,
+            state.assets,
+            takerAsset
+        );
 
         // Compute initial midpoint on bond curve; this will be the initial lower bound.
-        int256 pA = LibBondingCurve.computeMidpointPrice(
-            a,
-            b,
-            pBarA,
-            state.rhoRatio
+        int256 pA = curve.computeMidpointPrice();
+        int256 rl = curve.computeMaximumPriceInDomain(
+            IStructs.Domain({x: curve.xReserve, delta: deltaA}),
+            pA
         );
 
         // Compute
         int256 price = _bracket(
-            a,
-            b,
+            curve,
             pA,
-            pBarA,
             deltaA,
-            state
+            rl,
+            state.fee
         );
 
+         // Step 6
+        _computeStep6(price);
 
-/*
-        (int256 price) = _bisect(
-            a,
-            b,
-            pA,
-            pBarA,
-            deltaA,
-            state
-        );
-        emit Price2(price);
-        */
+        //emit VALUE("final price", rl.mul(pA));
+
+        // Step 7
+        price = price.mul(pA);
 
 
         if (price < 0)  {
@@ -193,14 +178,23 @@ contract Swapper is
         // Update state
         state.t = _getCurrentBlockNumber();
         if (fromIsX) {
-            state.x = a.add(deltaA);
-            state.y = b.add(deltaB);
-            state.pBarX = newPBarA;
+                a = a.add(deltaA);
+                b = b.add(deltaB);
+                //newPBarA,
+                //curve.slippage
         } else {
-            state.x = b.add(deltaB);
-            state.y = a.add(deltaA);
-            state.pBarX = LibFixedMath.one().div(newPBarA);
+            a = b.add(deltaB);
+            b = a.add(deltaA);
+            newPBarA = LibFixedMath.one().div(newPBarA);
+            //curve.slippage
         }
+
+        state.curve = LibBondingCurve.createBondingCurve(
+                a,
+                b,
+                newPBarA,
+                curve.slippage
+        );
 
         // Update state
         _saveGlobalState(state);
@@ -215,54 +209,30 @@ contract Swapper is
         return amountReceived;
     }
 
-    event Bisect(
-        int256 lhs1,
-        int256 mid,
-        int256 lhs
-    );
-
-    event T(
-        int256 a,
-        int256 b,
-        int256 pA,
-        int256 pBarA,
-        int256 deltaA,
-        int256 rhoRatio,
-        int256 term4,
-        int256 k13
-    );
-
-
-
-
-
-    event E(
-        int256 term2,
-        int256 term3
-    );
-
     function _computeStep2(
-        int256 a,
-        int256 b,
+        IStructs.BondingCurve memory curve,
         int256 pA,
-        int256 pBarA,
         int256 deltaA,
         int256 k8,
-        int256 k12,
-        IStructs.State memory state
+        int256 k12
     )
         internal
         returns (int256)
     {
+        int256 a = curve.xReserve;
+        int256 b = curve.yReserve;
+        int256 pBarA = curve.expectedFuturePrice;
+        int256 rhoRatio = curve.slippage;
+
         int256 term1 = k12.div(k8);
-        int256 term2 = state.rhoRatio.add(
+        int256 term2 = rhoRatio.add(
             LibFixedMath.one()
-            .sub(state.rhoRatio)
+            .sub(rhoRatio)
             .mul(k12)
         );
         int256 term3 = LibFixedMath.one().add(
             LibFixedMath.one()
-            .sub(state.rhoRatio)
+            .sub(rhoRatio)
             .mul(k8)
         );
         int256 term4 = term2.div(term3);
@@ -276,24 +246,24 @@ contract Swapper is
         int256 rh,
         int256 k8,
         int256 k12,
-        IStructs.State memory state
+        int256 rhoRatio
     )
         internal
         returns (int256 newRh, int256 yl)
     {
-        int256 ratio = LibFixedMath.one().div(LibFixedMath.one().sub(state.rhoRatio));
+        int256 ratio = LibFixedMath.one().div(LibFixedMath.one().sub(rhoRatio));
         yl = rl.pow(ratio);
 
-        int256 term1 = state.rhoRatio.mul(yl)
+        int256 term1 = rhoRatio.mul(yl)
             .add(
                 LibFixedMath.one()
-                .sub(state.rhoRatio)
+                .sub(rhoRatio)
                 .mul(k12)
             );
         int256 term2 = yl
             .add(
                 LibFixedMath.one()
-                .sub(state.rhoRatio)
+                .sub(rhoRatio)
                 .mul(k8)
                 .mul(rl)
             );
@@ -346,21 +316,23 @@ contract Swapper is
         //
         int256 term2 = k12.sub(k8.mul(term1));
         if (yBis <= term2) {
-            int256 newYh = rh.pow(ratio);
-            return (
-                term1,
-                rh,
-                yBis,
-                newYh
-            );
+            newRl = term1;
+            newRh = rh;
+            newYl = yBis;
+            newYh = rh.pow(ratio);
         } else {
-            return (
-                rl,
-                term1,
-                yl,
-                yBis
-            );
+            newRl = rl;
+            newRh = term1;
+            newYl = yl;
+            newYh = yBis;
        }
+
+       return (
+           newRl,
+           newRh,
+           newYl,
+           newYh
+       );
     }
 
     function _computeStep5(
@@ -413,7 +385,7 @@ contract Swapper is
             )
         );
 
-        emit L(lhs,rhs);
+        //emit L(lhs,rhs);
 
         return lhs > rhs;
     }
@@ -429,105 +401,88 @@ contract Swapper is
     );
 
     function _bracket(
-        int256 a,
-        int256 b,
+        IStructs.BondingCurve memory curve,
         int256 pA,
-        int256 pBarA,
         int256 deltaA,
-        IStructs.State memory state
+        int256 rl,
+        int256 fee
     )
         internal
         returns (int256)
     {
         // Cache constants that are used throughout bracketing algorithm.
-        int256 k8 = a.mul(
+        int256 k8 = curve.xReserve.mul(
             pA
             .mul(deltaA)
-            .div(a.mul(b).add(b.mul(deltaA)))
+            .div(curve.xReserve.mul(curve.yReserve).add(curve.yReserve.mul(deltaA)))
         );
-        int256 k12 = a.div(
-            a.add(deltaA)
+        int256 k12 = curve.xReserve.div(
+            curve.xReserve.add(deltaA)
         );
-
-
-
-        //emit VALUE("delta after step0", delta);
-
-        int256 rl = LibBondingCurve.computeMaximumPriceInDomain(
-            a,
-            b,
-            pA,
-            pBarA,
-            deltaA,
-            state
-        );
-
-        emit VALUE("rl after step 1", rl);
 
         int256 rh = _computeStep2(
-            a,
-            b,
+            curve,
             pA,
-            pBarA,
             deltaA,
             k8,
-            k12,
-            state
+            k12
         );
 
-        emit VALUE("rh after step 2", rh);
+        //emit VALUE("rh after step 2", rh);
 
 
-        if (_shouldImprovePrecision(rl, rh, state.fee)) {
-            int256 yl;
-            (rh, yl) = _computeStep3(
-                rl,
-                rh,
-                k8,
-                k12,
-                state
-            );
-            emit VALUE("rh after step 3", rh);
-            emit VALUE("yl after step 3", yl);
-
-            if (_shouldImprovePrecision(rl, rh, state.fee)) {
-                int256 yh;
-                (rl, rh, yl, yh) = _computeStep4(
-                    rl,
-                    rh,
-                    k8,
-                    k12,
-                    yl,
-                    state.rhoRatio
-                );
-
-                emit VALUE("rl after step 4", rl);
-                emit VALUE("rh after step 4", rh);
-                emit VALUE("yl after step 4", yl);
-                emit VALUE("yh after step 4", yh);
-
-                if (_shouldImprovePrecision(rl, rh, state.fee)) {
-                    rl = _computeStep5(
-                        rl,
-                        rh,
-                        yl,
-                        yh,
-                        k8,
-                        k12
-                    );
-
-                    emit VALUE("rl after step 5", rl);
-                }
-            }
+        if (!_shouldImprovePrecision(rl, rh, fee)) {
+            return rl;
         }
 
-        // Step 6
-        _computeStep6(rl);
+        int256 yl;
+        (rh, yl) = _computeStep3(
+            rl,
+            rh,
+            k8,
+            k12,
+            curve.slippage
+        );
+            //emit VALUE("rh after step 3", rh);
+            //emit VALUE("yl after step 3", yl);
 
-        emit VALUE("final price", rl.mul(pA));
+        if (!_shouldImprovePrecision(rl, rh, fee)) {
+            return rl;
+        }
 
-        // Step 7
-        return rl.mul(pA);
+        int256 slippage = curve.slippage;
+
+        int256 yh;
+        (rl, rh, yl, yh) = _computeStep4(
+            rl,
+            rh,
+            k8,
+            k12,
+            yl,
+            slippage
+        );
+
+        //emit VALUE("rl after step 4", rl);
+        //emit VALUE("rh after step 4", rh);
+        //emit VALUE("yl after step 4", yl);
+        //emit VALUE("yh after step 4", yh);
+
+        if (!_shouldImprovePrecision(rl, rh, fee)) {
+            return rl;
+        }
+
+        rl = _computeStep5(
+            rl,
+            rh,
+            yl,
+            yh,
+            k8,
+            k12
+        );
+
+        return rl;
+
+        //emit VALUE("rl after step 5", rl);
     }
 
     function _getCurrentBlockNumber()

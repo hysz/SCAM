@@ -19,7 +19,6 @@ import * as Ownable from '../test/generated-artifacts/Ownable.json';
 import * as Scam from '../test/generated-artifacts/Scam.json';
 import * as State from '../test/generated-artifacts/State.json';
 import * as Swapper from '../test/generated-artifacts/Swapper.json';
-import * as TestScam from '../test/generated-artifacts/TestScam.json';
 import * as UnitTestScam from '../test/generated-artifacts/UnitTestScam.json';
 export const artifacts = {
     Scam: Scam as ContractArtifact,
@@ -36,6 +35,5 @@ export const artifacts = {
     LibRootFinding: LibRootFinding as ContractArtifact,
     LibSafeMath: LibSafeMath as ContractArtifact,
     LibToken: LibToken as ContractArtifact,
-    TestScam: TestScam as ContractArtifact,
     UnitTestScam: UnitTestScam as ContractArtifact,
 };

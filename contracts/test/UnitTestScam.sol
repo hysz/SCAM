@@ -56,12 +56,25 @@ contract UnitTestScam is
         returns (ContractState memory)
     {
 
+        gState.assets = IStructs.AssetPair({
+            xAsset: address(0x0000000000000000000000000000000000000000),
+            yAsset: address(0x0000000000000000000000000000000000000001)
+        });
+
+        gState.curve = LibBondingCurve.createBondingCurve(
+            c.x,
+            c.y,
+            c.pBarX,
+            p.rho
+        );
+
+
         // Init
-        gState.xAddress = address(0x0000000000000000000000000000000000000000);
-        gState.yAddress = address(0x0000000000000000000000000000000000000001);
-        gState.pBarX = c.pBarX;
+        //gState.xAddress = ;
+        //gState.yAddress = ;
+        //gState.pBarX = c.pBarX;
         // UNUSED gState.rhoNumerator = 0;
-        gState.rhoRatio = p.rho;
+        //gState.rhoRatio = p.rho;
         gState.fee = p.baseFee;    // 0.0005
         gState.feeHigh = p.baseFee + LibFixedMath.toFixed(int256(2), int256(1000)); /*p.extraFee*/
         gState.beta = p.beta;
@@ -74,8 +87,8 @@ contract UnitTestScam is
 
 
         // Set token supplies
-        gState.x = c.x;
-        gState.y = c.y;
+       // gState.x = c.x;
+       // gState.y = c.y;
 
         // _initState(0x0000000000000000000000000000000000000000, 0x0000000000000000000000000000000000000001);
 
@@ -104,9 +117,9 @@ contract UnitTestScam is
 
         // Return final state
         return ContractState({
-            x: gState.x,
-            y: gState.y,
-            pBarX: gState.pBarX,
+            x: gState.curve.xReserve,
+            y: gState.curve.yReserve,
+            pBarX: gState.curve.expectedFuturePrice,
             t: gState.t
         });
     }

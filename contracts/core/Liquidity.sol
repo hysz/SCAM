@@ -29,6 +29,7 @@ contract Liquidity is
     function addLiquidity(uint256 x_amount, uint256 y_amount)
         external
     {
+        /*
         // Load the contract's state.
         IStructs.State storage state = gState;
         int256 xAmountFixed = LibFixedMath.toFixed(x_amount, 10**18);
@@ -63,6 +64,8 @@ contract Liquidity is
             liquidity_reward
         );
         state.l = state.l.safeAdd(liquidity_reward);
+
+        */
     }
 
     /// @dev Allows a sender to withdraw tokens by burning liquidity tokens.
@@ -70,6 +73,7 @@ contract Liquidity is
     function removeLiquidity(uint256 l_amount)
         external
     {
+        /*
         // Load the contract's state.
         IStructs.State storage state = gState;
 
@@ -90,5 +94,6 @@ contract Liquidity is
         // Reward sender in the correct amounts of x and y.
         IERC20(state.xAddress).transfer(msg.sender, x_amount);
         IERC20(state.yAddress).transfer(msg.sender, y_amount);
+        */
     }
 }
