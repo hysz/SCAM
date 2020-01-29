@@ -115,10 +115,12 @@ contract Swapper is
          // Step 6
         _computeStep6(price);
 
-        //emit VALUE("final price", rl.mul(pA));
+
 
         // Step 7
         price = price.mul(pA);
+
+        emit VALUE("final price", price);
 
 
         if (price < 0)  {
@@ -172,18 +174,19 @@ contract Swapper is
             newPBarA = curve.expectedFuturePrice.div(state.eToKappa);
         }
 
+        // Update curve
+        curve.xReserve.add(deltaA);
+        curve.yReserve.add(deltaB);
+        curve.expectedFuturePrice = newPBarA;
+
+
         // Update state
         state.t = _getCurrentBlockNumber();
-        if (fromIsX) {
-            curve.xReserve = curve.xReserve.add(deltaA);
-            curve.yReserve = curve.yReserve.add(deltaB);
-            curve.expectedFuturePrice = newPBarA;
-        } else {
-            curve.xReserve = curve.yReserve.add(deltaB);
-            curve.yReserve = curve.xReserve.add(deltaA);
-            curve.expectedFuturePrice = LibFixedMath.one().div(newPBarA);
-            //curve.slippage
-        }
+        state.curve = LibBondingCurve.transformStoredBondingCurveForTrade(
+            curve,
+            state.assets,
+            takerAsset
+        );
 
         // Update state
         _saveGlobalState(state);
