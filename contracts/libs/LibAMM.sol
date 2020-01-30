@@ -35,20 +35,10 @@ library LibAMM {
         IStructs.BondingCurve curve
     );
 
-    function computePrice()
-        internal
-        pure
-    {
-        /*
-        int256 lowerBound = LibBondingCurve.computeMaximumPriceInDomain();
-        int256 upperBound =
-        */
-    }
-
     function trade(
         IStructs.AMM memory amm,
         address takerAsset,
-        int256 deltaA,
+        int256 takerAssetAmount,
         uint256 currentBlockNumber
     )
         internal
@@ -56,6 +46,11 @@ library LibAMM {
             int256 amountReceived
         )
     {
+        // Compute fee. If a trade has already occurred in this block
+        // then we charge a higher fee. This also creates more competition among arbitrageurs,
+        // as they will race to get the lower fee. Moreover, it also mitigates:
+        //   1. Circumventing the batch-auction model by splitting a large trade into several small trades.
+        //   2. Front-running arbitrage attacks (front-run large fill; large fill moves price; sell at profit)
         int256 fee = (amm.blockNumber != currentBlockNumber)
             ? amm.fee.lo
             : amm.fee.hi;
@@ -67,46 +62,102 @@ library LibAMM {
             takerAsset
         );
 
-        emit CURVE(curve);
+        // Compute initial midpoint on bond curve; this is the initial upper-bound
+        // and would result in the greatest makerAssetAmount.
+        int256 minPrice = curve.computeMidpointPrice();
 
-
-
-        // Compute initial midpoint on bond curve; this will be the initial lower bound.
-        int256 pA = curve.computeMidpointPrice();
-        int256 rl = curve.computeMaximumPriceInDomain(
-            IStructs.Domain({x: curve.xReserve, delta: deltaA}),
-            pA
+        // Compute the maximum price on the bond curve; this is the initial lower-bound
+        // and would result in the lowest makerAssetAmount.
+        int256 maxPrice = curve.computeMaximumPriceInDomain(
+            IStructs.Domain({x: curve.xReserve, delta: takerAssetAmount}),
+            minPrice
         );
 
-        // Compute
-        int256 price = LibRootFinding.bracket(
+        // Compute best price. This lies in the range [minPrice..maxPrice].
+        int256 bestPrice = computeBestPrice(
             curve,
-            pA,
-            deltaA,
-            rl,
+            minPrice,
+            maxPrice,
+            takerAssetAmount,
             fee
         );
 
-         // Step 6
-        _computeStep6(price);
+        int256 makerAssetAmount = computeMakerAssetAmount(
+            curve,
+            bestPrice,
+            takerAssetAmount,
+            fee
+        );
 
+        // Update curve
+        curve.xReserve = curve.xReserve.add(takerAssetAmount);
+        curve.yReserve = curve.yReserve.sub(makerAssetAmount);
+        curve.expectedPrice = curve.computeExpectedPrice(
+            amm.constraints,
+            minPrice,
+            LibFixedMath.toFixed(int256(currentBlockNumber - amm.blockNumber))
+        );
+
+        // Update AMM
+        IStructs.AssetPair memory assets = amm.assets;
+        amm.curve = LibBondingCurve.transformStoredBondingCurveForTrade(
+            curve,
+            assets,
+            takerAsset
+        );
+        amm.blockNumber = currentBlockNumber;
+    }
+
+    function computeBestPrice(
+        IStructs.BondingCurve memory curve,
+        int256 minPrice,
+        int256 maxPrice,
+        int256 takerAssetAmount,
+        int256 fee
+    )
+        private
+        // pure
+        returns (int256 bestPrice)
+    {
+        int256 root = LibRootFinding.bracket(
+            curve,
+            minPrice,
+            takerAssetAmount,
+            maxPrice,
+            fee
+        );
+
+        // Step 6
+        if (root < LibFixedMath.toFixed(int256(95), int256(100))) {
+            revert('Order too large');
+        }
 
         // Step 7
-        price = price.mul(pA);
+        bestPrice = root.mul(minPrice);
 
-        emit VALUE("final price", price);
+        emit VALUE("final price", bestPrice);
 
 
-        if (price < 0)  {
+        if (bestPrice < 0)  {
             revert('price cannot be < 0');
-        } else if (price == 0) {
+        } else if (bestPrice == 0) {
             revert('price cannot be zero');
         }
 
-        // Compute about of `tokenB`
+        return bestPrice;
+    }
 
-
-        int256 deltaB = deltaA
+    function computeMakerAssetAmount(
+        IStructs.BondingCurve memory curve,
+        int256 price,
+        int256 takerAssetAmount,
+        int256 fee
+    )
+        private
+        // pure
+        returns (int256 deltaB)
+    {
+         deltaB = takerAssetAmount
             .mul(price)
             .mul(
                 LibFixedMath.one().sub(fee)
@@ -131,50 +182,8 @@ library LibAMM {
             revert('Tried to purchase too much');
         }
 
-        // Update curve
-        curve.xReserve = curve.xReserve.add(deltaA);
-        curve.yReserve = curve.yReserve.add(deltaB);
-        curve.expectedPrice = curve.computeExpectedPrice(
-            amm.constraints,
-            pA,
-            LibFixedMath.toFixed(int256(currentBlockNumber - amm.blockNumber))
-        );
-
-        // Update state
-        IStructs.AssetPair memory assets = amm.assets;
-        amm.curve = LibBondingCurve.transformStoredBondingCurveForTrade(
-            curve,
-            assets,
-            takerAsset
-        );
-        amm.blockNumber = currentBlockNumber;
-
-        amountReceived = -deltaB;
+        return -deltaB;
     }
-
-    function _computeStep6(
-        int256 rl
-    )
-        internal
-        pure
-    {
-        if (rl < LibFixedMath.toFixed(int256(95), int256(100))) {
-            revert('Order too large');
-        }
-    }
-
-    function isValidTrade()
-        internal
-        pure
-        returns (bool)
-    {
-        /*
-        int256 lowerBound = LibBondingCurve.computeMaximumPriceInDomain();
-        int256 upperBound =
-
-        */
-    }
-
 
 
 }

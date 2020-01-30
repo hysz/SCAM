@@ -35,7 +35,6 @@ library LibRootFinding {
         int256 fee
     )
         internal
-
         returns (int256)
     {
 
