@@ -19,8 +19,10 @@ contract Liquidity is
         view
         returns (uint256)
     {
+        /*
         IStructs.State storage state = gState;
         return state.liquidityBalance[account];
+        */
     }
 
     /// @dev Allows a sender to deposit tokens into the contract to provide liquidity.
