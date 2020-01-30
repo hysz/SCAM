@@ -67,7 +67,7 @@ contract UnitTestScam is
         gAMM.curve = IStructs.BondingCurve({
             xReserve: 0,
             yReserve: 0,
-            expectedFuturePrice: 0,
+            expectedPrice: 0,
             slippage: p.rho
         });
 
@@ -84,7 +84,7 @@ contract UnitTestScam is
         gAMM.blockNumber = 0;
 
         _addLiquidity(c.x, c.y);
-        gCurve.expectedFuturePrice = c.pBarX;
+        gCurve.expectedPrice = c.pBarX;
         gCurve.slippage = p.rho;
 
         // Run trades
@@ -110,7 +110,7 @@ contract UnitTestScam is
         return ContractState({
             x: gCurve.xReserve,
             y: gCurve.yReserve,
-            pBarX: gCurve.expectedFuturePrice,
+            pBarX: gCurve.expectedPrice,
             t: gBlockNumber
         });
     }

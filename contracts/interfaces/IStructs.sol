@@ -14,7 +14,7 @@ interface IStructs {
     struct BondingCurve {
         int256 xReserve;
         int256 yReserve;
-        int256 expectedFuturePrice;
+        int256 expectedPrice;
         int256 slippage;
     }
 

@@ -134,7 +134,7 @@ library LibAMM {
         // Update curve
         curve.xReserve = curve.xReserve.add(deltaA);
         curve.yReserve = curve.yReserve.add(deltaB);
-        curve.expectedFuturePrice = curve.computeExpectedPrice(
+        curve.expectedPrice = curve.computeExpectedPrice(
             amm.constraints,
             pA,
             LibFixedMath.toFixed(int256(currentBlockNumber - amm.blockNumber))

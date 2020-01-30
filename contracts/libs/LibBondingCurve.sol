@@ -24,7 +24,7 @@ library LibBondingCurve {
     function createBondingCurve(
         int256 xReserve,
         int256 yReserve,
-        int256 expectedFuturePrice,
+        int256 expectedPrice,
         int256 slippage
     )
         internal
@@ -34,7 +34,7 @@ library LibBondingCurve {
         return IStructs.BondingCurve({
             xReserve: xReserve,
             yReserve: yReserve,
-            expectedFuturePrice: expectedFuturePrice,
+            expectedPrice: expectedPrice,
             slippage: slippage
         });
     }
@@ -61,14 +61,14 @@ library LibBondingCurve {
             return createBondingCurve(
                 curve.xReserve,
                 curve.yReserve,
-                curve.expectedFuturePrice,
+                curve.expectedPrice,
                 curve.slippage
             );
         } else {
             return createBondingCurve(
                 curve.yReserve,
                 curve.xReserve,
-                LibFixedMath.one().div(curve.expectedFuturePrice),
+                LibFixedMath.one().div(curve.expectedPrice),
                 curve.slippage
             );
         }
@@ -95,7 +95,7 @@ library LibBondingCurve {
     {
         int256 a = curve.xReserve;
         int256 b = curve.yReserve;
-        int256 pBarA = curve.expectedFuturePrice;
+        int256 pBarA = curve.expectedPrice;
         int256 rhoRatio = curve.slippage;
 
         int256 term1 = b.div(pBarA.mul(a));
@@ -121,7 +121,7 @@ library LibBondingCurve {
     {
         int256 a = curve.xReserve;
         int256 b = curve.yReserve;
-        int256 pBarA = curve.expectedFuturePrice;
+        int256 pBarA = curve.expectedPrice;
         int256 rhoRatio = curve.slippage;
         int256 pA = midpointPrice;
 
@@ -150,7 +150,7 @@ library LibBondingCurve {
     {
         int256 a = curve.xReserve;
         int256 b = curve.yReserve;
-        int256 pBarA = curve.expectedFuturePrice;
+        int256 pBarA = curve.expectedPrice;
         int256 rhoRatio = curve.slippage;
         int256 deltaA = domain.delta;
         int256 pA = midpointPrice;
@@ -197,9 +197,9 @@ library LibBondingCurve {
 
         // Define terms
         int256 term1 = midpointPrice.mul(k2);
-        int256 term2 = curve.expectedFuturePrice.mul(k1);
-        int256 term3D = curve.expectedFuturePrice.mul(k2).add(midpointPrice.mul(k1));
-        int256 term3 = midpointPrice.mul(curve.expectedFuturePrice).div(term3D);
+        int256 term2 = curve.expectedPrice.mul(k1);
+        int256 term3D = curve.expectedPrice.mul(k2).add(midpointPrice.mul(k1));
+        int256 term3 = midpointPrice.mul(curve.expectedPrice).div(term3D);
 
         // Compute expected price
         expectedPrice = term1
@@ -208,8 +208,8 @@ library LibBondingCurve {
             .div(LibFixedMath.two());
 
         // Handle constraints
-        int256 minExpectedPrice = curve.expectedFuturePrice.div(constraints.variability);
-        int256 maxExpectedPrice = curve.expectedFuturePrice.mul(constraints.variability);
+        int256 minExpectedPrice = curve.expectedPrice.div(constraints.variability);
+        int256 maxExpectedPrice = curve.expectedPrice.mul(constraints.variability);
         if(expectedPrice < minExpectedPrice) {
             expectedPrice = minExpectedPrice;
         } else if (expectedPrice > maxExpectedPrice) {

@@ -153,7 +153,7 @@ library LibRootFinding {
     {
         int256 a = curve.xReserve;
         int256 b = curve.yReserve;
-        int256 pBarA = curve.expectedFuturePrice;
+        int256 pBarA = curve.expectedPrice;
         int256 rhoRatio = curve.slippage;
 
         int256 term1 = k12.div(k8);

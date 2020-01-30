@@ -128,7 +128,7 @@ contract Scam is
     {
         gCurve.xReserve = amm.curve.xReserve;
         gCurve.yReserve = amm.curve.yReserve;
-        gCurve.expectedFuturePrice = amm.curve.expectedFuturePrice;
+        gCurve.expectedPrice = amm.curve.expectedPrice;
         gBlockNumber = amm.blockNumber;
     }
 
