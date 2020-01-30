@@ -40,10 +40,10 @@ interface IStructs {
     /// @param persistence This value must be in the range (0,1]. A persistence of 1 means that the
     ///                    expected price never changes. A lower value results in more volatile changes
     ///                    to the expected price.
-    ///                    Note: this is `exp(beta)` in the whitepaper.
+    ///                    Note: this is `beta` in the whitepaper.
     /// @param variability This is the maximum allowed log-percent change in expected price.
     ///                    This value must be a real number ≥0.
-    ///                    Note: this is `ln(kappa)` in the whitepaper.
+    ///                    Note: this is `exp(kappa)` in the whitepaper.
     struct PriceConstraints {
         int256 persistence;
         int256 variability;

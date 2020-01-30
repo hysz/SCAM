@@ -180,31 +180,42 @@ library LibBondingCurve {
     }
 
     /// @dev Computes the expected future price of token `a` in terms of token `b`.
-    function computeNewPBarA(
-        uint256 t,
-        uint256 newT,
-        int256 beta,
-        int256 pA,
-        int256 pBarA
+    ///      This function corresponds to Section 4.7 of the Whitepaper.
+    function computeExpectedPrice(
+        IStructs.BondingCurve memory curve,
+        IStructs.PriceConstraints memory constraints,
+        int256 midpointPrice,
+        int256 deltaBlockNumber
     )
         internal
         pure
-        returns (int256)
+        returns (int256 expectedPrice)
     {
-        int256 deltaT = LibFixedMath.toFixed(newT - t);
-        int256 betaToDeltaT = beta.pow(deltaT);
-        int256 oneMinusBToDeltaT = LibFixedMath.one().sub(betaToDeltaT);
-        int256 term1 = pA.mul(oneMinusBToDeltaT);
-        int256 term2 = pBarA.mul(betaToDeltaT);
+        // Define constants
+        int256 k1 = constraints.persistence.pow(deltaBlockNumber);
+        int256 k2 = LibFixedMath.one().sub(k1);
 
-        int256 term3Denominator = LibFixedMath.add(
-            oneMinusBToDeltaT.mul(pBarA),
-            betaToDeltaT.mul(pA)
-        );
-        int256 term3 = pA.mul(pBarA).div(term3Denominator);
-        int256 result = term1.add(term2).add(term3).div(LibFixedMath.two());
-        return result;
+        // Define terms
+        int256 term1 = midpointPrice.mul(k2);
+        int256 term2 = curve.expectedFuturePrice.mul(k1);
+        int256 term3D = curve.expectedFuturePrice.mul(k2).add(midpointPrice.mul(k1));
+        int256 term3 = midpointPrice.mul(curve.expectedFuturePrice).div(term3D);
+
+        // Compute expected price
+        expectedPrice = term1
+            .add(term2)
+            .add(term3)
+            .div(LibFixedMath.two());
+
+        // Handle constraints
+        int256 minExpectedPrice = curve.expectedFuturePrice.div(constraints.variability);
+        int256 maxExpectedPrice = curve.expectedFuturePrice.mul(constraints.variability);
+        if(expectedPrice < minExpectedPrice) {
+            expectedPrice = minExpectedPrice;
+        } else if (expectedPrice > maxExpectedPrice) {
+            expectedPrice = maxExpectedPrice;
+        }
+
+        return expectedPrice;
     }
-
-
 }

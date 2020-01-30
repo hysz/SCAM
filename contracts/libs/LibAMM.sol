@@ -69,6 +69,8 @@ library LibAMM {
 
         emit CURVE(curve);
 
+
+
         // Compute initial midpoint on bond curve; this will be the initial lower bound.
         int256 pA = curve.computeMidpointPrice();
         int256 rl = curve.computeMaximumPriceInDomain(
@@ -129,32 +131,14 @@ library LibAMM {
             revert('Tried to purchase too much');
         }
 
-
-
-        // Handle additional edge cases
-        int256 newPBarA;
-        {
-            int256 persistence = amm.constraints.persistence;
-            newPBarA = LibBondingCurve.computeNewPBarA(
-                amm.blockNumber,
-                currentBlockNumber,
-                persistence,
-                pA,
-                curve.expectedFuturePrice
-            );
-
-            int256 variability = amm.constraints.variability;
-            if (newPBarA > variability.mul(curve.expectedFuturePrice)) {
-                newPBarA = variability.mul(curve.expectedFuturePrice);
-            } else if(newPBarA.mul(variability) < curve.expectedFuturePrice) {
-                newPBarA = curve.expectedFuturePrice.div(variability);
-            }
-        }
-
         // Update curve
         curve.xReserve = curve.xReserve.add(deltaA);
         curve.yReserve = curve.yReserve.add(deltaB);
-        curve.expectedFuturePrice = newPBarA;
+        curve.expectedFuturePrice = curve.computeExpectedPrice(
+            amm.constraints,
+            pA,
+            LibFixedMath.toFixed(int256(currentBlockNumber - amm.blockNumber))
+        );
 
         // Update state
         IStructs.AssetPair memory assets = amm.assets;
@@ -167,8 +151,6 @@ library LibAMM {
 
         amountReceived = -deltaB;
     }
-
-
 
     function _computeStep6(
         int256 rl
