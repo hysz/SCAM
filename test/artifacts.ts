@@ -18,14 +18,12 @@ import * as Liquidity from '../test/generated-artifacts/Liquidity.json';
 import * as Ownable from '../test/generated-artifacts/Ownable.json';
 import * as Scam from '../test/generated-artifacts/Scam.json';
 import * as State from '../test/generated-artifacts/State.json';
-import * as Swapper from '../test/generated-artifacts/Swapper.json';
 import * as UnitTestScam from '../test/generated-artifacts/UnitTestScam.json';
 export const artifacts = {
     Scam: Scam as ContractArtifact,
     Liquidity: Liquidity as ContractArtifact,
     Ownable: Ownable as ContractArtifact,
     State: State as ContractArtifact,
-    Swapper: Swapper as ContractArtifact,
     IERC20: IERC20 as ContractArtifact,
     IEvents: IEvents as ContractArtifact,
     IStructs: IStructs as ContractArtifact,

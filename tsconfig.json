@@ -36,7 +36,6 @@
         "test/generated-artifacts/Ownable.json",
         "test/generated-artifacts/Scam.json",
         "test/generated-artifacts/State.json",
-        "test/generated-artifacts/Swapper.json",
         "test/generated-artifacts/UnitTestScam.json"
     ]
 }
