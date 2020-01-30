@@ -16,5 +16,4 @@ export * from '../test/generated-wrappers/lib_token';
 export * from '../test/generated-wrappers/liquidity';
 export * from '../test/generated-wrappers/ownable';
 export * from '../test/generated-wrappers/scam';
-export * from '../test/generated-wrappers/state';
 export * from '../test/generated-wrappers/unit_test_scam';

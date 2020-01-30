@@ -12,6 +12,7 @@
 */
 
 pragma solidity ^0.5.9;
+pragma experimental ABIEncoderV2;
 
 import "../interfaces/IEvents.sol";
 import "../interfaces/IStructs.sol";
@@ -30,6 +31,10 @@ library LibAMM {
         int256 val
     );
 
+    event CURVE(
+        IStructs.BondingCurve curve
+    );
+
     function computePrice()
         internal
         pure
@@ -40,29 +45,29 @@ library LibAMM {
         */
     }
 
-    function computeAmountBought(
+    function trade(
+        IStructs.AMM memory amm,
         address takerAsset,
         int256 deltaA,
-        IStructs.State memory state,
         uint256 currentBlockNumber
     )
         internal
         returns (
-            int256 amountReceived,
-            IStructs.State memory newState
+            int256 amountReceived
         )
     {
-
-        if (state.t == currentBlockNumber) {
-            state.fee = state.feeHigh;
-        }
+        int256 fee = (amm.blockNumber != currentBlockNumber)
+            ? amm.fee.lo
+            : amm.fee.hi;
 
         // Transform stored curve for this trade.
         IStructs.BondingCurve memory curve = LibBondingCurve.transformStoredBondingCurveForTrade(
-            state.curve,
-            state.assets,
+            amm.curve,
+            amm.assets,
             takerAsset
         );
+
+        emit CURVE(curve);
 
         // Compute initial midpoint on bond curve; this will be the initial lower bound.
         int256 pA = curve.computeMidpointPrice();
@@ -77,12 +82,11 @@ library LibAMM {
             pA,
             deltaA,
             rl,
-            state.fee
+            fee
         );
 
          // Step 6
         _computeStep6(price);
-
 
 
         // Step 7
@@ -103,7 +107,7 @@ library LibAMM {
         int256 deltaB = deltaA
             .mul(price)
             .mul(
-                LibFixedMath.one().sub(state.fee)
+                LibFixedMath.one().sub(fee)
             );
         deltaB = -deltaB;
 
@@ -126,37 +130,42 @@ library LibAMM {
         }
 
 
-        // Handle additional edge cases
-        int256 newPBarA = LibBondingCurve.computeNewPBarA(
-            state.t,
-            currentBlockNumber,
-            state.beta,
-            pA,
-            curve.expectedFuturePrice
-        );
 
-        if (newPBarA > state.eToKappa.mul(curve.expectedFuturePrice)) {
-            newPBarA = state.eToKappa.mul(curve.expectedFuturePrice);
-        } else if(newPBarA.mul(state.eToKappa) < curve.expectedFuturePrice) {
-            newPBarA = curve.expectedFuturePrice.div(state.eToKappa);
+        // Handle additional edge cases
+        int256 newPBarA;
+        {
+            int256 persistence = amm.constraints.persistence;
+            newPBarA = LibBondingCurve.computeNewPBarA(
+                amm.blockNumber,
+                currentBlockNumber,
+                persistence,
+                pA,
+                curve.expectedFuturePrice
+            );
+
+            int256 variability = amm.constraints.variability;
+            if (newPBarA > variability.mul(curve.expectedFuturePrice)) {
+                newPBarA = variability.mul(curve.expectedFuturePrice);
+            } else if(newPBarA.mul(variability) < curve.expectedFuturePrice) {
+                newPBarA = curve.expectedFuturePrice.div(variability);
+            }
         }
 
         // Update curve
-        curve.xReserve  = curve.xReserve.add(deltaA);
+        curve.xReserve = curve.xReserve.add(deltaA);
         curve.yReserve = curve.yReserve.add(deltaB);
         curve.expectedFuturePrice = newPBarA;
 
-
         // Update state
-        state.t = currentBlockNumber;
-        state.curve = LibBondingCurve.transformStoredBondingCurveForTrade(
+        IStructs.AssetPair memory assets = amm.assets;
+        amm.curve = LibBondingCurve.transformStoredBondingCurveForTrade(
             curve,
-            state.assets,
+            assets,
             takerAsset
         );
+        amm.blockNumber = currentBlockNumber;
 
         amountReceived = -deltaB;
-        return (amountReceived, state);
     }
 
 

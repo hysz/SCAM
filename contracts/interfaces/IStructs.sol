@@ -7,6 +7,8 @@ interface IStructs {
     struct AssetPair {
         address xAsset;
         address yAsset;
+        int256 xDecimals;
+        int256 yDecimals;
     }
 
     struct BondingCurve {
@@ -29,20 +31,36 @@ interface IStructs {
         int256 delta;
     }
 
+    struct Fee {
+        int256 lo;
+        int256 hi;
+    }
+
+    /// @dev Constraints used when setting the expected future price.
+    /// @param persistence This value must be in the range (0,1]. A persistence of 1 means that the
+    ///                    expected price never changes. A lower value results in more volatile changes
+    ///                    to the expected price.
+    ///                    Note: this is `exp(beta)` in the whitepaper.
+    /// @param variability This is the maximum allowed log-percent change in expected price.
+    ///                    This value must be a real number ≥0.
+    ///                    Note: this is `ln(kappa)` in the whitepaper.
+    struct PriceConstraints {
+        int256 persistence;
+        int256 variability;
+    }
+
     ///
     struct State {
         IStructs.AssetPair assets;
         IStructs.BondingCurve curve;
         uint256 t;                                          // most recent block
-
-
-        bool isInitialized;
-
-
-        int256 fee;
-        int256 feeHigh;
-        int256 beta;    // persistence of expercted price - the larger the more persistent
-        int256 eToKappa;   // clamp that prevents the expected price changing by a lot in an expected tx
     }
 
+    struct AMM {
+        AssetPair assets;
+        BondingCurve curve;
+        Fee fee;
+        PriceConstraints constraints;
+        uint256 blockNumber;
+    }
 }

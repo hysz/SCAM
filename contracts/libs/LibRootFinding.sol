@@ -38,6 +38,8 @@ library LibRootFinding {
 
         returns (int256)
     {
+
+
         // Cache constants that are used throughout bracketing algorithm.
         int256 k8 = curve.xReserve.mul(
             pA

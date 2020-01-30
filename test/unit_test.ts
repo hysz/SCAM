@@ -32,25 +32,11 @@ blockchainTests.only('Unit Tests', env => {
                     return;
                 } /*else if(unitTest.trades.length != 1) {
                     return;
+                } else if(type !== 'X') {
+                    return;
                 } else {
                     console.log('ACTUALLY RUNNING TEST #', testNumber);
                 }*/
-
-                /*
-                const tx = await testContract.runUnitTest(
-                        unitTest.params,
-                        unitTest.initialState,
-                        unitTest.trades,
-                        false
-                    ).awaitTransactionSuccessAsync();
-
-                    const valueLogs = _.filter(tx.logs, (log) => {return (log as any).event === "VALUE"});
-                    for (const log of valueLogs) {
-                        console.log('***** ', (log as any).args.description, ' *****');
-                        console.log(MathUtils.fromFixed(new BigNumber((log as any).args.val._hex, 16)));
-                    }
-                    */
-
 
                 const finalStateRaw = await testContract.runUnitTest(
                     unitTest.params,
@@ -66,10 +52,8 @@ blockchainTests.only('Unit Tests', env => {
                     t: finalStateRaw.t,
                 }
 
-                /*
-                console.log('EXPECTED FINAL STATE:\n', JSON.stringify(unitTest.finalState, null, 4));
-                console.log('\n\nFINAL STATE:\n', JSON.stringify(finalState, null, 4), '\n\n');
-                */
+                //console.log('EXPECTED FINAL STATE:\n', JSON.stringify(unitTest.finalState, null, 4));
+                //console.log('\n\nFINAL STATE:\n', JSON.stringify(finalState, null, 4), '\n\n');
 
                 expect(MathUtils.toStandard(finalState.x), 'x').to.bignumber.equal(MathUtils.toStandard(unitTest.finalState.x));
                 expect(MathUtils.toStandard(finalState.y), 'y').to.bignumber.equal(MathUtils.toStandard(unitTest.finalState.y));
@@ -82,7 +66,7 @@ blockchainTests.only('Unit Tests', env => {
         for (const test of UNIT_TEST_TRIALS) {
             runUnitTestAsync(
                 testNumber++,
-                UnitTestUtils.parseUnitTest(test),
+                UnitTestUtils.parseUnitTest(test)
             );
         }
     });

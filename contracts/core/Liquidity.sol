@@ -5,12 +5,10 @@ import "../libs/LibSafeMath.sol";
 import "../libs/LibFixedMath.sol";
 import "../interfaces/IERC20.sol";
 import "../interfaces/IStructs.sol";
-import "../core/State.sol";
 
 
 /// FIXME(jalextowle): Add in the bias factor and ponzi scheme
 contract Liquidity is
-    State,
     IStructs
 {
     using LibSafeMath for uint256;
