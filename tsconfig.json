@@ -32,8 +32,6 @@
         "test/generated-artifacts/LibRootFinding.json",
         "test/generated-artifacts/LibSafeMath.json",
         "test/generated-artifacts/LibToken.json",
-        "test/generated-artifacts/Liquidity.json",
-        "test/generated-artifacts/Ownable.json",
         "test/generated-artifacts/UnitTest.json"
     ]
 }

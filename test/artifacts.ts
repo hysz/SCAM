@@ -15,13 +15,9 @@ import * as LibFixedMath from '../test/generated-artifacts/LibFixedMath.json';
 import * as LibRootFinding from '../test/generated-artifacts/LibRootFinding.json';
 import * as LibSafeMath from '../test/generated-artifacts/LibSafeMath.json';
 import * as LibToken from '../test/generated-artifacts/LibToken.json';
-import * as Liquidity from '../test/generated-artifacts/Liquidity.json';
-import * as Ownable from '../test/generated-artifacts/Ownable.json';
 import * as UnitTest from '../test/generated-artifacts/UnitTest.json';
 export const artifacts = {
     AbstractAMM: AbstractAMM as ContractArtifact,
-    Liquidity: Liquidity as ContractArtifact,
-    Ownable: Ownable as ContractArtifact,
     IERC20: IERC20 as ContractArtifact,
     IEvents: IEvents as ContractArtifact,
     IStructs: IStructs as ContractArtifact,

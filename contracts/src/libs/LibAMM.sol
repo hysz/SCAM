@@ -26,6 +26,13 @@ library LibAMM {
     using LibFixedMath for int256;
     using LibBondingCurve for IStructs.BondingCurve;
 
+    // The minimum allowed balance of an asset after a trade.
+    int256 constant MIN_ALLOWED_BALANCE = int256(0x00000000000000000000000000000000000053e2d6238da3c21187e7c06e19b9);// 1/10^5
+
+    // A dust amount taken off each sell to account for rounding errors.
+    // This ensures that rounding always favors the AMM.
+    int256 constant AMM_EDGE = int256(0x00000000000000000000000000000000000008637bd05af6c69b5a63f9a49c2c); // 10^-6
+
     event VALUE(
         string description,
         int256 val
@@ -155,36 +162,44 @@ library LibAMM {
         int256 fee
     )
         private
-        // pure
-        returns (int256 deltaB)
+        pure
+        returns (int256 makerAssetAmount)
     {
-         deltaB = takerAssetAmount
+        // Compute maker asset amount, given taker asset amount, price and fee.
+        makerAssetAmount = takerAssetAmount
             .mul(price)
-            .mul(
-                LibFixedMath.one().sub(fee)
-            );
-        deltaB = -deltaB;
+            .mul(LibFixedMath.one().sub(fee));
 
-        if (deltaB >= 0) {
-            revert('deltaB is greater or equal to zero');
+        // Subtract a dust amount to ensure the trade favors the contract.
+        makerAssetAmount = makerAssetAmount.sub(AMM_EDGE);
+
+        // Sanity check that maker asset amount is positive.
+        if (makerAssetAmount <= 0) {
+            revert('Invalid Price. Cannot have a negative `makerAssetAmount`');
         }
 
-        // Edge Cases
-        int256 epsilon = LibFixedMath.toFixed(int256(1), int256(100000));
-        if (curve.yReserve.add(deltaB) <= epsilon) {
-            deltaB = epsilon.sub(curve.yReserve);
-            deltaB = (deltaB < 0) ? deltaB : 0;
+        // Check that the remaining maker asset balance is valid.
+        if (curve.yReserve.sub(makerAssetAmount) < MIN_ALLOWED_BALANCE) {
+            revert('Invalid `takerAssetAmount`. Insufficient funds.');
         }
 
-        // Round up to favor the contract
-        // We impose a dust amount of 1/10^6. This is the minimum token amount.
-        deltaB += LibFixedMath.toFixed(int256(1), int256(10**6));
-        if (deltaB >= 0) {
-            revert('Tried to purchase too much');
-        }
-
-        return -deltaB;
+        return makerAssetAmount;
     }
 
+    function getAMMEdge()
+        internal
+        pure
+        returns (int256)
+    {
+        return AMM_EDGE;
+    }
+
+    function getMinAllowedBalance()
+        internal
+        pure
+        returns (int256)
+    {
+        return MIN_ALLOWED_BALANCE;
+    }
 
 }
