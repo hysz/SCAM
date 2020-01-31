@@ -5,6 +5,5 @@
  */
 import {ContractArtifact} from 'ethereum-types';
 
-import * as Scam from '../generated-artifacts/Scam.json';
-import * as UnitTestScam from '../generated-artifacts/UnitTestScam.json';
-export const artifacts = {Scam: Scam as ContractArtifact, UnitTestScam: UnitTestScam as ContractArtifact};
+import * as UnitTest from '../generated-artifacts/UnitTest.json';
+export const artifacts = {UnitTest: UnitTest as ContractArtifact};

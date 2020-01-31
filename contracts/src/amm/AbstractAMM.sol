@@ -1,20 +1,18 @@
 pragma solidity ^0.5.9;
 pragma experimental ABIEncoderV2;
 
-import "./core/Liquidity.sol";
-import "./interfaces/IStructs.sol";
-import "./interfaces/IEvents.sol";
-import "./libs/LibFixedMath.sol";
-import "./libs/LibSafeMath.sol";
-import "./libs/LibBondingCurve.sol";
-import "./libs/LibToken.sol";
-import "./libs/LibAMM.sol";
-import "./interfaces/IERC20.sol";
+import "../interfaces/IStructs.sol";
+import "../interfaces/IEvents.sol";
+import "../libs/LibFixedMath.sol";
+import "../libs/LibSafeMath.sol";
+import "../libs/LibBondingCurve.sol";
+import "../libs/LibToken.sol";
+import "../libs/LibAMM.sol";
+import "../interfaces/IERC20.sol";
 
 
-contract Scam is
-    IEvents,
-    Liquidity
+contract AbstractAMM is
+    IEvents
 {
 
     using LibFixedMath for int256;
@@ -97,8 +95,6 @@ contract Scam is
         );
         */
     }
-
-
 
     function _settleTrade(IStructs.AssetPair memory assets)
         internal

@@ -1,6 +1,6 @@
 import {blockchainTests, Numberish, Token, expect} from '@0x/contracts-test-utils';
 
-import { UnitTestScamContract } from '../src';
+import { UnitTestContract } from '../src';
 
 import { artifacts } from './artifacts';
 
@@ -9,7 +9,7 @@ import { AbiEncoder, BigNumber } from '@0x/utils';
 import * as _ from 'lodash';
 
 blockchainTests.skip('Math Tests', env => {
-    let testContract: UnitTestScamContract;
+    let testContract: UnitTestContract;
 
     const FIXED_POINT_BASE = new BigNumber(2).pow(127);
     const TOKEN_BASE = new BigNumber(10).pow(18);
@@ -22,8 +22,8 @@ blockchainTests.skip('Math Tests', env => {
     }
 
     before(async() => {
-        testContract = await UnitTestScamContract.deployFrom0xArtifactAsync(
-            artifacts.UnitTestScam,
+        testContract = await UnitTestContract.deployFrom0xArtifactAsync(
+            artifacts.UnitTest,
             env.provider,
             env.txDefaults,
             artifacts,
@@ -32,7 +32,7 @@ blockchainTests.skip('Math Tests', env => {
         //await testContract.init().awaitTransactionSuccessAsync();
     });
 
-    describe('Scam', () => {
+    describe('', () => {
 
         it.skip('Multiplication', async () => {
             console.log("1 = ", toFixed(1));

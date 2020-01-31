@@ -1,7 +1,7 @@
 import {blockchainTests, expect} from '@0x/contracts-test-utils';
 import { BigNumber } from '@0x/utils';
 
-import { UnitTestScamContract } from '../src';
+import { UnitTestContract } from '../src';
 
 import { artifacts } from './artifacts';
 
@@ -14,11 +14,11 @@ import { UnitTest } from './utils/types';
 import * as _ from 'lodash';
 
 blockchainTests.only('Unit Tests', env => {
-    let testContract: UnitTestScamContract;
+    let testContract: UnitTestContract;
 
     before(async() => {
-        testContract = await UnitTestScamContract.deployFrom0xArtifactAsync(
-            artifacts.UnitTestScam,
+        testContract = await UnitTestContract.deployFrom0xArtifactAsync(
+            artifacts.UnitTest,
             env.provider,
             env.txDefaults,
             artifacts,

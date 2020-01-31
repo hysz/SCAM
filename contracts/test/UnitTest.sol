@@ -2,12 +2,12 @@ pragma solidity 0.5.9;
 pragma experimental ABIEncoderV2;
 
 import "../src/interfaces/IStructs.sol";
-import "../src/Scam.sol";
+import "../src/amm/AbstractAMM.sol";
 import "../src/libs/LibFixedMath.sol";
 
 
-contract UnitTestScam is
-    Scam
+contract UnitTest is
+    AbstractAMM
 {
 
     using LibFixedMath for uint256;
@@ -97,7 +97,7 @@ contract UnitTestScam is
                 );
             } else {
                 bytes memory swapCalldata = abi.encodeWithSelector(
-                Scam(address(0)).trade.selector,
+                AbstractAMM(address(0)).trade.selector,
                     trades[i].takerToken,
                     trades[i].takerAmount
                 );

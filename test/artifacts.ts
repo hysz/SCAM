@@ -5,6 +5,7 @@
  */
 import {ContractArtifact} from 'ethereum-types';
 
+import * as AbstractAMM from '../test/generated-artifacts/AbstractAMM.json';
 import * as IERC20 from '../test/generated-artifacts/IERC20.json';
 import * as IEvents from '../test/generated-artifacts/IEvents.json';
 import * as IStructs from '../test/generated-artifacts/IStructs.json';
@@ -16,10 +17,9 @@ import * as LibSafeMath from '../test/generated-artifacts/LibSafeMath.json';
 import * as LibToken from '../test/generated-artifacts/LibToken.json';
 import * as Liquidity from '../test/generated-artifacts/Liquidity.json';
 import * as Ownable from '../test/generated-artifacts/Ownable.json';
-import * as Scam from '../test/generated-artifacts/Scam.json';
-import * as UnitTestScam from '../test/generated-artifacts/UnitTestScam.json';
+import * as UnitTest from '../test/generated-artifacts/UnitTest.json';
 export const artifacts = {
-    Scam: Scam as ContractArtifact,
+    AbstractAMM: AbstractAMM as ContractArtifact,
     Liquidity: Liquidity as ContractArtifact,
     Ownable: Ownable as ContractArtifact,
     IERC20: IERC20 as ContractArtifact,
@@ -31,5 +31,5 @@ export const artifacts = {
     LibRootFinding: LibRootFinding as ContractArtifact,
     LibSafeMath: LibSafeMath as ContractArtifact,
     LibToken: LibToken as ContractArtifact,
-    UnitTestScam: UnitTestScam as ContractArtifact,
+    UnitTest: UnitTest as ContractArtifact,
 };
