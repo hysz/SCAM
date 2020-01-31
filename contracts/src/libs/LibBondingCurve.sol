@@ -131,7 +131,7 @@ library LibBondingCurve {
         int256 term3 = term1.div(term2);
         int256 term4 = term3.pow(LibFixedMath.one().sub(rhoRatio));
         int256 term5 = term4.mul(delta).div(domain.delta);
-        return term5;
+        return term5.mul(midpointPrice);
     }
 
     /// @dev Computes the offset to the highest price to sell token `b` in the range [a, a + deltaA].

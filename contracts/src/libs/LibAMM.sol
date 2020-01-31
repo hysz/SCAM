@@ -69,22 +69,20 @@ library LibAMM {
             takerAsset
         );
 
-        // Compute initial midpoint on bond curve; this is the initial upper-bound
-        // and would result in the greatest makerAssetAmount.
-        int256 minPrice = curve.computeMidpointPrice();
+        // Compute initial midpoint price on bond curve; this is the upper-bound on maker price.
+        int256 maxMakerPrice = curve.computeMidpointPrice();
 
-        // Compute the maximum price on the bond curve; this is the initial lower-bound
-        // and would result in the lowest makerAssetAmount.
-        int256 maxPrice = curve.computeMaximumPriceInDomain(
+        // Compute the maximum price on the bond curve; this is the lower-bound on maker price.
+        int256 minMakerPrice = curve.computeMaximumPriceInDomain(
             IStructs.Domain({x: curve.xReserve, delta: takerAssetAmount}),
-            minPrice
+            maxMakerPrice
         );
 
-        // Compute best price. This is in the range [minPrice..maxPrice].
-        int256 bestPrice = computeBestPrice(
+        // Compute best price. This is in the range [maxMakerPrice..minMakerPrice].
+        int256 bestMakerPrice = computeBestPrice(
             curve,
-            minPrice,
-            maxPrice,
+            maxMakerPrice,
+            minMakerPrice,
             takerAssetAmount,
             fee
         );
@@ -92,7 +90,7 @@ library LibAMM {
         // Compute the `makerAssetAmount` from the Best Price.
         int256 makerAssetAmount = computeMakerAssetAmount(
             curve,
-            bestPrice,
+            bestMakerPrice,
             takerAssetAmount,
             fee
         );
@@ -102,7 +100,7 @@ library LibAMM {
         curve.yReserve = curve.yReserve.sub(makerAssetAmount);
         curve.expectedPrice = curve.computeExpectedPrice(
             amm.constraints,
-            minPrice,
+            maxMakerPrice,
             currentBlockNumber.sub(amm.blockNumber)
         );
 
@@ -118,20 +116,20 @@ library LibAMM {
 
     function computeBestPrice(
         IStructs.BondingCurve memory curve,
-        int256 minPrice,
-        int256 maxPrice,
+        int256 maxMakerPrice,
+        int256 minMakerPrice,
         int256 takerAssetAmount,
         int256 fee
     )
         private
         // pure
-        returns (int256 bestPrice)
+        returns (int256 bestMakerPrice)
     {
         int256 root = LibRootFinding.bracket(
             curve,
-            minPrice,
+            maxMakerPrice,
             takerAssetAmount,
-            maxPrice,
+            minMakerPrice,
             fee
         );
 
@@ -141,18 +139,28 @@ library LibAMM {
         }
 
         // Step 7
-        bestPrice = root.mul(minPrice);
+        bestMakerPrice = root.mul(maxMakerPrice);
 
-        emit VALUE("final price", bestPrice);
+        emit VALUE("final price", bestMakerPrice);
 
-
-        if (bestPrice < 0)  {
+        if (bestMakerPrice < 0)  {
             revert('price cannot be < 0');
-        } else if (bestPrice == 0) {
+        } else if (bestMakerPrice == 0) {
             revert('price cannot be zero');
         }
 
-        return bestPrice;
+        emit VALUE('*** MIN MAKER PRICE ***', minMakerPrice);
+        emit VALUE('*** MAX MAKER PRICE ***', maxMakerPrice);
+        emit VALUE('*** BEST MAKER PRICE ***', bestMakerPrice);
+
+        // Think about adding a check that it is in the range [maxMakerPrice..minMakerPrice]
+        if (bestMakerPrice < minMakerPrice) {
+            bestMakerPrice = minMakerPrice;
+        } else if (bestMakerPrice > maxMakerPrice) {
+            bestMakerPrice = maxMakerPrice;
+        }
+
+        return bestMakerPrice;
     }
 
     function computeMakerAssetAmount(
@@ -201,5 +209,4 @@ library LibAMM {
     {
         return MIN_ALLOWED_BALANCE;
     }
-
 }
