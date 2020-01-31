@@ -36,7 +36,7 @@ library LibBondingCurve {
     )
         internal
         pure
-        returns (IStructs.BondingCurve memory curve)
+        returns (IStructs.BondingCurve memory)
     {
         return IStructs.BondingCurve({
             xReserve: xReserve,
@@ -48,10 +48,10 @@ library LibBondingCurve {
 
     /// @dev Transforms the stored bonding curve for use in a trade.
     ///        This involves manipulating the expected future price
-    ///        of the curve, depending on which assets is being traded.
+    ///        of the c, depending on which assets is being traded.
     ///        The inputs to this function are not mutated during execution.
     function transformStoredBondingCurveForTrade(
-        IStructs.BondingCurve memory curve,
+        IStructs.BondingCurve memory c,
         IStructs.AssetPair memory assets,
         address takerAsset
     )
@@ -59,30 +59,28 @@ library LibBondingCurve {
         pure
         returns (IStructs.BondingCurve memory)
     {
-        // The expected future price must be of Taker Assset
-        // in terms of Maker Asset. The Taker Asset Amount is the
-        // x-coordinate on the bonding curve (input to price). Hence,
-        // if the Taker asset is the y-coordinate on the bonding curve,
-        // then we must invert the expected future price.
+        // We store the bonding curve with the X-Asset on the X-Axis.
+        // If the Taker Asset is the Y-Asset then we invert the c
+        // for computations (and then invert it again before storing the updated c).
         if (takerAsset == assets.xAsset) {
             return createBondingCurve(
-                curve.xReserve,
-                curve.yReserve,
-                curve.expectedPrice,
-                curve.slippage
+                c.xReserve,
+                c.yReserve,
+                c.expectedPrice,
+                c.slippage
             );
         } else {
             return createBondingCurve(
-                curve.yReserve,
-                curve.xReserve,
-                ONE.div(curve.expectedPrice),
-                curve.slippage
+                c.yReserve,
+                c.xReserve,
+                ONE.div(c.expectedPrice),
+                c.slippage
             );
         }
     }
 
     function transformTradeBondingCurveForStorage(
-        IStructs.BondingCurve memory curve,
+        IStructs.BondingCurve memory c,
         IStructs.AssetPair memory assets,
         address takerAsset
     )
@@ -90,26 +88,29 @@ library LibBondingCurve {
         pure
         returns (IStructs.BondingCurve memory)
     {
-        return transformStoredBondingCurveForTrade(curve, assets, takerAsset);
+        return transformStoredBondingCurveForTrade(c, assets, takerAsset);
     }
 
-    /// @dev This returns the price at a specific point (a,b) on the token bond curve,
+    /// @dev This returns the price at a specific point (a,b) on the token bond c,
     ///      which is defined by the slope of the tangent at (a,b).
-    function computeMidpointPrice(IStructs.BondingCurve memory curve)
+    function computeMidpointPrice(IStructs.BondingCurve memory c)
         internal
         pure
         returns (int256 price)
     {
-        int256 term1 = curve.yReserve.div(curve.expectedPrice.mul(curve.xReserve));
-        int256 term2 = term1.pow(ONE.sub(curve.slippage));
-        price = curve.expectedPrice.mul(term2);
+        // Define terms
+        int256 t1 = c.yReserve.div(c.expectedPrice.mul(c.xReserve));
+        int256 t2 = t1.pow(ONE.sub(c.slippage));
+
+        // Compute price
+        price = c.expectedPrice.mul(t2);
     }
 
     /// @dev Computes the highest price to sell token `b` in the range [a, a + deltaA].
     ///
-    ///      Implementation Note: This
+    ///      Implementation Note: Difference in this PRICE computation.
     function computeMaximumPriceInDomain(
-        IStructs.BondingCurve memory curve,
+        IStructs.BondingCurve memory c,
         IStructs.Domain memory domain,
         int256 midpointPrice
     )
@@ -117,13 +118,18 @@ library LibBondingCurve {
         pure
         returns (int256 price)
     {
-        int256 delta = computeOffsetToMaximumPriceInDomain(curve, domain, midpointPrice);
-        int256 term1 = curve.xReserve.mul(curve.yReserve.sub(delta.mul(midpointPrice)));
-        int256 term2 = curve.yReserve.mul(curve.xReserve.add(delta));
-        int256 term3 = term1.div(term2);
-        int256 term4 = term3.pow(ONE.sub(curve.slippage));
-        int256 term5 = term4.mul(delta).div(domain.delta);
-        price = term5.mul(midpointPrice);
+        // Compute offset to x-coordinate with maximum price
+        int256 delta = computeOffsetToMaximumPriceInDomain(c, domain, midpointPrice);
+
+        // Define terms
+        int256 t1 = c.xReserve.mul(c.yReserve.sub(delta.mul(midpointPrice)));
+        int256 t2 = c.yReserve.mul(c.xReserve.add(delta));
+        int256 t3 = t1.div(t2);
+        int256 t4 = t3.pow(ONE.sub(c.slippage));
+        int256 t5 = t4.mul(delta).div(domain.delta);
+
+        // Compute price
+        price = t5.mul(midpointPrice);
     }
 
     /// @dev Computes the offset to the highest price to sell token `b` in the range [a, a + deltaA].
@@ -132,7 +138,7 @@ library LibBondingCurve {
     ///      is decreasing. If this point is greater than the domain limit of `a + deltaA`,
     ///      then the maximum price is at `a + deltaA`.
     function computeOffsetToMaximumPriceInDomain(
-        IStructs.BondingCurve memory curve,
+        IStructs.BondingCurve memory c,
         IStructs.Domain memory domain,
         int256 midpointPrice
     )
@@ -142,30 +148,30 @@ library LibBondingCurve {
     {
         // Define constants
         int256 k1 = TWO
-            .sub(curve.slippage)
-            .mul(curve.xReserve)
+            .sub(c.slippage)
+            .mul(c.xReserve)
             .mul(midpointPrice)
-            .sub(curve.slippage.mul(curve.yReserve));
+            .sub(c.slippage.mul(c.yReserve));
 
         // Define terms
-        int256 term1 = k1.square().add(
+        int256 t1 = k1.square().add(
             FOUR
             .mul(midpointPrice)
-            .mul(curve.xReserve)
-            .mul(curve.yReserve)
+            .mul(c.xReserve)
+            .mul(c.yReserve)
         );
-        int256 term2 = (-k1)
-            .add(term1.sqrt())
+        int256 t2 = (-k1)
+            .add(t1.sqrt())
             .div(TWO.mul(midpointPrice));
 
         // Compute delta
-        delta = LibFixedMath.min(domain.delta, term2);
+        delta = LibFixedMath.min(domain.delta, t2);
     }
 
-    /// @dev Computes the expected future price of token `a` in terms of token `b`.
+    /// @dev Computes the expected future price of token `a` in ts of token `b`.
     ///      This function corresponds to Section 4.7 of the Whitepaper.
     function computeExpectedPrice(
-        IStructs.BondingCurve memory curve,
+        IStructs.BondingCurve memory c,
         IStructs.PriceConstraints memory constraints,
         int256 midpointPrice,
         int256 deltaBlockNumber
@@ -176,23 +182,23 @@ library LibBondingCurve {
     {
         // Define constants
         int256 k1 = constraints.persistence.pow(deltaBlockNumber);
-        int256 k2 = LibFixedMath.one().sub(k1);
+        int256 k2 = ONE.sub(k1);
 
         // Define terms
-        int256 term1 = midpointPrice.mul(k2);
-        int256 term2 = curve.expectedPrice.mul(k1);
-        int256 term3D = curve.expectedPrice.mul(k2).add(midpointPrice.mul(k1));
-        int256 term3 = midpointPrice.mul(curve.expectedPrice).div(term3D);
+        int256 t1 = midpointPrice.mul(k2);
+        int256 t2 = c.expectedPrice.mul(k1);
+        int256 t3D = c.expectedPrice.mul(k2).add(midpointPrice.mul(k1));
+        int256 t3 = midpointPrice.mul(c.expectedPrice).div(t3D);
 
         // Compute expected price
-        expectedPrice = term1
-            .add(term2)
-            .add(term3)
-            .div(LibFixedMath.two());
+        expectedPrice = t1
+            .add(t2)
+            .add(t3)
+            .div(TWO);
 
         // Handle constraints
-        int256 minExpectedPrice = curve.expectedPrice.div(constraints.variability);
-        int256 maxExpectedPrice = curve.expectedPrice.mul(constraints.variability);
+        int256 minExpectedPrice = c.expectedPrice.div(constraints.variability);
+        int256 maxExpectedPrice = c.expectedPrice.mul(constraints.variability);
         if(expectedPrice < minExpectedPrice) {
             expectedPrice = minExpectedPrice;
         } else if (expectedPrice > maxExpectedPrice) {
