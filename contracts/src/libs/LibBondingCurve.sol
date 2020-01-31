@@ -21,7 +21,12 @@ library LibBondingCurve {
 
     using LibFixedMath for int256;
 
+    // 1 in fixed-point
     int256 private constant ONE = int256(0x0000000000000000000000000000000080000000000000000000000000000000);
+    // 2 in fixed-point
+    int256 private constant TWO = int256(0x0000000000000000000000000000000100000000000000000000000000000000);
+    // 4 in fixed-point
+    int256 private constant FOUR = int256(0x0000000000000000000000000000000200000000000000000000000000000000);
 
     function createBondingCurve(
         int256 xReserve,
@@ -133,37 +138,28 @@ library LibBondingCurve {
     )
         internal
         pure
-        returns (int256)
+        returns (int256 delta)
     {
-        int256 a = curve.xReserve;
-        int256 b = curve.yReserve;
-        int256 pBarA = curve.expectedPrice;
-        int256 rhoRatio = curve.slippage;
-        int256 deltaA = domain.delta;
-        int256 pA = midpointPrice;
+        // Define constants
+        int256 k1 = TWO
+            .sub(curve.slippage)
+            .mul(curve.xReserve)
+            .mul(midpointPrice)
+            .sub(curve.slippage.mul(curve.yReserve));
 
-        int256 k13 = LibFixedMath.two()
-            .sub(rhoRatio)
-            .mul(a)
-            .mul(pA)
-            .sub(rhoRatio.mul(b));
-
-        int256 term1 = k13.square().add(
-            LibFixedMath.four()
-            .mul(pA)
-            .mul(a)
-            .mul(b)
+        // Define terms
+        int256 term1 = k1.square().add(
+            FOUR
+            .mul(midpointPrice)
+            .mul(curve.xReserve)
+            .mul(curve.yReserve)
         );
-
-        int256 term2 = (-k13)
+        int256 term2 = (-k1)
             .add(term1.sqrt())
-            .div(
-                LibFixedMath.two()
-                .mul(pA)
-            );
+            .div(TWO.mul(midpointPrice));
 
-        int256 delta = LibFixedMath.min(deltaA, term2);
-        return delta;
+        // Compute delta
+        delta = LibFixedMath.min(domain.delta, term2);
     }
 
     /// @dev Computes the expected future price of token `a` in terms of token `b`.
@@ -202,7 +198,5 @@ library LibBondingCurve {
         } else if (expectedPrice > maxExpectedPrice) {
             expectedPrice = maxExpectedPrice;
         }
-
-        return expectedPrice;
     }
 }
