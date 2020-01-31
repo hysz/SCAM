@@ -39,7 +39,7 @@ library LibAMM {
         IStructs.AMM memory amm,
         address takerAsset,
         int256 takerAssetAmount,
-        uint256 currentBlockNumber
+        int256 currentBlockNumber
     )
         internal
         returns (
@@ -73,7 +73,7 @@ library LibAMM {
             minPrice
         );
 
-        // Compute best price. This lies in the range [minPrice..maxPrice].
+        // Compute best price. This is in the range [minPrice..maxPrice].
         int256 bestPrice = computeBestPrice(
             curve,
             minPrice,
@@ -82,6 +82,7 @@ library LibAMM {
             fee
         );
 
+        // Compute the `makerAssetAmount` from the Best Price.
         int256 makerAssetAmount = computeMakerAssetAmount(
             curve,
             bestPrice,
@@ -89,16 +90,16 @@ library LibAMM {
             fee
         );
 
-        // Update curve
+        // Update curve with new token reserves and expected price.
         curve.xReserve = curve.xReserve.add(takerAssetAmount);
         curve.yReserve = curve.yReserve.sub(makerAssetAmount);
         curve.expectedPrice = curve.computeExpectedPrice(
             amm.constraints,
             minPrice,
-            LibFixedMath.toFixed(int256(currentBlockNumber - amm.blockNumber))
+            currentBlockNumber.sub(amm.blockNumber)
         );
 
-        // Update AMM
+        // Update AMM with new curve and block number.
         IStructs.AssetPair memory assets = amm.assets;
         amm.curve = LibBondingCurve.transformStoredBondingCurveForTrade(
             curve,

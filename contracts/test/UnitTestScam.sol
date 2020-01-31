@@ -13,7 +13,7 @@ contract UnitTestScam is
     using LibFixedMath for uint256;
     using LibFixedMath for int256;
 
-    uint256 blockNumber;
+    int256 blockNumber;
     IStructs.AMM gAMM;
 
 
@@ -29,7 +29,7 @@ contract UnitTestScam is
         int256 x;
         int256 y;
         int256 pBarX;
-        uint256 t;
+        int256 t;
     }
 
     struct Trade {
@@ -84,12 +84,12 @@ contract UnitTestScam is
         gAMM.blockNumber = 0;
 
         _addLiquidity(c.x, c.y);
-        gCurve.expectedPrice = c.pBarX;
-        gCurve.slippage = p.rho;
+        _gCurve.expectedPrice = c.pBarX;
+        _gCurve.slippage = p.rho;
 
         // Run trades
         for (uint i = 0; i < trades.length; ++i) {
-            blockNumber = trades[i].blockNumber;
+            blockNumber = LibFixedMath.toFixed(int256(trades[i].blockNumber));
             if (throwOnFailure) {
                 trade(
                     trades[i].takerToken,
@@ -108,10 +108,10 @@ contract UnitTestScam is
 
         // Return final state
         return ContractState({
-            x: gCurve.xReserve,
-            y: gCurve.yReserve,
-            pBarX: gCurve.expectedPrice,
-            t: gBlockNumber
+            x: _gCurve.xReserve,
+            y: _gCurve.yReserve,
+            pBarX: _gCurve.expectedPrice,
+            t: _gBlockNumber
         });
     }
 
@@ -138,7 +138,7 @@ contract UnitTestScam is
     function _getCurrentBlockNumber()
         internal
         view
-        returns (uint256)
+        returns (int256)
     {
         return blockNumber;
     }

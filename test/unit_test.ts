@@ -49,7 +49,7 @@ blockchainTests.only('Unit Tests', env => {
                     x: MathUtils.fromFixed(finalStateRaw.x),
                     y: MathUtils.fromFixed(finalStateRaw.y),
                     pBarX: MathUtils.fromFixed(finalStateRaw.pBarX),
-                    t: finalStateRaw.t,
+                    t: MathUtils.fromFixed(finalStateRaw.t),
                 }
 
                 //console.log('EXPECTED FINAL STATE:\n', JSON.stringify(unitTest.finalState, null, 4));
@@ -58,7 +58,7 @@ blockchainTests.only('Unit Tests', env => {
                 expect(MathUtils.toStandard(finalState.x), 'x').to.bignumber.equal(MathUtils.toStandard(unitTest.finalState.x));
                 expect(MathUtils.toStandard(finalState.y), 'y').to.bignumber.equal(MathUtils.toStandard(unitTest.finalState.y));
                 expect(MathUtils.toStandard(finalState.pBarX), 'pBarX').to.bignumber.equal(MathUtils.toStandard(unitTest.finalState.pBarX));
-                expect(finalState.t, 't').to.bignumber.equal(unitTest.finalState.t);
+                expect(MathUtils.toStandard(finalState.t), 't').to.bignumber.equal(MathUtils.toStandard(unitTest.finalState.t));
             });
         }
 

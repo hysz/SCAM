@@ -61,6 +61,6 @@ interface IStructs {
         BondingCurve curve;
         Fee fee;
         PriceConstraints constraints;
-        uint256 blockNumber;
+        int256 blockNumber;
     }
 }

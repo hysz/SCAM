@@ -20,8 +20,12 @@ contract Scam is
     using LibFixedMath for int256;
     using LibAMM for IStructs.AMM;
 
-    IStructs.BondingCurve public gCurve;
-    uint256 public gBlockNumber;
+    // The token bonding curve. This is updated after each trade.
+    IStructs.BondingCurve internal _gCurve;
+
+    // The most recent block number. This is updated after each trade.
+    // This is a fixed-point value (to reduce conversions during computation).
+    int256 internal _gBlockNumber;
 
     constructor()
         public
@@ -36,27 +40,6 @@ contract Scam is
         onlyERC20BridgeProxy
     {
 
-    }
-
-    // Need an INIT or CONFIGURE or RESET
-
-
-    function getQuote(
-        address takerAsset,
-        uint256 takerAssetAmount
-    )
-        external
-        view
-        returns (uint256 makerAssetAmount)
-    {
-        /*
-        // Execute trade on the AMM model.
-        (, makerAssetAmount) = _getAMM().trade(
-            takerAsset,
-            LibToken.tokenToFixed(takerAssetAmount, 18),
-            _getCurrentBlockNumber()
-        );
-        */
     }
 
     function trade(
@@ -94,6 +77,29 @@ contract Scam is
         return makerAssetAmount;
     }
 
+    // Need an INIT or CONFIGURE or RESET
+
+
+    function getQuote(
+        address takerAsset,
+        uint256 takerAssetAmount
+    )
+        external
+        view
+        returns (uint256 makerAssetAmount)
+    {
+        /*
+        // Execute trade on the AMM model.
+        (, makerAssetAmount) = _getAMM().trade(
+            takerAsset,
+            LibToken.tokenToFixed(takerAssetAmount, 18),
+            _getCurrentBlockNumber()
+        );
+        */
+    }
+
+
+
     function _settleTrade(IStructs.AssetPair memory assets)
         internal
     {
@@ -116,8 +122,8 @@ contract Scam is
     function _addLiquidity(int256 xAmount, int256 yAmount)
         internal
     {
-        gCurve.xReserve = xAmount;
-        gCurve.yReserve = yAmount;
+        _gCurve.xReserve = xAmount;
+        _gCurve.yReserve = yAmount;
 
         // DEPOSIT FUNDS
     }
@@ -126,10 +132,10 @@ contract Scam is
     function _saveAMM(IStructs.AMM memory amm)
         internal
     {
-        gCurve.xReserve = amm.curve.xReserve;
-        gCurve.yReserve = amm.curve.yReserve;
-        gCurve.expectedPrice = amm.curve.expectedPrice;
-        gBlockNumber = amm.blockNumber;
+        _gCurve.xReserve = amm.curve.xReserve;
+        _gCurve.yReserve = amm.curve.yReserve;
+        _gCurve.expectedPrice = amm.curve.expectedPrice;
+        _gBlockNumber = amm.blockNumber;
     }
 
     function _getAMM()
@@ -138,8 +144,8 @@ contract Scam is
         returns (IStructs.AMM memory amm)
     {
         amm = _getDefaultAMM();
-        amm.curve = gCurve;
-        amm.blockNumber = gBlockNumber;
+        amm.curve = _gCurve;
+        amm.blockNumber = _gBlockNumber;
     }
 
     /// @dev To be implemented by the specific AMM.
@@ -148,11 +154,17 @@ contract Scam is
         view
         returns (IStructs.AMM memory);
 
+    /// @dev Returns the current block number as a fixed-point value.
     function _getCurrentBlockNumber()
         internal
         view
-        returns (uint256)
+        returns (int256)
     {
-        return block.number;
+        uint256 unsignedBlockNumber = block.number;
+        int256 blockNumber = int256(unsignedBlockNumber);
+        if (uint256(blockNumber) != unsignedBlockNumber) {
+            revert("Invalid block number.");
+        }
+        return LibFixedMath.toFixed(blockNumber);
     }
 }

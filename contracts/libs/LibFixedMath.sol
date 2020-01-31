@@ -204,6 +204,14 @@ library LibFixedMath {
         return f / FIXED_1;
     }
 
+    function fromFixed(int256 f) internal pure returns (int256) {
+        if (toMantissa(f) != 0) {
+            revert("fromFixed(int256): input must be an integer");
+        }
+
+        return toInteger(f);
+    }
+
     function toMantissa(int256 f) internal pure returns (int256 n) {
         return f > 0 ? (f & MANTISSA_MASK) : -(-f & MANTISSA_MASK);
     }
