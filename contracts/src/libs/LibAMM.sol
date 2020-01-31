@@ -105,10 +105,9 @@ library LibAMM {
         );
 
         // Update AMM with new curve and block number.
-        IStructs.AssetPair memory assets = amm.assets;
         amm.curve = LibBondingCurve.transformStoredBondingCurveForTrade(
             curve,
-            assets,
+            amm.assets,
             takerAsset
         );
         amm.blockNumber = currentBlockNumber;

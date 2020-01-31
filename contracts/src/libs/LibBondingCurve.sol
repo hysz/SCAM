@@ -21,6 +21,8 @@ library LibBondingCurve {
 
     using LibFixedMath for int256;
 
+    int256 private constant ONE = int256(0x0000000000000000000000000000000080000000000000000000000000000000);
+
     function createBondingCurve(
         int256 xReserve,
         int256 yReserve,
@@ -68,7 +70,7 @@ library LibBondingCurve {
             return createBondingCurve(
                 curve.yReserve,
                 curve.xReserve,
-                LibFixedMath.one().div(curve.expectedPrice),
+                ONE.div(curve.expectedPrice),
                 curve.slippage
             );
         }
@@ -83,7 +85,7 @@ library LibBondingCurve {
         pure
         returns (IStructs.BondingCurve memory)
     {
-        // This actually performs the same operation as
+        return transformStoredBondingCurveForTrade(curve, assets, takerAsset);
     }
 
     /// @dev This returns the price at a specific point (a,b) on the token bond curve,
@@ -93,18 +95,9 @@ library LibBondingCurve {
         pure
         returns (int256 price)
     {
-        int256 a = curve.xReserve;
-        int256 b = curve.yReserve;
-        int256 pBarA = curve.expectedPrice;
-        int256 rhoRatio = curve.slippage;
-
-        int256 term1 = b.div(pBarA.mul(a));
-        int256 term2 = term1.pow(
-            LibFixedMath.one()
-            .sub(rhoRatio)
-        );
-        price = pBarA.mul(term2);
-        return price;
+        int256 term1 = curve.yReserve.div(curve.expectedPrice.mul(curve.xReserve));
+        int256 term2 = term1.pow(ONE.sub(curve.slippage));
+        price = curve.expectedPrice.mul(term2);
     }
 
     /// @dev Computes the highest price to sell token `b` in the range [a, a + deltaA].
