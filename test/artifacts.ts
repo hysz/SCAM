@@ -10,7 +10,6 @@ import * as IEvents from '../test/generated-artifacts/IEvents.json';
 import * as IStructs from '../test/generated-artifacts/IStructs.json';
 import * as LibAMM from '../test/generated-artifacts/LibAMM.json';
 import * as LibBondingCurve from '../test/generated-artifacts/LibBondingCurve.json';
-import * as LibConstants from '../test/generated-artifacts/LibConstants.json';
 import * as LibFixedMath from '../test/generated-artifacts/LibFixedMath.json';
 import * as LibRootFinding from '../test/generated-artifacts/LibRootFinding.json';
 import * as LibSafeMath from '../test/generated-artifacts/LibSafeMath.json';
@@ -28,7 +27,6 @@ export const artifacts = {
     IStructs: IStructs as ContractArtifact,
     LibAMM: LibAMM as ContractArtifact,
     LibBondingCurve: LibBondingCurve as ContractArtifact,
-    LibConstants: LibConstants as ContractArtifact,
     LibFixedMath: LibFixedMath as ContractArtifact,
     LibRootFinding: LibRootFinding as ContractArtifact,
     LibSafeMath: LibSafeMath as ContractArtifact,

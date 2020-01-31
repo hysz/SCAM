@@ -28,7 +28,6 @@
         "test/generated-artifacts/IStructs.json",
         "test/generated-artifacts/LibAMM.json",
         "test/generated-artifacts/LibBondingCurve.json",
-        "test/generated-artifacts/LibConstants.json",
         "test/generated-artifacts/LibFixedMath.json",
         "test/generated-artifacts/LibRootFinding.json",
         "test/generated-artifacts/LibSafeMath.json",
