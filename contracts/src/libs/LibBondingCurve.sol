@@ -110,21 +110,15 @@ library LibBondingCurve {
     )
         internal
         pure
-        returns (int256)
+        returns (int256 price)
     {
-        int256 a = curve.xReserve;
-        int256 b = curve.yReserve;
-        int256 pBarA = curve.expectedPrice;
-        int256 rhoRatio = curve.slippage;
-        int256 pA = midpointPrice;
-
         int256 delta = computeOffsetToMaximumPriceInDomain(curve, domain, midpointPrice);
-        int256 term1 = a.mul(b.sub(delta.mul(pA)));
-        int256 term2 = b.mul(a.add(delta));
+        int256 term1 = curve.xReserve.mul(curve.yReserve.sub(delta.mul(midpointPrice)));
+        int256 term2 = curve.yReserve.mul(curve.xReserve.add(delta));
         int256 term3 = term1.div(term2);
-        int256 term4 = term3.pow(LibFixedMath.one().sub(rhoRatio));
+        int256 term4 = term3.pow(ONE.sub(curve.slippage));
         int256 term5 = term4.mul(delta).div(domain.delta);
-        return term5.mul(midpointPrice);
+        price = term5.mul(midpointPrice);
     }
 
     /// @dev Computes the offset to the highest price to sell token `b` in the range [a, a + deltaA].
