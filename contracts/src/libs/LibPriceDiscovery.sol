@@ -102,6 +102,8 @@ library LibPriceDiscovery {
         return range <= threshold;
     }
 
+    /// @dev
+    ///      All root-finding
     function findRoot(
          IStructs.BondingCurve memory curve,
         int256 maxMakerPrice,
@@ -117,7 +119,11 @@ library LibPriceDiscovery {
         int256 k1 = curve.xReserve.mul(
             maxMakerPrice
             .mul(takerAssetAmount)
-            .div(curve.xReserve.mul(curve.yReserve).add(curve.yReserve.mul(takerAssetAmount)))
+            .div(
+                curve.xReserve
+                .mul(curve.yReserve)
+                .add(curve.yReserve.mul(takerAssetAmount))
+            )
         );
 
         // This is computed as k12 in the Whitepaper.
@@ -129,10 +135,8 @@ library LibPriceDiscovery {
         int256 rl = minMakerPrice.div(maxMakerPrice);
 
         // Compute initial upper bound root.
-        int256 rh = _computeStep2(
+        int256 rh = computeInitialUpperBound(
             curve,
-            maxMakerPrice,
-            takerAssetAmount,
             k1,
             k2
         );
@@ -194,11 +198,14 @@ library LibPriceDiscovery {
     }
 
 
-    /// @dev This is Step 2 in the whitepaper.
-    function _computeStep2(
+    /// @dev Computes an initial upper-bound of the root using Newton's Method.
+    ///      Note that the root is being computed on a transposition of the Price Curve,
+    ///      which is the first derivative of the Bonding Curve.  In this transposed form,
+    ///      we define a "root" as the ratio bestPrice/maxMakerPrice. Observe the equation
+    ///      at "Step 2" in the whitepaper's Bracketing algorithm, accompanied by
+    ///      the visualization in Figure 4 of the whitepaper.
+    function computeInitialUpperBound(
         IStructs.BondingCurve memory curve,
-        int256 maxMakerPrice,
-        int256 takerAssetAmount,
         int256 k1,
         int256 k2
     )
@@ -206,26 +213,18 @@ library LibPriceDiscovery {
 
         returns (int256)
     {
-        int256 a = curve.xReserve;
-        int256 b = curve.yReserve;
-        int256 pBarA = curve.expectedPrice;
-        int256 rhoRatio = curve.slippage;
+        // Define constants.
+        int256 k3 = k2.div(k1);
 
-        int256 term1 = k2.div(k1);
-        int256 term2 = rhoRatio.add(
-            LibFixedMath.one()
-            .sub(rhoRatio)
-            .mul(k2)
-        );
-        int256 term3 = LibFixedMath.one().add(
-            LibFixedMath.one()
-            .sub(rhoRatio)
-            .mul(k1)
-        );
-        int256 term4 = term2.div(term3);
-        return term1 < term4
-            ? term1
-            : term4;
+        // Define terms.
+        int256 term1N = curve.slippage.add(ONE.sub(curve.slippage).mul(k2));
+        int256 term1D = ONE.add(ONE.sub(curve.slippage).mul(k1));
+        int256 term1 = term1N.div(term1D);
+
+        // In most cases the RHS below will be the upper bound.
+        // The LHS is a safety-guard in case the taker buys too much,
+        // in which the upper bound reflects buying the entire maker reserve.
+        return LibFixedMath.min(k3, term1);
     }
 
     function _computeStep3(
