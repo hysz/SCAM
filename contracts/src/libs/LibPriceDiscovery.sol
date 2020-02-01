@@ -85,9 +85,21 @@ library LibPriceDiscovery {
 
         returns (bool shouldImprovePrecision)
     {
-        int256 lhs = rh.sub(rl);
-        int256 rhs = MAX_PERCENT_ERROR.mul(fee.add(ONE).sub(rh));
-        return lhs <= rhs;
+        // The true root lies between [rl..rh].
+        // Once the difference is less than a certain threshold,
+        // we consider it to be precise enough.
+        int256 range = rh.sub(rl);
+
+        // The precision threshold is somewhat arbitrary. We want to ensure that
+        // we have high precision for small trades, in which case rh is close to 1
+        // and this reduces to MAX_PERCENT_ERROR * fee. As trades increase in size,
+        // the threshold also increases (which means we demand less precision).
+        int256 threshold = MAX_PERCENT_ERROR.mul(fee.add(ONE).sub(rh));
+
+        // Iff true then enough precision has been reached. Either rl or rh
+        // would be representative of the true root. The algorithm
+        // chooses rl (the lower price) because it is cheaper for the contract.
+        return range <= threshold;
     }
 
     function findRoot(
@@ -181,6 +193,8 @@ library LibPriceDiscovery {
         emit VALUE("rl after step 5", rl);
     }
 
+
+    /// @dev This is Step 2 in the whitepaper.
     function _computeStep2(
         IStructs.BondingCurve memory curve,
         int256 maxMakerPrice,
