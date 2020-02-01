@@ -22,6 +22,7 @@ library LibPriceDiscovery {
 
     using LibFixedMath for int256;
 
+    // Fixed-point numbers used by this library.
     int256 private constant ONE = int256(0x0000000000000000000000000000000080000000000000000000000000000000);
 
     // The best price can only diverge by 5% from the max price. We store 95% to simplify computation.
@@ -114,6 +115,7 @@ library LibPriceDiscovery {
     ///
     ///      Three root-finding algorithms are applied: Newton's Method, Secant Method and Bisection.
     ///      Combining the three methods achieves a high-precision and fail-safe algorithm.
+    ///      See Section 4.3 of the Whitepaper for more implementation details.
     function findRoot(
          IStructs.BondingCurve memory curve,
         int256 maxMakerPrice,

@@ -21,11 +21,9 @@ library LibBondingCurve {
 
     using LibFixedMath for int256;
 
-    // 1 in fixed-point
+    // Fixed-point numbers used by this library
     int256 private constant ONE = int256(0x0000000000000000000000000000000080000000000000000000000000000000);
-    // 2 in fixed-point
     int256 private constant TWO = int256(0x0000000000000000000000000000000100000000000000000000000000000000);
-    // 4 in fixed-point
     int256 private constant FOUR = int256(0x0000000000000000000000000000000200000000000000000000000000000000);
 
     function createBondingCurve(

@@ -13,8 +13,6 @@ import * as LibAMM from '../test/generated-artifacts/LibAMM.json';
 import * as LibBondingCurve from '../test/generated-artifacts/LibBondingCurve.json';
 import * as LibFixedMath from '../test/generated-artifacts/LibFixedMath.json';
 import * as LibPriceDiscovery from '../test/generated-artifacts/LibPriceDiscovery.json';
-import * as LibSafeMath from '../test/generated-artifacts/LibSafeMath.json';
-import * as LibToken from '../test/generated-artifacts/LibToken.json';
 import * as UnitTest from '../test/generated-artifacts/UnitTest.json';
 export const artifacts = {
     AbstractAMM: AbstractAMM as ContractArtifact,
@@ -25,7 +23,5 @@ export const artifacts = {
     LibBondingCurve: LibBondingCurve as ContractArtifact,
     LibFixedMath: LibFixedMath as ContractArtifact,
     LibPriceDiscovery: LibPriceDiscovery as ContractArtifact,
-    LibSafeMath: LibSafeMath as ContractArtifact,
-    LibToken: LibToken as ContractArtifact,
     UnitTest: UnitTest as ContractArtifact,
 };

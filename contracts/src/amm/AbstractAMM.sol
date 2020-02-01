@@ -4,9 +4,7 @@ pragma experimental ABIEncoderV2;
 import "../interfaces/IStructs.sol";
 import "../interfaces/IEvents.sol";
 import "../libs/LibFixedMath.sol";
-import "../libs/LibSafeMath.sol";
 import "../libs/LibBondingCurve.sol";
-import "../libs/LibToken.sol";
 import "../libs/LibAMM.sol";
 import "../interfaces/IERC20.sol";
 
@@ -51,10 +49,10 @@ contract AbstractAMM is
         IStructs.AMM memory amm = _getAMM();
         int256 makerAssetAmountFixed = amm.trade(
             takerAsset,
-            LibToken.daiToFixed(takerAssetAmount),
+            _tokenToFixed(takerAssetAmount, 18),
             _getCurrentBlockNumber()
         );
-        makerAssetAmount = LibToken.tokenFromFixed(makerAssetAmountFixed, 18);
+        makerAssetAmount = _tokenFromFixed(makerAssetAmountFixed, 18);
 
         // Save the updated AMM.
         _saveAMM(amm);
@@ -111,6 +109,22 @@ contract AbstractAMM is
             'INSUFFICIENT_TO_TOKEN_BALANCE'
         );
         */
+    }
+
+    function _tokenToFixed(uint256 amount, uint256 nDecimals)
+        internal
+        pure
+        returns (int256 fixedAmount)
+    {
+        return LibFixedMath.toFixed(amount, 10**nDecimals);
+    }
+
+    function _tokenFromFixed(int256 amount, uint256 nDecimals)
+        internal
+        pure
+        returns (uint256 tokenAmount)
+    {
+        return uint256((amount * int256(10**nDecimals)).toInteger());
     }
 
     //function getAMM() external
