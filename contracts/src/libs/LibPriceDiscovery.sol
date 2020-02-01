@@ -102,8 +102,18 @@ library LibPriceDiscovery {
         return range <= threshold;
     }
 
-    /// @dev
-    ///      All root-finding
+    /// @dev Computes the root that corresponds to the best price on the bonding curve.
+    ///      Note that the root is computed on a transposition of the Price Curve,
+    ///      which is the first derivative of the Bonding Curve. In this transposed form,
+    ///      we define a "root" as the ratio bestPrice/maxMakerPrice. The function's form
+    ///      is defined recursively as "root = f(root)", which we solve using numerical methods.
+    ///
+    ///      This function implements the Bracketing Root-Finding Algorithm defined in the whitepaper,
+    ///      which sarts with an initial guess at approximately [minMakerPrice, maxMakerPrice]
+    ///      and iteratively closes in on the correct value that satisfies `root = f(root)`.
+    ///
+    ///      Three root-finding algorithms are applied: Newton's Method, Secant Method and Bisection.
+    ///      Combining the three methods achieves a high-precision and fail-safe algorithm.
     function findRoot(
          IStructs.BondingCurve memory curve,
         int256 maxMakerPrice,
@@ -141,11 +151,18 @@ library LibPriceDiscovery {
             k2
         );
 
-        // Check
+        // Check if the root estimate is precise enough.
+        // This will be true in the majority of cases. When a trade
+        // is very small then we will demand more precision. Similarly,
+        // when a trade is very large, we are more likely to encounter
+        // a failure scenario of Newton's Method to compute the upper-bound above.
+        // In this case, the tangent on the price function would be ~= 0 and the price
+        // infinitely high; in this case, we must recompute using Secant or Bisection (below).
         if (isRootPrecise(rl, rh, fee)) {
             return rl;
         }
 
+        //
         int256 yl;
         (rh, yl) = _computeStep3(
             rl,
@@ -199,7 +216,7 @@ library LibPriceDiscovery {
 
 
     /// @dev Computes an initial upper-bound of the root using Newton's Method.
-    ///      Note that the root is being computed on a transposition of the Price Curve,
+    ///      Note that the root is computed on a transposition of the Price Curve,
     ///      which is the first derivative of the Bonding Curve.  In this transposed form,
     ///      we define a "root" as the ratio bestPrice/maxMakerPrice. Observe the equation
     ///      at "Step 2" in the whitepaper's Bracketing algorithm, accompanied by
