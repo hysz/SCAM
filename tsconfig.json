@@ -29,7 +29,7 @@
         "test/generated-artifacts/LibAMM.json",
         "test/generated-artifacts/LibBondingCurve.json",
         "test/generated-artifacts/LibFixedMath.json",
-        "test/generated-artifacts/LibRootFinding.json",
+        "test/generated-artifacts/LibPriceDiscovery.json",
         "test/generated-artifacts/LibSafeMath.json",
         "test/generated-artifacts/LibToken.json",
         "test/generated-artifacts/UnitTest.json"

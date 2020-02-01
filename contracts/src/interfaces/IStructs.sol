@@ -31,6 +31,14 @@ interface IStructs {
         int256 delta;
     }
 
+    struct PriceRange {
+        int256 min;
+        int256 max;
+    }
+
+    /// @dev Fee paid on each trade. Each value is a percentage (range [0..1]).
+    ///      There is a low fee and high fee, which are applied in difference trade scenarios.
+    ///      See `LibAMM` for implementation details on how the fee is applied.
     struct Fee {
         int256 lo;
         int256 hi;

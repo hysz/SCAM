@@ -109,7 +109,7 @@ library LibBondingCurve {
     /// @dev Computes the highest price to sell token `b` in the range [a, a + deltaA].
     ///
     ///      Implementation Note: Difference in this PRICE computation.
-    function computeMaximumPriceInDomain(
+    function computeMinPriceInDomain(
         IStructs.BondingCurve memory c,
         IStructs.Domain memory domain,
         int256 midpointPrice
@@ -119,7 +119,7 @@ library LibBondingCurve {
         returns (int256 price)
     {
         // Compute offset to x-coordinate with maximum price
-        int256 delta = computeOffsetToMaximumPriceInDomain(c, domain, midpointPrice);
+        int256 delta = computeOffsetToMinPriceInDomain(c, domain, midpointPrice);
 
         // Define terms
         int256 t1 = c.xReserve.mul(c.yReserve.sub(delta.mul(midpointPrice)));
@@ -137,7 +137,7 @@ library LibBondingCurve {
     ///      the point where the first derivative is zero and the second derivative
     ///      is decreasing. If this point is greater than the domain limit of `a + deltaA`,
     ///      then the maximum price is at `a + deltaA`.
-    function computeOffsetToMaximumPriceInDomain(
+    function computeOffsetToMinPriceInDomain(
         IStructs.BondingCurve memory c,
         IStructs.Domain memory domain,
         int256 midpointPrice

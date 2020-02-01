@@ -18,7 +18,7 @@ import "../interfaces/IEvents.sol";
 import "../interfaces/IStructs.sol";
 import "./LibFixedMath.sol";
 import "./LibBondingCurve.sol";
-import "./LibRootFinding.sol";
+import "./LibPriceDiscovery.sol";
 
 
 library LibAMM {
@@ -73,13 +73,13 @@ library LibAMM {
         int256 maxMakerPrice = curve.computeMidpointPrice();
 
         // Compute the maximum price on the bond curve; this is the lower-bound on maker price.
-        int256 minMakerPrice = curve.computeMaximumPriceInDomain(
+        int256 minMakerPrice = curve.computeMinPriceInDomain(
             IStructs.Domain({x: curve.xReserve, delta: takerAssetAmount}),
             maxMakerPrice
         );
 
         // Compute best price. This is in the range [maxMakerPrice..minMakerPrice].
-        int256 bestMakerPrice = computeBestPrice(
+        int256 bestMakerPrice = LibPriceDiscovery.computeBestPrice(
             curve,
             maxMakerPrice,
             minMakerPrice,
@@ -111,55 +111,6 @@ library LibAMM {
             takerAsset
         );
         amm.blockNumber = currentBlockNumber;
-    }
-
-    function computeBestPrice(
-        IStructs.BondingCurve memory curve,
-        int256 maxMakerPrice,
-        int256 minMakerPrice,
-        int256 takerAssetAmount,
-        int256 fee
-    )
-        private
-        // pure
-        returns (int256 bestMakerPrice)
-    {
-        int256 root = LibRootFinding.bracket(
-            curve,
-            maxMakerPrice,
-            takerAssetAmount,
-            minMakerPrice,
-            fee
-        );
-
-        // Step 6
-        if (root < LibFixedMath.toFixed(int256(95), int256(100))) {
-            revert('Order too large');
-        }
-
-        // Step 7
-        bestMakerPrice = root.mul(maxMakerPrice);
-
-        emit VALUE("final price", bestMakerPrice);
-
-        if (bestMakerPrice < 0)  {
-            revert('price cannot be < 0');
-        } else if (bestMakerPrice == 0) {
-            revert('price cannot be zero');
-        }
-
-        emit VALUE('*** MIN MAKER PRICE ***', minMakerPrice);
-        emit VALUE('*** MAX MAKER PRICE ***', maxMakerPrice);
-        emit VALUE('*** BEST MAKER PRICE ***', bestMakerPrice);
-
-        // Think about adding a check that it is in the range [maxMakerPrice..minMakerPrice]
-        if (bestMakerPrice < minMakerPrice) {
-            bestMakerPrice = minMakerPrice;
-        } else if (bestMakerPrice > maxMakerPrice) {
-            bestMakerPrice = maxMakerPrice;
-        }
-
-        return bestMakerPrice;
     }
 
     function computeMakerAssetAmount(

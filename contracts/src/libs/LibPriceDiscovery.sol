@@ -18,44 +18,92 @@ import "./LibFixedMath.sol";
 import "./LibBondingCurve.sol";
 
 
-library LibRootFinding {
+library LibPriceDiscovery {
 
     using LibFixedMath for int256;
+
+    // The best price can only diverge by 5% from the max price. We store 95% to simplify computation.
+    int256 constant MAX_PRICE_DIVERGENCE = int256(0x0000000000000000000000000000000079999999999999999999999999999999); // 0.95
 
     event VALUE(
         string description,
         int256 val
     );
 
-    function bracket(
+    function computeBestPrice(
         IStructs.BondingCurve memory curve,
-        int256 pA,
-        int256 deltaA,
-        int256 rl,
+        int256 maxMakerPrice,
+        int256 minMakerPrice,
+        int256 takerAssetAmount,
         int256 fee
     )
         internal
-        returns (int256)
+        // pure
+        returns (int256 bestMakerPrice)
     {
+        // The best price is discovered by solving the recursive price function
+        // defined in Section 4.2 of the Whitepaper. This function is the
+        // first derivative of the Bonding Curve, and is rearranged into a
+        // form that allows us to run a series of root-finding algorithms
+        // that iteratively find solve the price function. In this form,
+        // we define a "root" as the ratio bestPrice/maxMakerPrice.
+        int256 root = findRoot(
+            curve,
+            maxMakerPrice,
+            minMakerPrice,
+            takerAssetAmount,
+            fee
+        );
 
-        rl = rl.div(pA);
+        // Uncover the best maker price.
+        bestMakerPrice = root.mul(maxMakerPrice);
+
+        // The best Price must be in the range [minMakerPrice..maxMakerPrice].
+        if (bestMakerPrice <= 0)  {
+            // Sanity check. If best Price is <= 0 then the computation failed.
+            revert('Internal Error. Best Price cannot be <= 0.');
+        } else if (bestMakerPrice < maxMakerPrice.mul(MAX_PRICE_DIVERGENCE)) {
+            revert('Internal Error. Best Maker Price deviated more than 5% from the Max Maker Price.');
+        } else if (bestMakerPrice < minMakerPrice) { // do we really want this?
+            bestMakerPrice = minMakerPrice;
+        } else if (bestMakerPrice > maxMakerPrice) {
+            bestMakerPrice = maxMakerPrice;
+        }
+    }
+
+    function findRoot(
+         IStructs.BondingCurve memory curve,
+        int256 maxMakerPrice,
+        int256 minMakerPrice,
+        int256 takerAssetAmount,
+        int256 fee
+    )
+        internal
+        returns (int256 rl)
+    {
+        // Set initial lower bound for the root.
+        rl = minMakerPrice.div(maxMakerPrice);
 
         // Cache constants that are used throughout bracketing algorithm.
+        // This is k8 in the Whitepaper.
         int256 k8 = curve.xReserve.mul(
-            pA
-            .mul(deltaA)
-            .div(curve.xReserve.mul(curve.yReserve).add(curve.yReserve.mul(deltaA)))
+            maxMakerPrice
+            .mul(takerAssetAmount)
+            .div(curve.xReserve.mul(curve.yReserve).add(curve.yReserve.mul(takerAssetAmount)))
         );
+
+        //
+        // This is k12 in the whitepaper.
         int256 k12 = curve.xReserve.div(
-            curve.xReserve.add(deltaA)
+            curve.xReserve.add(takerAssetAmount)
         );
 
         emit VALUE("rl after step 1", rl);
 
         int256 rh = _computeStep2(
             curve,
-            pA,
-            deltaA,
+            maxMakerPrice,
+            takerAssetAmount,
             k8,
             k12
         );
@@ -142,8 +190,8 @@ library LibRootFinding {
 
     function _computeStep2(
         IStructs.BondingCurve memory curve,
-        int256 pA,
-        int256 deltaA,
+        int256 maxMakerPrice,
+        int256 takerAssetAmount,
         int256 k8,
         int256 k12
     )
