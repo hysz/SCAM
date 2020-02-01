@@ -22,8 +22,13 @@ library LibPriceDiscovery {
 
     using LibFixedMath for int256;
 
+    int256 private constant ONE = int256(0x0000000000000000000000000000000080000000000000000000000000000000);
+
     // The best price can only diverge by 5% from the max price. We store 95% to simplify computation.
-    int256 constant MAX_PRICE_DIVERGENCE = int256(0x0000000000000000000000000000000079999999999999999999999999999999); // 0.95
+    int256 private constant MAX_PRICE_DIVERGENCE = int256(0x0000000000000000000000000000000079999999999999999999999999999999); // 0.95
+
+    // The max percent error is 10%. This value is tao in the Whitepaper and must be in the range [0..1].
+    int256 private constant MAX_PERCENT_ERROR = int256(0x000000000000000000000000000000000ccccccccccccccccccccccccccccccc); // 0.1
 
     event VALUE(
         string description,
@@ -71,102 +76,7 @@ library LibPriceDiscovery {
         }
     }
 
-    function findRoot(
-         IStructs.BondingCurve memory curve,
-        int256 maxMakerPrice,
-        int256 minMakerPrice,
-        int256 takerAssetAmount,
-        int256 fee
-    )
-        internal
-        returns (int256 rl)
-    {
-        // Set initial lower bound for the root.
-        rl = minMakerPrice.div(maxMakerPrice);
-
-        // Cache constants that are used throughout bracketing algorithm.
-        // This is k8 in the Whitepaper.
-        int256 k8 = curve.xReserve.mul(
-            maxMakerPrice
-            .mul(takerAssetAmount)
-            .div(curve.xReserve.mul(curve.yReserve).add(curve.yReserve.mul(takerAssetAmount)))
-        );
-
-        //
-        // This is k12 in the whitepaper.
-        int256 k12 = curve.xReserve.div(
-            curve.xReserve.add(takerAssetAmount)
-        );
-
-        emit VALUE("rl after step 1", rl);
-
-        int256 rh = _computeStep2(
-            curve,
-            maxMakerPrice,
-            takerAssetAmount,
-            k8,
-            k12
-        );
-
-        emit VALUE("rh after step 2", rh);
-
-
-        if (!_shouldImprovePrecision(rl, rh, fee)) {
-            return rl;
-        }
-
-        int256 yl;
-        (rh, yl) = _computeStep3(
-            rl,
-            rh,
-            k8,
-            k12,
-            curve.slippage
-        );
-
-        emit VALUE("rh after step 3", rh);
-        emit VALUE("yl after step 3", yl);
-
-        if (!_shouldImprovePrecision(rl, rh, fee)) {
-            return rl;
-        }
-
-        int256 slippage = curve.slippage;
-
-        int256 yh;
-        (rl, rh, yl, yh) = _computeStep4(
-            rl,
-            rh,
-            k8,
-            k12,
-            yl,
-            slippage
-        );
-
-        emit VALUE("rl after step 4", rl);
-        emit VALUE("rh after step 4", rh);
-        emit VALUE("yl after step 4", yl);
-        emit VALUE("yh after step 4", yh);
-
-        if (!_shouldImprovePrecision(rl, rh, fee)) {
-            return rl;
-        }
-
-        rl = _computeStep5(
-            rl,
-            rh,
-            yl,
-            yh,
-            k8,
-            k12
-        );
-
-        return rl;
-
-        emit VALUE("rl after step 5", rl);
-    }
-
-    function _shouldImprovePrecision(
+    function isRootPrecise(
         int256 rl,
         int256 rh,
         int256 fee
@@ -176,24 +86,107 @@ library LibPriceDiscovery {
         returns (bool shouldImprovePrecision)
     {
         int256 lhs = rh.sub(rl);
-        int256 tao = LibFixedMath.toFixed(int256(1), int256(10));
-        int256 rhs = tao.mul(
-            fee.add(
-                LibFixedMath.one().sub(rh)
-            )
+        int256 rhs = MAX_PERCENT_ERROR.mul(fee.add(ONE).sub(rh));
+        return lhs <= rhs;
+    }
+
+    function findRoot(
+         IStructs.BondingCurve memory curve,
+        int256 maxMakerPrice,
+        int256 minMakerPrice,
+        int256 takerAssetAmount,
+        int256 fee
+    )
+        internal
+        returns (int256)
+    {
+        // Define Constants.
+        // This is computed as k8 in the Whitepaper.
+        int256 k1 = curve.xReserve.mul(
+            maxMakerPrice
+            .mul(takerAssetAmount)
+            .div(curve.xReserve.mul(curve.yReserve).add(curve.yReserve.mul(takerAssetAmount)))
         );
 
-        //emit L(lhs,rhs);
+        // This is computed as k12 in the Whitepaper.
+        int256 k2 = curve.xReserve.div(
+            curve.xReserve.add(takerAssetAmount)
+        );
 
-        return lhs > rhs;
+        // Compute initial lower bound root.
+        int256 rl = minMakerPrice.div(maxMakerPrice);
+
+        // Compute initial upper bound root.
+        int256 rh = _computeStep2(
+            curve,
+            maxMakerPrice,
+            takerAssetAmount,
+            k1,
+            k2
+        );
+
+        // Check
+        if (isRootPrecise(rl, rh, fee)) {
+            return rl;
+        }
+
+        int256 yl;
+        (rh, yl) = _computeStep3(
+            rl,
+            rh,
+            k1,
+            k2,
+            curve.slippage
+        );
+
+        emit VALUE("rh after step 3", rh);
+        emit VALUE("yl after step 3", yl);
+
+        if (isRootPrecise(rl, rh, fee)) {
+            return rl;
+        }
+
+        int256 slippage = curve.slippage;
+
+        int256 yh;
+        (rl, rh, yl, yh) = _computeStep4(
+            rl,
+            rh,
+            k1,
+            k2,
+            yl,
+            slippage
+        );
+
+        emit VALUE("rl after step 4", rl);
+        emit VALUE("rh after step 4", rh);
+        emit VALUE("yl after step 4", yl);
+        emit VALUE("yh after step 4", yh);
+
+        if (isRootPrecise(rl, rh, fee)) {
+            return rl;
+        }
+
+        rl = _computeStep5(
+            rl,
+            rh,
+            yl,
+            yh,
+            k1,
+            k2
+        );
+
+        return rl;
+
+        emit VALUE("rl after step 5", rl);
     }
 
     function _computeStep2(
         IStructs.BondingCurve memory curve,
         int256 maxMakerPrice,
         int256 takerAssetAmount,
-        int256 k8,
-        int256 k12
+        int256 k1,
+        int256 k2
     )
         internal
 
@@ -204,16 +197,16 @@ library LibPriceDiscovery {
         int256 pBarA = curve.expectedPrice;
         int256 rhoRatio = curve.slippage;
 
-        int256 term1 = k12.div(k8);
+        int256 term1 = k2.div(k1);
         int256 term2 = rhoRatio.add(
             LibFixedMath.one()
             .sub(rhoRatio)
-            .mul(k12)
+            .mul(k2)
         );
         int256 term3 = LibFixedMath.one().add(
             LibFixedMath.one()
             .sub(rhoRatio)
-            .mul(k8)
+            .mul(k1)
         );
         int256 term4 = term2.div(term3);
         return term1 < term4
@@ -224,8 +217,8 @@ library LibPriceDiscovery {
     function _computeStep3(
         int256 rl,
         int256 rh,
-        int256 k8,
-        int256 k12,
+        int256 k1,
+        int256 k2,
         int256 rhoRatio
     )
         internal
@@ -239,13 +232,13 @@ library LibPriceDiscovery {
             .add(
                 LibFixedMath.one()
                 .sub(rhoRatio)
-                .mul(k12)
+                .mul(k2)
             );
         int256 term2 = yl
             .add(
                 LibFixedMath.one()
                 .sub(rhoRatio)
-                .mul(k8)
+                .mul(k1)
                 .mul(rl)
             );
         int term3 = rl.mul(term1).div(term2);
@@ -269,8 +262,8 @@ library LibPriceDiscovery {
      function _computeStep4(
         int256 rl,
         int256 rh,
-        int256 k8,
-        int256 k12,
+        int256 k1,
+        int256 k2,
         int256 yl,
         int256 rhoRatio
     )
@@ -289,7 +282,7 @@ library LibPriceDiscovery {
         int256 yBis = term1.pow(ratio);
 
         //
-        int256 term2 = k12.sub(k8.mul(term1));
+        int256 term2 = k2.sub(k1.mul(term1));
         if (yBis <= term2) {
             newRl = term1;
             newRh = rh;
@@ -315,8 +308,8 @@ library LibPriceDiscovery {
         int256 rh,
         int256 yl,
         int256 yh,
-        int256 k8,
-        int256 k12
+        int256 k1,
+        int256 k2
     )
         internal
 
@@ -324,10 +317,10 @@ library LibPriceDiscovery {
     {
         int256 term1 = yh.mul(rl)
             .sub(yl.mul(rh))
-            .add(k12.mul(rh.sub(rl)));
+            .add(k2.mul(rh.sub(rl)));
         int256 term2 = yh
             .sub(yl)
-            .add(k8.mul(rh.sub(rl)));
+            .add(k1.mul(rh.sub(rl)));
         int256 term3 = term1.div(term2);
 
         return term3 > rl
