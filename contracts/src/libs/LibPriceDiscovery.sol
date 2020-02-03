@@ -188,9 +188,8 @@ library LibPriceDiscovery {
             k2
         );
 
-        emit VALUE("rh after step 3", rh);
-        emit VALUE("yl after step 3", yl);
-
+        // Check if the root estimate is precise enough, after running
+        // the additional iteration of Newton's Method.
         if (isRootPrecise(rl, rh, fee)) {
             return rl;
         }
@@ -260,30 +259,6 @@ library LibPriceDiscovery {
         return LibFixedMath.min(minRoot, root);
     }
 
-    /// @dev
-    function computeInitialUpperBound(
-        IStructs.BondingCurve memory curve,
-        int256 k1,
-        int256 k2
-    )
-        internal
-
-        returns (int256)
-    {
-        // Define constants.
-        int256 k3 = k2.div(k1);
-
-        // Define terms.
-        int256 term1N = curve.slippage.add(ONE.sub(curve.slippage).mul(k2));
-        int256 term1D = ONE.add(ONE.sub(curve.slippage).mul(k1));
-        int256 term1 = term1N.div(term1D);
-
-        // In most cases the RHS below will be the upper bound.
-        // The LHS is a safety-guard in case the taker buys too much,
-        // in which the upper bound reflects buying the entire maker reserve.
-        return LibFixedMath.min(k3, term1);
-    }
-
     function computePointOnTransposedPriceCurve(
         IStructs.BondingCurve memory curve,
         int256 x
@@ -294,41 +269,6 @@ library LibPriceDiscovery {
     {
         int256 exponent = ONE.div(ONE.sub(curve.slippage));
         return x.pow(exponent);
-    }
-
-
-    function _computeStep3(
-        IStructs.BondingCurve memory curve,
-        int256 rl,
-        int256 yl,
-        int256 rh,
-        int256 k1,
-        int256 k2
-    )
-        internal
-
-        returns (int256 newRh)
-    {
-        int256 term1 = curve.slippage.mul(yl)
-            .add(
-                LibFixedMath.one()
-                .sub(curve.slippage)
-                .mul(k2)
-            );
-        int256 term2 = yl
-            .add(
-                LibFixedMath.one()
-                .sub(curve.slippage)
-                .mul(k1)
-                .mul(rl)
-            );
-        int term3 = rl.mul(term1).div(term2);
-
-        newRh = term3 < rh
-            ? term3
-            : rh;
-
-        return newRh;
     }
 
     function _computeA(int256 rl, int256 rh)
