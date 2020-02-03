@@ -53,7 +53,7 @@ library LibPriceDiscovery {
         // form that allows us to run a series of root-finding algorithms
         // that iteratively find solve the price function. In this form,
         // we define a "root" as the ratio bestPrice/maxMakerPrice.
-        int256 root = findRoot(
+        int256 root = findBestRoot(
             curve,
             maxMakerPrice,
             minMakerPrice,
@@ -116,7 +116,7 @@ library LibPriceDiscovery {
     ///      Three root-finding algorithms are applied: Newton's Method, Secant Method and Bisection.
     ///      Combining the three methods achieves a high-precision and fail-safe algorithm.
     ///      See Section 4.3 of the Whitepaper for more implementation details.
-    function findRoot(
+    function findBestRoot(
         IStructs.BondingCurve memory curve,
         int256 maxMakerPrice,
         int256 minMakerPrice,
@@ -146,9 +146,20 @@ library LibPriceDiscovery {
         // Compute initial lower bound root.
         int256 rl = minMakerPrice.div(maxMakerPrice);
 
-        // Compute initial upper bound root.
-        int256 rh = computeInitialUpperBound(
+        // Compute an initial upper-bound of the root using Newton's Method.
+        // We use k2/k1 as an initial lower-bound, which is just a safety-guard
+        // in case the taker buys too much: this root reflects the taker buying
+        // the entire maker reserve.
+        //  Note that the root is computed on a transposition of the Price Curve,
+        //  which is the first derivative of the Bonding Curve.  In this transposed form,
+        //  we define a "root" as the ratio bestPrice/maxMakerPrice. Observe the equation
+        //  at "Step 2" in the whitepaper's Bracketing algorithm, accompanied by
+        //  the visualization in Figure 4 of the whitepaper.
+        int256 rh = findRootNewtonsMethod(
             curve,
+            k2.div(k1),
+            ONE,
+            ONE,
             k1,
             k2
         );
@@ -235,7 +246,7 @@ library LibPriceDiscovery {
         int256 k3 = k2.div(k1);
         int256 k4 = ONE.sub(curve.slippage);
 
-        // Define terms.
+        // Construct root using Newton's Method.
         int256 n = curve.slippage
             .mul(y)
             .add(k4.mul(k2));
@@ -247,18 +258,10 @@ library LibPriceDiscovery {
             .mul(n)
             .div(d);
 
-        // In most cases the RHS below will be the upper bound.
-        // The LHS is a safety-guard in case the taker buys too much,
-        // in which the upper bound reflects buying the entire maker reserve.
         return LibFixedMath.min(minRoot, root);
     }
 
-    /// @dev Computes an initial upper-bound of the root using Newton's Method.
-    ///      Note that the root is computed on a transposition of the Price Curve,
-    ///      which is the first derivative of the Bonding Curve.  In this transposed form,
-    ///      we define a "root" as the ratio bestPrice/maxMakerPrice. Observe the equation
-    ///      at "Step 2" in the whitepaper's Bracketing algorithm, accompanied by
-    ///      the visualization in Figure 4 of the whitepaper.
+    /// @dev
     function computeInitialUpperBound(
         IStructs.BondingCurve memory curve,
         int256 k1,
