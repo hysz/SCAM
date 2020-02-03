@@ -117,7 +117,7 @@ library LibPriceDiscovery {
     ///      Combining the three methods achieves a high-precision and fail-safe algorithm.
     ///      See Section 4.3 of the Whitepaper for more implementation details.
     function findRoot(
-         IStructs.BondingCurve memory curve,
+        IStructs.BondingCurve memory curve,
         int256 maxMakerPrice,
         int256 minMakerPrice,
         int256 takerAssetAmount,
@@ -157,21 +157,24 @@ library LibPriceDiscovery {
         // This will be true in the majority of cases. When a trade
         // is very small then we will demand more precision. Similarly,
         // when a trade is very large, we are more likely to encounter
-        // a failure scenario of Newton's Method to compute the upper-bound above.
-        // In this case, the tangent on the price function would be ~= 0 and the price
-        // infinitely high; in this case, we must recompute using Secant or Bisection (below).
+        // a failure scenario of Newton's Method to compute the upper-bound above:
+        // In such a case, the tangent on the transposed price function would be ~= 0, yielding a
+        // price that is infinitely high; we handle this by recomputing using Secant/Bisection (below).
         if (isRootPrecise(rl, rh, fee)) {
             return rl;
         }
 
-        //
-        int256 yl;
-        (rh, yl) = _computeStep3(
+        // Comptute the point on the transposed price corve that corresponds to the lower-bound root, rl.
+        // We then use the tangent line at (rl, yl) along with Newton's method to update our guess for the
+        // upper-bound root, rh.
+        int256 yl = computePointOnTransposedPriceCurve(curve, rl);
+        rh = _computeStep3(
+            curve,
             rl,
+            yl,
             rh,
             k1,
-            k2,
-            curve.slippage
+            k2
         );
 
         emit VALUE("rh after step 3", rh);
@@ -216,6 +219,12 @@ library LibPriceDiscovery {
         emit VALUE("rl after step 5", rl);
     }
 
+    function findRootNewtonsMethod()
+        internal
+        pure
+    {
+
+    }
 
     /// @dev Computes an initial upper-bound of the root using Newton's Method.
     ///      Note that the root is computed on a transposition of the Price Curve,
@@ -246,30 +255,41 @@ library LibPriceDiscovery {
         return LibFixedMath.min(k3, term1);
     }
 
+    function computePointOnTransposedPriceCurve(
+        IStructs.BondingCurve memory curve,
+        int256 x
+    )
+        internal
+        pure
+        returns (int256 y)
+    {
+        int256 exponent = ONE.div(ONE.sub(curve.slippage));
+        return x.pow(exponent);
+    }
+
+
     function _computeStep3(
+        IStructs.BondingCurve memory curve,
         int256 rl,
+        int256 yl,
         int256 rh,
         int256 k1,
-        int256 k2,
-        int256 rhoRatio
+        int256 k2
     )
         internal
 
-        returns (int256 newRh, int256 yl)
+        returns (int256 newRh)
     {
-        int256 ratio = LibFixedMath.one().div(LibFixedMath.one().sub(rhoRatio));
-        yl = rl.pow(ratio);
-
-        int256 term1 = rhoRatio.mul(yl)
+        int256 term1 = curve.slippage.mul(yl)
             .add(
                 LibFixedMath.one()
-                .sub(rhoRatio)
+                .sub(curve.slippage)
                 .mul(k2)
             );
         int256 term2 = yl
             .add(
                 LibFixedMath.one()
-                .sub(rhoRatio)
+                .sub(curve.slippage)
                 .mul(k1)
                 .mul(rl)
             );
@@ -279,7 +299,7 @@ library LibPriceDiscovery {
             ? term3
             : rh;
 
-        return (newRh, yl);
+        return newRh;
     }
 
     function _computeA(int256 rl, int256 rh)
