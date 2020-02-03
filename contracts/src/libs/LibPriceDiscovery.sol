@@ -243,14 +243,13 @@ library LibPriceDiscovery {
         returns (int256)
     {
         // Define constants.
-        int256 k3 = k2.div(k1);
-        int256 k4 = ONE.sub(curve.slippage);
+        int256 k3 = ONE.sub(curve.slippage);
 
         // Construct root using Newton's Method.
         int256 n = curve.slippage
             .mul(y)
-            .add(k4.mul(k2));
-        int256 d = k4
+            .add(k3.mul(k2));
+        int256 d = k3
             .mul(k1)
             .mul(x)
             .add(y);
