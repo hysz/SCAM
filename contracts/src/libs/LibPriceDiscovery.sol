@@ -168,11 +168,11 @@ library LibPriceDiscovery {
         // We then use the tangent line at (rl, yl) along with Newton's method to update our guess for the
         // upper-bound root, rh.
         int256 yl = computePointOnTransposedPriceCurve(curve, rl);
-        rh = _computeStep3(
+        rh = findRootNewtonsMethod(
             curve,
+            rh,
             rl,
             yl,
-            rh,
             k1,
             k2
         );
@@ -219,11 +219,38 @@ library LibPriceDiscovery {
         emit VALUE("rl after step 5", rl);
     }
 
-    function findRootNewtonsMethod()
+    function findRootNewtonsMethod(
+        IStructs.BondingCurve memory curve,
+        int256 minRoot,
+        int256 x,
+        int256 y,
+        int256 k1,
+        int256 k2
+    )
         internal
         pure
+        returns (int256)
     {
+        // Define constants.
+        int256 k3 = k2.div(k1);
+        int256 k4 = ONE.sub(curve.slippage);
 
+        // Define terms.
+        int256 n = curve.slippage
+            .mul(y)
+            .add(k4.mul(k2));
+        int256 d = k4
+            .mul(k1)
+            .mul(x)
+            .add(y);
+        int256 root = x
+            .mul(n)
+            .div(d);
+
+        // In most cases the RHS below will be the upper bound.
+        // The LHS is a safety-guard in case the taker buys too much,
+        // in which the upper bound reflects buying the entire maker reserve.
+        return LibFixedMath.min(minRoot, root);
     }
 
     /// @dev Computes an initial upper-bound of the root using Newton's Method.
