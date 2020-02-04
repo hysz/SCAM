@@ -57,13 +57,6 @@ interface IStructs {
         int256 variability;
     }
 
-    ///
-    struct State {
-        IStructs.AssetPair assets;
-        IStructs.BondingCurve curve;
-        uint256 t;                                          // most recent block
-    }
-
     struct AMM {
         AssetPair assets;
         BondingCurve curve;

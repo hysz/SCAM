@@ -1,18 +1,36 @@
 import { BigNumber } from '@0x/utils';
 
-export interface BondCurveParams {
-    rho: BigNumber;
-    baseFee: BigNumber;
-    //baseFeeHigh: BigNumber;
-    beta: BigNumber;
-    kappa: BigNumber;
+export interface AssetPair {
+    xAsset: string;
+    yAsset: string;
+    xDecimals: BigNumber;
+    yDecimals: BigNumber;
 }
 
-export interface ContractState {
-    x: BigNumber;
-    y: BigNumber;
-    pBarX: BigNumber;
-    t: BigNumber;
+export interface BondingCurve {
+    xReserve: BigNumber;
+    yReserve: BigNumber;
+    expectedPrice: BigNumber;
+    slippage: BigNumber;
+}
+
+export interface Fee {
+    lo: BigNumber;
+    hi: BigNumber;
+}
+
+
+export interface PriceConstraints {
+    persistence: BigNumber;
+    variability: BigNumber;
+}
+
+export interface AMM {
+    assets: AssetPair;
+    curve: BondingCurve;
+    fee: Fee;
+    constraints: PriceConstraints;
+    blockNumber: BigNumber;
 }
 
 export enum Token {
@@ -27,8 +45,7 @@ export interface Trade {
 }
 
 export interface UnitTest {
-    params: BondCurveParams;
-    initialState: ContractState;
-    finalState: ContractState;
+    ammInit: AMM;
+    ammFinal: AMM;
     trades: Trade[];
 }

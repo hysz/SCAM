@@ -34,26 +34,25 @@ blockchainTests.only('Unit Tests', env => {
                     return;
                 }*/
 
-                const finalStateRaw = await testContract.runUnitTest(
-                    unitTest.params,
-                    unitTest.initialState,
+                const ammFinal = await testContract.runUnitTest(
+                    unitTest.ammInit,
                     unitTest.trades,
                     false
                 ).callAsync();
 
                 const finalState = {
-                    x: MathUtils.fromFixed(finalStateRaw.x),
-                    y: MathUtils.fromFixed(finalStateRaw.y),
-                    pBarX: MathUtils.fromFixed(finalStateRaw.pBarX),
-                    t: MathUtils.fromFixed(finalStateRaw.t),
+                    x: MathUtils.fromFixed(ammFinal.curve.xReserve),
+                    y: MathUtils.fromFixed(ammFinal.curve.yReserve),
+                    pBarX: MathUtils.fromFixed(ammFinal.curve.expectedPrice),
+                    t: MathUtils.fromFixed(ammFinal.blockNumber),
                 }
 
                 //console.log('EXPECTED FINAL STATE:\n', JSON.stringify(unitTest.finalState, null, 4));
                 //console.log('\n\nFINAL STATE:\n', JSON.stringify(finalState, null, 4), '\n\n');
-                expect(MathUtils.toStandard(finalState.x), 'x').to.bignumber.equal(MathUtils.toStandard(unitTest.finalState.x));
-                expect(MathUtils.toStandard(finalState.y), 'y').to.bignumber.equal(MathUtils.toStandard(unitTest.finalState.y));
-                expect(MathUtils.toStandard(finalState.pBarX), 'pBarX').to.bignumber.equal(MathUtils.toStandard(unitTest.finalState.pBarX));
-                expect(MathUtils.toStandard(finalState.t), 't').to.bignumber.equal(MathUtils.toStandard(unitTest.finalState.t));
+                expect(MathUtils.toStandard(finalState.x), 'x').to.bignumber.equal(MathUtils.toStandard(unitTest.ammFinal.curve.xReserve));
+                expect(MathUtils.toStandard(finalState.y), 'y').to.bignumber.equal(MathUtils.toStandard(unitTest.ammFinal.curve.yReserve));
+                expect(MathUtils.toStandard(finalState.pBarX), 'pBarX').to.bignumber.equal(MathUtils.toStandard(unitTest.ammFinal.curve.expectedPrice));
+                expect(MathUtils.toStandard(finalState.t), 't').to.bignumber.equal(MathUtils.toStandard(unitTest.ammFinal.blockNumber));
 
                 /*
                 const tx = await testContract.runUnitTest(
