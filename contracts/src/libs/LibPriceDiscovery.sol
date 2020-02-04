@@ -195,10 +195,8 @@ library LibPriceDiscovery {
             return rl;
         }
 
-        // The root is not yet precise enough. Use the Secant method to
-
-        //int256 slippage = curve.slippage;
-
+        // The root is not yet precise enough. Use the Bisection to tighten both the
+        // upper and lower bounds.
         int256 yh;
         (rl, rh, yl, yh) = runBisection(
             curve,
@@ -283,7 +281,7 @@ library LibPriceDiscovery {
             .div(LibFixedMath.toFixed(int256(10)));
     }
 
-     function runBisection(
+    function runBisection(
         IStructs.BondingCurve memory curve,
         int256 rl,
         int256 rh,

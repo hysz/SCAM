@@ -58,12 +58,14 @@ contract AbstractAMM is
         _saveAMM(amm);
 
         // Emit Fill event.
+        /*
         emit IEvents.Fill(
             msg.sender,
             takerAsset,
             takerAssetAmount,
             makerAssetAmount
         );
+        */
 
         // Transfer maker asset
         //_settleTrade(amm);
