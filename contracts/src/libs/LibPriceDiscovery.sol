@@ -294,7 +294,8 @@ library LibPriceDiscovery {
         )
     {
         // Compute a bisection point (x,y). We weight the lower-bound
-        // at 40% (2/5) and the upper-bound at 60% (3/5).
+        // at 40% (2/5) and the upper-bound at 60% (3/5). These weightings
+        // were determined to optimize convergence through simulations.
         int256 xBis = rl
             .mul(TWO)
             .add(rh.mul(THREE))
