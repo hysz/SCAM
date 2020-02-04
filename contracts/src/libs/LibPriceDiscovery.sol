@@ -155,7 +155,7 @@ library LibPriceDiscovery {
         //  we define a "root" as the ratio bestPrice/maxMakerPrice. Observe the equation
         //  at "Step 2" in the whitepaper's Bracketing algorithm, accompanied by
         //  the visualization in Figure 4 of the whitepaper.
-        int256 rh = findRootNewtonsMethod(
+        int256 rh = runNewton(
             curve,
             k2.div(k1),
             ONE,
@@ -170,16 +170,17 @@ library LibPriceDiscovery {
         // when a trade is very large, we are more likely to encounter
         // a failure scenario of Newton's Method to compute the upper-bound above:
         // In such a case, the tangent on the transposed price function would be ~= 0, yielding a
-        // price that is infinitely high; we handle this by recomputing using Secant/Bisection (below).
+        // price that is infinitely high.
         if (isRootPrecise(rl, rh, fee)) {
             return rl;
         }
 
-        // Comptute the point on the transposed price corve that corresponds to the lower-bound root, rl.
-        // We then use the tangent line at (rl, yl) along with Newton's method to update our guess for the
-        // upper-bound root, rh.
+        // The root is not yet precise enough. Run another iteration of Newton's Method to improve our
+        // guess of the upper-bound. We first comptute the point on the transposed price curve that
+        // corresponds to the lower-bound root, rl. Then use the tangent line at (rl, yl) along
+        // with Newton's method to update our guess for the upper-bound root, rh.
         int256 yl = computePointOnTransposedPriceCurve(curve, rl);
-        rh = findRootNewtonsMethod(
+        rh = runNewton(
             curve,
             rh,
             rl,
@@ -194,16 +195,18 @@ library LibPriceDiscovery {
             return rl;
         }
 
-        int256 slippage = curve.slippage;
+        // The root is not yet precise enough. Use the Secant method to
+
+        //int256 slippage = curve.slippage;
 
         int256 yh;
-        (rl, rh, yl, yh) = _computeStep4(
+        (rl, rh, yl, yh) = runBisection(
+            curve,
             rl,
             rh,
             k1,
             k2,
-            yl,
-            slippage
+            yl
         );
 
         emit VALUE("rl after step 4", rl);
@@ -215,7 +218,7 @@ library LibPriceDiscovery {
             return rl;
         }
 
-        rl = _computeStep5(
+        rl = runSecant(
             rl,
             rh,
             yl,
@@ -229,7 +232,7 @@ library LibPriceDiscovery {
         emit VALUE("rl after step 5", rl);
     }
 
-    function findRootNewtonsMethod(
+    function runNewton(
         IStructs.BondingCurve memory curve,
         int256 minRoot,
         int256 x,
@@ -280,16 +283,15 @@ library LibPriceDiscovery {
             .div(LibFixedMath.toFixed(int256(10)));
     }
 
-     function _computeStep4(
+     function runBisection(
+        IStructs.BondingCurve memory curve,
         int256 rl,
         int256 rh,
         int256 k1,
         int256 k2,
-        int256 yl,
-        int256 rhoRatio
+        int256 yl
     )
         internal
-
         returns (
             int256 newRl,
             int256 newRh,
@@ -299,7 +301,7 @@ library LibPriceDiscovery {
     {
         // compute yBis
         int256 term1 = _computeA(rl, rh);
-        int256 ratio = LibFixedMath.one().div(LibFixedMath.one().sub(rhoRatio));
+        int256 ratio = ONE.div(ONE.sub(curve.slippage));
         int256 yBis = term1.pow(ratio);
 
         //
@@ -324,7 +326,7 @@ library LibPriceDiscovery {
        );
     }
 
-    function _computeStep5(
+    function runSecant(
         int256 rl,
         int256 rh,
         int256 yl,

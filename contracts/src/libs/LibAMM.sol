@@ -26,6 +26,9 @@ library LibAMM {
     using LibFixedMath for int256;
     using LibBondingCurve for IStructs.BondingCurve;
 
+    // Fixed-point numbers used by this library
+    int256 private constant ONE = int256(0x0000000000000000000000000000000080000000000000000000000000000000);
+
     // The minimum allowed balance of an asset after a trade.
     int256 constant MIN_ALLOWED_BALANCE = int256(0x00000000000000000000000000000000000053e2d6238da3c21187e7c06e19b9);// 1/10^5
 
@@ -105,7 +108,7 @@ library LibAMM {
         );
 
         // Update AMM with new curve and block number.
-        amm.curve = LibBondingCurve.transformStoredBondingCurveForTrade(
+        amm.curve = LibBondingCurve.transformTradeBondingCurveForStorage(
             curve,
             amm.assets,
             takerAsset
@@ -126,7 +129,7 @@ library LibAMM {
         // Compute maker asset amount, given taker asset amount, price and fee.
         makerAssetAmount = takerAssetAmount
             .mul(price)
-            .mul(LibFixedMath.one().sub(fee));
+            .mul(ONE.sub(fee));
 
         // Subtract a dust amount to ensure the trade favors the contract.
         makerAssetAmount = makerAssetAmount.sub(AMM_EDGE);

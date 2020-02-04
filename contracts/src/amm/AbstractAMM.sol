@@ -57,7 +57,6 @@ contract AbstractAMM is
         // Save the updated AMM.
         _saveAMM(amm);
 
-        /*
         // Emit Fill event.
         emit IEvents.Fill(
             msg.sender,
@@ -65,7 +64,6 @@ contract AbstractAMM is
             takerAssetAmount,
             makerAssetAmount
         );
-        */
 
         // Transfer maker asset
         //_settleTrade(amm);
@@ -85,8 +83,8 @@ contract AbstractAMM is
         returns (uint256 makerAssetAmount)
     {
         /*
-        // Execute trade on the AMM model.
-        (, makerAssetAmount) = _getAMM().trade(
+        // Execute trade on the AMM model, but don't save the result or settle funds.
+        makerAssetAmount = _getAMM().trade(
             takerAsset,
             LibToken.tokenToFixed(takerAssetAmount, 18),
             _getCurrentBlockNumber()
