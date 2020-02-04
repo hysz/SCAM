@@ -43,13 +43,11 @@ export const UnitTestUtils = {
         const numberOfTransactions = Number(jsonTest.number_of_transactions);
         for (let tradeNumber = 1; tradeNumber <= numberOfTransactions; tradeNumber++) {
             const takerToken: string =
-                (jsonTest)[`transaction_type_${tradeNumber}`] === 'X'
-                    ? ammInit.assets.xAsset
-                    : ammInit.assets.yAsset;
+                jsonTest[`transaction_type_${tradeNumber}`] === 'X' ? ammInit.assets.xAsset : ammInit.assets.yAsset;
             const makerToken: string =
                 takerToken === ammInit.assets.yAsset ? ammInit.assets.xAsset : ammInit.assets.yAsset;
-            const takerAmount: BigNumber = (jsonTest)[`transaction_size_${tradeNumber}`];
-            const blockNumber: BigNumber = (jsonTest)[`transaction_block_num_${tradeNumber}`];
+            const takerAmount: BigNumber = jsonTest[`transaction_size_${tradeNumber}`];
+            const blockNumber: BigNumber = jsonTest[`transaction_block_num_${tradeNumber}`];
             trades.push({
                 makerToken,
                 takerToken,
