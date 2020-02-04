@@ -70,9 +70,9 @@ library LibPriceDiscovery {
         // The best Price must be in the range [minMakerPrice..maxMakerPrice].
         if (bestMakerPrice <= 0)  {
             // Sanity check. If best Price is <= 0 then the computation failed.
-            revert('Internal Error. Best Price cannot be <= 0.');
+            revert("Internal Error. Best Price cannot be <= 0.");
         } else if (bestMakerPrice < maxMakerPrice.mul(MAX_PRICE_DIVERGENCE)) {
-            revert('Internal Error. Best Maker Price deviated more than 5% from the Max Maker Price.');
+            revert("Internal Error. Best Maker Price deviated more than 5% from the Max Maker Price.");
         } else if (bestMakerPrice < minMakerPrice) { // do we really want this?
             bestMakerPrice = minMakerPrice;
         } else if (bestMakerPrice > maxMakerPrice) {
@@ -317,14 +317,14 @@ library LibPriceDiscovery {
             rhNew = xBis;
             ylNew = yl;
             yhNew = yBis;
-       }
+        }
 
-       return (
-           rlNew,
-           rhNew,
-           ylNew,
-           yhNew
-       );
+        return (
+            rlNew,
+            rhNew,
+            ylNew,
+            yhNew
+        );
     }
 
     function runSecant(

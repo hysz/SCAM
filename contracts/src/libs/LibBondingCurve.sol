@@ -197,7 +197,7 @@ library LibBondingCurve {
         // Handle constraints
         int256 minExpectedPrice = c.expectedPrice.div(constraints.variability);
         int256 maxExpectedPrice = c.expectedPrice.mul(constraints.variability);
-        if(expectedPrice < minExpectedPrice) {
+        if (expectedPrice < minExpectedPrice) {
             expectedPrice = minExpectedPrice;
         } else if (expectedPrice > maxExpectedPrice) {
             expectedPrice = maxExpectedPrice;

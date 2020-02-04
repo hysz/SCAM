@@ -18,18 +18,8 @@ pragma solidity ^0.5.9;
 /// @dev Signed, fixed-point, 127-bit precision math library.
 library LibFixedMath {
 
-    //
+    // Mask to recover mantissa
     int256 private constant MANTISSA_MASK = int256(0x7fffffffffffffffffffffffffffffff);
-    // 1
-    int256 private constant FIXED_1 = int256(0x0000000000000000000000000000000080000000000000000000000000000000);
-    // 2
-    int256 private constant FIXED_2 = int256(0x0000000000000000000000000000000100000000000000000000000000000000);
-    // 3
-    int256 private constant FIXED_3 = int256(0x0000000000000000000000000000000180000000000000000000000000000000);
-    // 4
-    int256 private constant FIXED_4 = int256(0x0000000000000000000000000000000200000000000000000000000000000000);
-    // 5
-    int256 private constant FIXED_5 = int256(0x0000000000000000000000000000000280000000000000000000000000000000);
     // 1/2
     int256 private constant FIXED_HALF = int256(0x0000000000000000000000000000000040000000000000000000000000000000);
     // 2**255
@@ -45,34 +35,9 @@ library LibFixedMath {
     // -63.875
     int256 private constant EXP_MIN_VAL = -int256(0x0000000000000000000000000000001ff0000000000000000000000000000000);
 
-
-    function getRanges() internal pure returns (int256,int256,int256,int256) {
-        return (LN_MIN_VAL, LN_MAX_VAL, EXP_MIN_VAL, EXP_MAX_VAL);
-    }
-
     /// @dev Get one as a fixed-point number.
     function one() internal pure returns (int256) {
         return FIXED_1;
-    }
-
-    /// @dev Get two as a fixed-point number.
-    function two() internal pure returns (int256) {
-        return FIXED_2;
-    }
-
-    /// @dev Get three as a fixed-point number.
-    function three() internal pure returns (int256) {
-        return FIXED_3;
-    }
-
-    /// @dev Get four as a fixed-point number.
-    function four() internal pure returns (int256) {
-        return FIXED_4;
-    }
-
-    /// @dev Get five as a fixed-point number.
-    function five() internal pure returns (int256) {
-        return FIXED_5;
     }
 
     function min(int256 a, int256 b) internal pure returns (int256 c) {
@@ -112,10 +77,10 @@ library LibFixedMath {
 
     function pow(int256 base, int256 power) internal pure returns (int256) {
         if (base <= 0) {
-            revert('Invalid ln() value');
+            revert("Invalid base: must be greater than zero.");
         } else if (base < FIXED_1) {
             return exp(mul(power, ln(base)));
-        } else if(base == FIXED_1) {
+        } else if (base == FIXED_1) {
             return FIXED_1;
         } else {
             return div(FIXED_1, exp(mul(power, ln(div(FIXED_1, base)))));

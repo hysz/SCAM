@@ -30,20 +30,11 @@ library LibAMM {
     int256 private constant ONE = int256(0x0000000000000000000000000000000080000000000000000000000000000000);
 
     // The minimum allowed balance of an asset after a trade.
-    int256 constant MIN_ALLOWED_BALANCE = int256(0x00000000000000000000000000000000000053e2d6238da3c21187e7c06e19b9);// 1/10^5
+    int256 private constant MIN_ALLOWED_BALANCE = int256(0x00000000000000000000000000000000000053e2d6238da3c21187e7c06e19b9);// 1/10^5
 
     // A dust amount taken off each sell to account for rounding errors.
     // This ensures that rounding always favors the AMM.
-    int256 constant AMM_EDGE = int256(0x00000000000000000000000000000000000008637bd05af6c69b5a63f9a49c2c); // 10^-6
-
-    event VALUE(
-        string description,
-        int256 val
-    );
-
-    event CURVE(
-        IStructs.BondingCurve curve
-    );
+    int256 private constant AMM_EDGE = int256(0x00000000000000000000000000000000000008637bd05af6c69b5a63f9a49c2c); // 10^-6
 
     function trade(
         IStructs.AMM memory amm,
@@ -122,7 +113,7 @@ library LibAMM {
         int256 takerAssetAmount,
         int256 fee
     )
-        private
+        internal
         pure
         returns (int256 makerAssetAmount)
     {
@@ -136,30 +127,14 @@ library LibAMM {
 
         // Sanity check that maker asset amount is positive.
         if (makerAssetAmount <= 0) {
-            revert('Invalid Price. Cannot have a negative `makerAssetAmount`');
+            revert("Invalid Price. Cannot have a negative `makerAssetAmount`");
         }
 
         // Check that the remaining maker asset balance is valid.
         if (curve.yReserve.sub(makerAssetAmount) < MIN_ALLOWED_BALANCE) {
-            revert('Invalid `takerAssetAmount`. Insufficient funds.');
+            revert("Invalid `takerAssetAmount`. Insufficient funds.");
         }
 
         return makerAssetAmount;
-    }
-
-    function getAMMEdge()
-        internal
-        pure
-        returns (int256)
-    {
-        return AMM_EDGE;
-    }
-
-    function getMinAllowedBalance()
-        internal
-        pure
-        returns (int256)
-    {
-        return MIN_ALLOWED_BALANCE;
     }
 }

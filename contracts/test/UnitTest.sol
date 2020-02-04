@@ -26,8 +26,8 @@ contract UnitTest is
     using LibFixedMath for uint256;
     using LibFixedMath for int256;
 
-    int256 blockNumber;
-    IStructs.AMM gAMM;
+    int256 private blockNumber;
+    IStructs.AMM private gAMM;
 
     struct Trade {
         address makerToken;
@@ -36,14 +36,7 @@ contract UnitTest is
         uint256 blockNumber;
     }
 
-     function _getDefaultAMM()
-        internal
-        view
-        returns (IStructs.AMM memory)
-    {
-        return gAMM;
-    }
-
+    /// @dev Runs a unit test.
     function runUnitTest(
         IStructs.AMM memory amm,
         Trade[] memory trades,
@@ -84,6 +77,16 @@ contract UnitTest is
         return _getAMM();
     }
 
+    /// @dev Returns the default AMM for the current unit test.
+    function _getDefaultAMM()
+        internal
+        view
+        returns (IStructs.AMM memory)
+    {
+        return gAMM;
+    }
+
+    // @dev Overrides `_getCurrentBlockNumber` in AbstractAMM.sol.
     function _getCurrentBlockNumber()
         internal
         view
