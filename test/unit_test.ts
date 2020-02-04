@@ -1,21 +1,21 @@
 import {blockchainTests, expect} from '@0x/contracts-test-utils';
-import { BigNumber } from '@0x/utils';
+import {BigNumber} from '@0x/utils';
 
-import { UnitTestContract } from '../src';
+import {UnitTestContract} from '../src';
 
-import { artifacts } from './artifacts';
+import {artifacts} from './artifacts';
 
-import { UNIT_TEST_TRIALS } from './unit_test_trials';
+import {UNIT_TEST_TRIALS} from './unit_test_trials';
 
-import { UnitTestUtils } from './utils/unit_test_utils';
-import { UnitTest } from './utils/types';
+import {UnitTestUtils} from './utils/unit_test_utils';
+import {UnitTest} from './utils/types';
 
 import * as _ from 'lodash';
 
 blockchainTests.only('Unit Tests', env => {
     let testContract: UnitTestContract;
 
-    before(async() => {
+    before(async () => {
         testContract = await UnitTestContract.deployFrom0xArtifactAsync(
             artifacts.UnitTest,
             env.provider,
@@ -25,14 +25,12 @@ blockchainTests.only('Unit Tests', env => {
     });
 
     describe('Unit Tests', () => {
-        const runUnitTestAsync = async (testNumber: number, unitTest: UnitTest): Promise<Mocha.Test>  => {
+        const runUnitTestAsync = async (testNumber: number, unitTest: UnitTest): Promise<Mocha.Test> => {
             return it(`Unit Test ${testNumber}`, async () => {
                 // Run test.
-                const ammFinalFixed = await testContract.runUnitTest(
-                    UnitTestUtils.ammToFixed(unitTest.ammInit),
-                    unitTest.trades,
-                    false
-                ).callAsync();
+                const ammFinalFixed = await testContract
+                    .runUnitTest(UnitTestUtils.ammToFixed(unitTest.ammInit), unitTest.trades, false)
+                    .callAsync();
 
                 // Parse out the final AMM from fixed-point form.
                 const ammFinal = UnitTestUtils.ammFromFixed(ammFinalFixed);
@@ -46,19 +44,24 @@ blockchainTests.only('Unit Tests', env => {
                 const ammFinalNormalExpected = UnitTestUtils.ammToNormalized(unitTest.ammFinal, precision);
 
                 // Validate properties that are stored in state.
-                expect(ammFinalNormal.curve.xReserve, 'xReserve').to.bignumber.equal(ammFinalNormalExpected.curve.xReserve);
-                expect(ammFinalNormal.curve.yReserve, 'yReserve').to.bignumber.equal(ammFinalNormalExpected.curve.yReserve);
-                expect(ammFinalNormal.curve.expectedPrice, 'expectedPrice').to.bignumber.equal(ammFinalNormalExpected.curve.expectedPrice);
-                expect(ammFinalNormal.blockNumber, 'blockNumber').to.bignumber.equal(ammFinalNormalExpected.blockNumber);
+                expect(ammFinalNormal.curve.xReserve, 'xReserve').to.bignumber.equal(
+                    ammFinalNormalExpected.curve.xReserve,
+                );
+                expect(ammFinalNormal.curve.yReserve, 'yReserve').to.bignumber.equal(
+                    ammFinalNormalExpected.curve.yReserve,
+                );
+                expect(ammFinalNormal.curve.expectedPrice, 'expectedPrice').to.bignumber.equal(
+                    ammFinalNormalExpected.curve.expectedPrice,
+                );
+                expect(ammFinalNormal.blockNumber, 'blockNumber').to.bignumber.equal(
+                    ammFinalNormalExpected.blockNumber,
+                );
             });
-        }
+        };
 
         let testNumber = 1;
         for (const test of UNIT_TEST_TRIALS) {
-            runUnitTestAsync(
-                testNumber++,
-                UnitTestUtils.parseUnitTest(test)
-            );
+            runUnitTestAsync(testNumber++, UnitTestUtils.parseUnitTest(test));
         }
     });
 });

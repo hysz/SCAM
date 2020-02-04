@@ -1,5 +1,5 @@
-import {Numberish } from '@0x/contracts-test-utils';
-import { BigNumber } from '@0x/utils';
+import {Numberish} from '@0x/contracts-test-utils';
+import {BigNumber} from '@0x/utils';
 
 export const FIXED_POINT_BASE = new BigNumber(2).pow(127);
 export const TOKEN_BASE = new BigNumber(10).pow(18);
@@ -16,6 +16,9 @@ export const MathUtils = {
     },
     toNormalized: (n: Numberish, precision: Numberish): BigNumber => {
         const factor = new BigNumber(10).pow(precision);
-        return new BigNumber(n).times(factor).dividedToIntegerBy(1).dividedBy(factor);
+        return new BigNumber(n)
+            .times(factor)
+            .dividedToIntegerBy(1)
+            .dividedBy(factor);
     },
-}
+};

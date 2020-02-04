@@ -1,17 +1,16 @@
-import { BigNumber } from '@0x/utils';
+import {BigNumber} from '@0x/utils';
 import * as _ from 'lodash';
 
-import { MathUtils } from './math_utils';
-import { AMM, UnitTest } from './types';
+import {MathUtils} from './math_utils';
+import {AMM, UnitTest} from './types';
 
 export const UnitTestUtils = {
-
     parseUnitTest: (jsonTest: any): UnitTest => {
         // Parse AMM.
         const ammInit = {
             assets: {
-                xAsset: "0x0000000000000000000000000000000000000000",
-                yAsset: "0x0000000000000000000000000000000000000001",
+                xAsset: '0x0000000000000000000000000000000000000000',
+                yAsset: '0x0000000000000000000000000000000000000001',
                 xDecimals: 18,
                 yDecimals: 18,
             },
@@ -23,7 +22,7 @@ export const UnitTestUtils = {
             },
             fee: {
                 lo: new BigNumber(jsonTest.parameters_lambda),
-                hi: new BigNumber(jsonTest.parameters_lambda).plus(0.002)
+                hi: new BigNumber(jsonTest.parameters_lambda).plus(0.002),
             },
             constraints: {
                 persistence: new BigNumber(jsonTest.parameters_beta),
@@ -43,8 +42,12 @@ export const UnitTestUtils = {
         const trades = [];
         const numberOfTransactions = Number(jsonTest.number_of_transactions);
         for (let tradeNumber = 1; tradeNumber <= numberOfTransactions; tradeNumber++) {
-            const takerToken: string = (jsonTest as any)[`transaction_type_${tradeNumber}`] == 'X' ? ammInit.assets.xAsset : ammInit.assets.yAsset;
-            const makerToken: string = takerToken == ammInit.assets.yAsset ? ammInit.assets.xAsset : ammInit.assets.yAsset;
+            const takerToken: string =
+                (jsonTest as any)[`transaction_type_${tradeNumber}`] == 'X'
+                    ? ammInit.assets.xAsset
+                    : ammInit.assets.yAsset;
+            const makerToken: string =
+                takerToken == ammInit.assets.yAsset ? ammInit.assets.xAsset : ammInit.assets.yAsset;
             const takerAmount: BigNumber = (jsonTest as any)[`transaction_size_${tradeNumber}`];
             const blockNumber: BigNumber = (jsonTest as any)[`transaction_block_num_${tradeNumber}`];
             trades.push({
@@ -59,7 +62,7 @@ export const UnitTestUtils = {
         return {
             ammInit,
             ammFinal,
-            trades
+            trades,
         };
     },
 
@@ -120,13 +123,18 @@ export const UnitTestUtils = {
         ammNormalized.fee.hi = MathUtils.toNormalized(ammNormalized.fee.hi, precision);
 
         // Constraints
-        ammNormalized.constraints.persistence = MathUtils.toNormalized(ammNormalized.constraints.persistence, precision);
-        ammNormalized.constraints.variability = MathUtils.toNormalized(ammNormalized.constraints.variability, precision);
+        ammNormalized.constraints.persistence = MathUtils.toNormalized(
+            ammNormalized.constraints.persistence,
+            precision,
+        );
+        ammNormalized.constraints.variability = MathUtils.toNormalized(
+            ammNormalized.constraints.variability,
+            precision,
+        );
 
         // Block Number
         ammNormalized.blockNumber = MathUtils.toNormalized(ammNormalized.blockNumber, precision);
 
         return ammNormalized;
     },
-
 };

@@ -9,6 +9,7 @@
     "scripts": {
         "build": "yarn pre_build && tsc -b",
         "build:ci": "yarn build",
+        "prettier": "prettier --write '**/*.{ts,tsx,json,md}' --config .prettierrc",
         "pre_build": "run-s compile contracts:gen generate_contract_wrappers contracts:copy",
         "test": "yarn run_mocha",
         "rebuild_and_test": "run-s build test",

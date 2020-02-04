@@ -1,4 +1,4 @@
-import { BigNumber } from '@0x/utils';
+import {BigNumber} from '@0x/utils';
 
 export interface AssetPair {
     xAsset: string;
@@ -19,7 +19,6 @@ export interface Fee {
     hi: BigNumber;
 }
 
-
 export interface PriceConstraints {
     persistence: BigNumber;
     variability: BigNumber;
@@ -35,7 +34,7 @@ export interface AMM {
 
 export enum Token {
     X,
-    Y
+    Y,
 }
 export interface Trade {
     makerToken: string;
