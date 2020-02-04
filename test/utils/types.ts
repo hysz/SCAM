@@ -32,10 +32,6 @@ export interface AMM {
     blockNumber: BigNumber;
 }
 
-export enum Token {
-    X,
-    Y,
-}
 export interface Trade {
     makerToken: string;
     takerToken: string;

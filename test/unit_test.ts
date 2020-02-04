@@ -5,7 +5,6 @@ import {UnitTestContract} from '../src';
 
 import {artifacts} from './artifacts';
 import {UNIT_TEST_TRIALS} from './unit_test_trials';
-import {UnitTest} from './utils/types';
 import {UnitTestUtils} from './utils/unit_test_utils';
 
 blockchainTests.only('Unit Tests', env => {
@@ -21,8 +20,11 @@ blockchainTests.only('Unit Tests', env => {
     });
 
     describe('Unit Tests', () => {
-        const runUnitTestAsync = async (testNumber: number, unitTest: UnitTest): Promise<Mocha.Test> => {
-            return it(`Unit Test ${testNumber}`, async () => {
+        let testNumber = 0;
+        for (const test of UNIT_TEST_TRIALS) {
+            testNumber += 1;
+            const unitTest = UnitTestUtils.parseUnitTest(test);
+            it(`Unit Test ${testNumber}`, async () => {
                 // Run test.
                 const ammFinalFixed = await testContract
                     .runUnitTest(UnitTestUtils.ammToFixed(unitTest.ammInit), unitTest.trades, false)
@@ -53,11 +55,6 @@ blockchainTests.only('Unit Tests', env => {
                     ammFinalNormalExpected.blockNumber,
                 );
             });
-        };
-
-        let testNumber = 1;
-        for (const test of UNIT_TEST_TRIALS) {
-            runUnitTestAsync(testNumber++, UnitTestUtils.parseUnitTest(test));
         }
     });
 });

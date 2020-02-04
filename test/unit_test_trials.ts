@@ -1,3 +1,4 @@
+// tslint:disable max-file-line-count
 export const UNIT_TEST_TRIALS = [
     {
         trial_num: '1.000000000000000000',

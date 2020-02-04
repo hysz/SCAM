@@ -7,3 +7,6 @@ lib/*
 node_modules
 node_modules/*
 ganache.log
+test/artifacts.ts
+test/wrappers.ts
+
