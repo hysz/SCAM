@@ -80,32 +80,6 @@ library LibPriceDiscovery {
         }
     }
 
-    function isRootPrecise(
-        int256 rl,
-        int256 rh,
-        int256 fee
-    )
-        internal
-
-        returns (bool shouldImprovePrecision)
-    {
-        // The true root lies between [rl..rh].
-        // Once the difference is less than a certain threshold,
-        // we consider it to be precise enough.
-        int256 range = rh.sub(rl);
-
-        // The precision threshold is somewhat arbitrary. We want to ensure that
-        // we have high precision for small trades, in which case rh is close to 1
-        // and this reduces to MAX_PERCENT_ERROR * fee. As trades increase in size,
-        // the threshold also increases (which means we demand less precision).
-        int256 threshold = MAX_PERCENT_ERROR.mul(fee.add(ONE).sub(rh));
-
-        // Iff true then enough precision has been reached. Either rl or rh
-        // would be representative of the true root. The algorithm
-        // chooses rl (the lower price) because it is cheaper for the contract.
-        return range <= threshold;
-    }
-
     /// @dev Computes the root that corresponds to the best price on the bonding curve.
     ///      Note that the root is computed on a transposition of the Price Curve,
     ///      which is the first derivative of the Bonding Curve. In this transposed form,
@@ -175,6 +149,7 @@ library LibPriceDiscovery {
         // In such a case, the tangent on the transposed price function would be ~= 0, yielding a
         // price that is infinitely high.
         if (isRootPrecise(rl, rh, fee)) {
+            // We return the lower-bound as our estimate, minimizes the maker price.
             return rl;
         }
 
@@ -195,6 +170,7 @@ library LibPriceDiscovery {
         // Check if the root estimate is precise enough, after running
         // the additional iteration of Newton's Method.
         if (isRootPrecise(rl, rh, fee)) {
+            // We return the lower-bound as our estimate, minimizes the maker price.
             return rl;
         }
 
@@ -213,9 +189,13 @@ library LibPriceDiscovery {
 
         // Check if the root estimate is precise enough, after running Bisection.
         if (isRootPrecise(rl, rh, fee)) {
+            // We return the lower-bound as our estimate, minimizes the maker price.
             return rl;
         }
 
+        // The root is not yet precise enough. Use Secant to improve the lower-bound.
+        // Since the transposed price curve is convex this is guaranteed to output a
+        // lower-bound that is greater-or-equal to the current value.
         rl = runSecant(
             rl,
             rh,
@@ -225,9 +205,46 @@ library LibPriceDiscovery {
             k2
         );
 
+        // We return the lower-bound as our estimate, minimizes the maker price.
         return rl;
+    }
 
-        emit VALUE("rl after step 5", rl);
+    function isRootPrecise(
+        int256 rl,
+        int256 rh,
+        int256 fee
+    )
+        internal
+
+        returns (bool shouldImprovePrecision)
+    {
+        // The true root lies between [rl..rh].
+        // Once the difference is less than a certain threshold,
+        // we consider it to be precise enough.
+        int256 range = rh.sub(rl);
+
+        // The precision threshold is somewhat arbitrary. We want to ensure that
+        // we have high precision for small trades, in which case rh is close to 1
+        // and this reduces to MAX_PERCENT_ERROR * fee. As trades increase in size,
+        // the threshold also increases (which means we demand less precision).
+        int256 threshold = MAX_PERCENT_ERROR.mul(fee.add(ONE).sub(rh));
+
+        // Iff true then enough precision has been reached. Either rl or rh
+        // would be representative of the true root. The algorithm
+        // chooses rl (the lower price) because it is cheaper for the contract.
+        return range <= threshold;
+    }
+
+    function computePointOnTransposedPriceCurve(
+        IStructs.BondingCurve memory curve,
+        int256 x
+    )
+        internal
+        pure
+        returns (int256 y)
+    {
+        int256 exponent = ONE.div(ONE.sub(curve.slippage));
+        return x.pow(exponent);
     }
 
     function runNewton(
@@ -260,18 +277,6 @@ library LibPriceDiscovery {
         return LibFixedMath.min(minRoot, root);
     }
 
-    function computePointOnTransposedPriceCurve(
-        IStructs.BondingCurve memory curve,
-        int256 x
-    )
-        internal
-        pure
-        returns (int256 y)
-    {
-        int256 exponent = ONE.div(ONE.sub(curve.slippage));
-        return x.pow(exponent);
-    }
-
     function runBisection(
         IStructs.BondingCurve memory curve,
         int256 rl,
@@ -282,10 +287,10 @@ library LibPriceDiscovery {
     )
         internal
         returns (
-            int256 newRl,
-            int256 newRh,
-            int256 newYl,
-            int256 newYh
+            int256 rlNew,
+            int256 rhNew,
+            int256 ylNew,
+            int256 yhNew
         )
     {
         // Compute a bisection point (x,y). We weight the lower-bound
@@ -302,22 +307,22 @@ library LibPriceDiscovery {
         // See 7 of the Whitepaper for a visualization of this step.
         int256 yBisUpperBound = k2.sub(k1.mul(xBis));
         if (yBis <= yBisUpperBound) {
-            newRl = xBis;
-            newRh = rh;
-            newYl = yBis;
-            newYh = computePointOnTransposedPriceCurve(curve, rh);
+            rlNew = xBis;
+            rhNew = rh;
+            ylNew = yBis;
+            yhNew = computePointOnTransposedPriceCurve(curve, rh);
         } else {
-            newRl = rl;
-            newRh = xBis;
-            newYl = yl;
-            newYh = yBis;
+            rlNew = rl;
+            rhNew = xBis;
+            ylNew = yl;
+            yhNew = yBis;
        }
 
        return (
-           newRl,
-           newRh,
-           newYl,
-           newYh
+           rlNew,
+           rhNew,
+           ylNew,
+           yhNew
        );
     }
 
@@ -333,16 +338,19 @@ library LibPriceDiscovery {
 
         returns (int256)
     {
-        int256 term1 = yh.mul(rl)
+        // Compute root using Secant method.
+        int256 n = yh.mul(rl)
             .sub(yl.mul(rh))
             .add(k2.mul(rh.sub(rl)));
-        int256 term2 = yh
+        int256 d = yh
             .sub(yl)
             .add(k1.mul(rh.sub(rl)));
-        int256 term3 = term1.div(term2);
+        int256 root = n.div(d);
 
-        return term3 > rl
-            ? term3
+        // We are optimizing the lower-bound. Only return the new root
+        // if it is greater (tighter) than the current lower-bound.
+        return root > rl
+            ? root
             : rl;
     }
 
