@@ -6,6 +6,7 @@
 import {ContractArtifact} from 'ethereum-types';
 
 import * as AbstractAMM from '../test/generated-artifacts/AbstractAMM.json';
+import * as AMMTest from '../test/generated-artifacts/AMMTest.json';
 import * as IERC20 from '../test/generated-artifacts/IERC20.json';
 import * as IEvents from '../test/generated-artifacts/IEvents.json';
 import * as IStructs from '../test/generated-artifacts/IStructs.json';
@@ -23,5 +24,6 @@ export const artifacts = {
     LibBondingCurve: LibBondingCurve as ContractArtifact,
     LibFixedMath: LibFixedMath as ContractArtifact,
     LibPriceDiscovery: LibPriceDiscovery as ContractArtifact,
+    AMMTest: AMMTest as ContractArtifact,
     UnitTest: UnitTest as ContractArtifact,
 };

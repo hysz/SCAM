@@ -22,6 +22,7 @@
     "include": ["./src/**/*", "./test/**/*", "./generated-wrappers/**/*", "./migrations/**/*"],
     "files": [
         "generated-artifacts/UnitTest.json",
+        "test/generated-artifacts/AMMTest.json",
         "test/generated-artifacts/AbstractAMM.json",
         "test/generated-artifacts/IERC20.json",
         "test/generated-artifacts/IEvents.json",
