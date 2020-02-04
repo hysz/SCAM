@@ -4,5 +4,6 @@ generated-wrappers/*
 test/generated-artifacts/*
 test/generated-wrappers/*
 lib/*
+node_modules
 node_modules/*
 ganache.log
