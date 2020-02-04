@@ -7,7 +7,6 @@ import { artifacts } from './artifacts';
 
 import { UNIT_TEST_TRIALS } from './unit_test_trials';
 
-import { MathUtils } from './utils/math_utils';
 import { UnitTestUtils } from './utils/unit_test_utils';
 import { UnitTest } from './utils/types';
 
@@ -28,12 +27,7 @@ blockchainTests.only('Unit Tests', env => {
     describe('Unit Tests', () => {
         const runUnitTestAsync = async (testNumber: number, unitTest: UnitTest): Promise<Mocha.Test>  => {
             return it(`Unit Test ${testNumber}`, async () => {
-                if ([105, 324, 760, 927].includes(testNumber)) {
-                    return;
-                } /*else if (testNumber != 68) {
-                    return;
-                }*/
-
+                // Run test.
                 const ammFinalFixed = await testContract.runUnitTest(
                     UnitTestUtils.ammToFixed(unitTest.ammInit),
                     unitTest.trades,
@@ -44,32 +38,18 @@ blockchainTests.only('Unit Tests', env => {
                 const ammFinal = UnitTestUtils.ammFromFixed(ammFinalFixed);
 
                 // Create normalized AMM's for comparison.
-                const ammFinalNormal = UnitTestUtils.ammToNormalized(ammFinal);
-                const ammFinalNormalExpected = UnitTestUtils.ammToNormalized(unitTest.ammFinal);
+                // There are 4 tests where the precision is 5 decimal places. The others are ≥6.
+                // We expect precision due to differences in rounding between Matlab and Solidity.
+                // More information about how the models drift will be extracted from simulation testing.
+                const precision = [105, 324, 760, 927].includes(testNumber) ? 5 : 6;
+                const ammFinalNormal = UnitTestUtils.ammToNormalized(ammFinal, precision);
+                const ammFinalNormalExpected = UnitTestUtils.ammToNormalized(unitTest.ammFinal, precision);
 
-
-                //console.log('EXPECTED FINAL STATE:\n', JSON.stringify(unitTest.finalState, null, 4));
-                //console.log('\n\nFINAL STATE:\n', JSON.stringify(finalState, null, 4), '\n\n');
+                // Validate properties that are stored in state.
                 expect(ammFinalNormal.curve.xReserve, 'xReserve').to.bignumber.equal(ammFinalNormalExpected.curve.xReserve);
                 expect(ammFinalNormal.curve.yReserve, 'yReserve').to.bignumber.equal(ammFinalNormalExpected.curve.yReserve);
                 expect(ammFinalNormal.curve.expectedPrice, 'expectedPrice').to.bignumber.equal(ammFinalNormalExpected.curve.expectedPrice);
                 expect(ammFinalNormal.blockNumber, 'blockNumber').to.bignumber.equal(ammFinalNormalExpected.blockNumber);
-                //expect(ammFinalNormal, 'catch-all properties').to.deep.equal(ammFinalNormalExpected);
-
-                /*
-                const tx = await testContract.runUnitTest(
-                    unitTest.params,
-                    unitTest.initialState,
-                    unitTest.trades,
-                    true
-                ).awaitTransactionSuccessAsync();
-
-                const valueLogs = _.filter(tx.logs, (log) => {return (log as any).event === "VALUE"});
-                for (const log of valueLogs) {
-                    console.log('***** ', (log as any).args.description, ' *****');
-                    console.log(MathUtils.fromFixed(new BigNumber((log as any).args.val._hex, 16)));
-                }
-                */
             });
         }
 

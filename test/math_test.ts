@@ -72,6 +72,7 @@ blockchainTests.skip('Math Tests', env => {
                 const b = toFixed(new BigNumber('0.1'));
 */
 
+/*
 
                 console.log(`${fromFixed(a)} x ${fromFixed(b)}`);
 
@@ -82,6 +83,7 @@ blockchainTests.skip('Math Tests', env => {
                 console.log(fromFixed(retval));
                 const bn = fromFixed(a).dividedBy(fromFixed(b));
                 console.log('CORRECT VALUE = ', bn);
+                */
         });
 
         it.skip('Mantissa', async () => {
@@ -89,11 +91,13 @@ blockchainTests.skip('Math Tests', env => {
             const fixedBn = toFixed(bn).dividedToIntegerBy(1);
             console.log('int: ', bn);
 
+            /*
             const mantissa = await testContract.testMantissa(fixedBn).callAsync();
 
             console.log('encoded mantissa: ', AbiEncoder.create('int').encode(mantissa));
             console.log('encoded init val: ', AbiEncoder.create('int').encode(fixedBn));
             console.log('man: ', fromFixed(mantissa));
+            */
         });
 
         it.skip('Pow', async () => {
@@ -104,8 +108,8 @@ blockchainTests.skip('Math Tests', env => {
             const base = toFixed(1);
             const power = toFixed(0.75);
 
-            const val = await testContract.testPow(base, power).callAsync();
-            console.log('VAL: ', fromFixed(val));
+            //const val = await testContract.testPow(base, power).callAsync();
+           // console.log('VAL: ', fromFixed(val));
 
         });
     });

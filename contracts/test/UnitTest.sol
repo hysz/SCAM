@@ -67,28 +67,8 @@ contract UnitTest is
             }
         }
 
-        // Return final state
+        // Return final AMM
         return _getAMM();
-    }
-
-    function testMul(int256 i, int256 j) public returns (int256) {
-        return i.mul(j);
-    }
-
-    function testDiv(int256 i, int256 j) public returns (int256) {
-        return i.div(j);
-    }
-
-    function testPow(int256 i, int256 j) public returns (int256) {
-        return i.pow(j);
-    }
-
-    function testMantissa(int256 i) public returns (int256) {
-        return i.toMantissa();
-    }
-
-    function getRanges() public returns (int256,int256,int256,int256) {
-        return LibFixedMath.getRanges();
     }
 
     function _getCurrentBlockNumber()

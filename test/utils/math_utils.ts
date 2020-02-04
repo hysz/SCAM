@@ -14,8 +14,8 @@ export const MathUtils = {
     toToken: (n: Numberish): BigNumber => {
         return new BigNumber(n).multipliedBy(TOKEN_BASE).dividedToIntegerBy(1);
     },
-    toStandard: (n: Numberish): BigNumber => {
-        const factor = new BigNumber(10).pow(6);
+    toNormalized: (n: Numberish, precision: Numberish): BigNumber => {
+        const factor = new BigNumber(10).pow(precision);
         return new BigNumber(n).times(factor).dividedToIntegerBy(1).dividedBy(factor);
     },
 }

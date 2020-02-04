@@ -107,24 +107,24 @@ export const UnitTestUtils = {
         return amm;
     },
 
-    ammToNormalized: (amm: AMM): AMM => {
+    ammToNormalized: (amm: AMM, precision: number): AMM => {
         let ammNormalized = {...amm};
         // Curve
-        ammNormalized.curve.xReserve = MathUtils.toStandard(ammNormalized.curve.xReserve);
-        ammNormalized.curve.yReserve = MathUtils.toStandard(ammNormalized.curve.yReserve);
-        ammNormalized.curve.expectedPrice = MathUtils.toStandard(ammNormalized.curve.expectedPrice);
-        ammNormalized.curve.slippage = MathUtils.toStandard(ammNormalized.curve.slippage);
+        ammNormalized.curve.xReserve = MathUtils.toNormalized(ammNormalized.curve.xReserve, precision);
+        ammNormalized.curve.yReserve = MathUtils.toNormalized(ammNormalized.curve.yReserve, precision);
+        ammNormalized.curve.expectedPrice = MathUtils.toNormalized(ammNormalized.curve.expectedPrice, precision);
+        ammNormalized.curve.slippage = MathUtils.toNormalized(ammNormalized.curve.slippage, precision);
 
         // Fee
-        ammNormalized.fee.lo = MathUtils.toStandard(ammNormalized.fee.lo);
-        ammNormalized.fee.hi = MathUtils.toStandard(ammNormalized.fee.hi);
+        ammNormalized.fee.lo = MathUtils.toNormalized(ammNormalized.fee.lo, precision);
+        ammNormalized.fee.hi = MathUtils.toNormalized(ammNormalized.fee.hi, precision);
 
         // Constraints
-        ammNormalized.constraints.persistence = MathUtils.toStandard(ammNormalized.constraints.persistence);
-        ammNormalized.constraints.variability = MathUtils.toStandard(ammNormalized.constraints.variability);
+        ammNormalized.constraints.persistence = MathUtils.toNormalized(ammNormalized.constraints.persistence, precision);
+        ammNormalized.constraints.variability = MathUtils.toNormalized(ammNormalized.constraints.variability, precision);
 
         // Block Number
-        ammNormalized.blockNumber = MathUtils.toStandard(ammNormalized.blockNumber);
+        ammNormalized.blockNumber = MathUtils.toNormalized(ammNormalized.blockNumber, precision);
 
         return ammNormalized;
     },
