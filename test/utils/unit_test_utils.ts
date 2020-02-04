@@ -32,7 +32,7 @@ export const UnitTestUtils = {
         };
 
         // Parse final AMM.
-        let ammFinal = _.cloneDeep(ammInit);
+        const ammFinal = _.cloneDeep(ammInit);
         ammFinal.curve.xReserve = new BigNumber(jsonTest.final_state_x);
         ammFinal.curve.yReserve = new BigNumber(jsonTest.final_state_y);
         ammFinal.curve.expectedPrice = new BigNumber(jsonTest.final_state_p_bar_x);
@@ -43,13 +43,13 @@ export const UnitTestUtils = {
         const numberOfTransactions = Number(jsonTest.number_of_transactions);
         for (let tradeNumber = 1; tradeNumber <= numberOfTransactions; tradeNumber++) {
             const takerToken: string =
-                (jsonTest as any)[`transaction_type_${tradeNumber}`] == 'X'
+                (jsonTest)[`transaction_type_${tradeNumber}`] == 'X'
                     ? ammInit.assets.xAsset
                     : ammInit.assets.yAsset;
             const makerToken: string =
                 takerToken == ammInit.assets.yAsset ? ammInit.assets.xAsset : ammInit.assets.yAsset;
-            const takerAmount: BigNumber = (jsonTest as any)[`transaction_size_${tradeNumber}`];
-            const blockNumber: BigNumber = (jsonTest as any)[`transaction_block_num_${tradeNumber}`];
+            const takerAmount: BigNumber = (jsonTest)[`transaction_size_${tradeNumber}`];
+            const blockNumber: BigNumber = (jsonTest)[`transaction_block_num_${tradeNumber}`];
             trades.push({
                 makerToken,
                 takerToken,
@@ -67,7 +67,7 @@ export const UnitTestUtils = {
     },
 
     ammToFixed: (amm: AMM): AMM => {
-        let ammFixed = {...amm};
+        const ammFixed = {...amm};
         // Curve
         ammFixed.curve.xReserve = MathUtils.toFixed(ammFixed.curve.xReserve);
         ammFixed.curve.yReserve = MathUtils.toFixed(ammFixed.curve.yReserve);
@@ -89,7 +89,7 @@ export const UnitTestUtils = {
     },
 
     ammFromFixed: (ammFixed: AMM): AMM => {
-        let amm = {...ammFixed};
+        const amm = {...ammFixed};
         // Curve
         amm.curve.xReserve = MathUtils.fromFixed(amm.curve.xReserve);
         amm.curve.yReserve = MathUtils.fromFixed(amm.curve.yReserve);
@@ -111,7 +111,7 @@ export const UnitTestUtils = {
     },
 
     ammToNormalized: (amm: AMM, precision: number): AMM => {
-        let ammNormalized = {...amm};
+        const ammNormalized = {...amm};
         // Curve
         ammNormalized.curve.xReserve = MathUtils.toNormalized(ammNormalized.curve.xReserve, precision);
         ammNormalized.curve.yReserve = MathUtils.toNormalized(ammNormalized.curve.yReserve, precision);

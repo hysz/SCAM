@@ -1,16 +1,12 @@
 import {blockchainTests, expect} from '@0x/contracts-test-utils';
-import {BigNumber} from '@0x/utils';
+import * as _ from 'lodash';
 
 import {UnitTestContract} from '../src';
 
 import {artifacts} from './artifacts';
-
 import {UNIT_TEST_TRIALS} from './unit_test_trials';
-
-import {UnitTestUtils} from './utils/unit_test_utils';
 import {UnitTest} from './utils/types';
-
-import * as _ from 'lodash';
+import {UnitTestUtils} from './utils/unit_test_utils';
 
 blockchainTests.only('Unit Tests', env => {
     let testContract: UnitTestContract;
