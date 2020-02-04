@@ -24,6 +24,9 @@ library LibPriceDiscovery {
 
     // Fixed-point numbers used by this library.
     int256 private constant ONE = int256(0x0000000000000000000000000000000080000000000000000000000000000000);
+    int256 private constant TWO = int256(0x0000000000000000000000000000000100000000000000000000000000000000);
+    int256 private constant THREE = int256(0x0000000000000000000000000000000180000000000000000000000000000000);
+    int256 private constant FIVE = int256(0x0000000000000000000000000000000280000000000000000000000000000000);
 
     // The best price can only diverge by 5% from the max price. We store 95% to simplify computation.
     int256 private constant MAX_PRICE_DIVERGENCE = int256(0x0000000000000000000000000000000079999999999999999999999999999999); // 0.95
@@ -196,7 +199,8 @@ library LibPriceDiscovery {
         }
 
         // The root is not yet precise enough. Use the Bisection to tighten both the
-        // upper and lower bounds.
+        // upper and lower bounds. We use Bisection instead of another round of Newton's Method
+        // to improve worst-case performance.
         int256 yh;
         (rl, rh, yl, yh) = runBisection(
             curve,
@@ -207,11 +211,7 @@ library LibPriceDiscovery {
             yl
         );
 
-        emit VALUE("rl after step 4", rl);
-        emit VALUE("rh after step 4", rh);
-        emit VALUE("yl after step 4", yl);
-        emit VALUE("yh after step 4", yh);
-
+        // Check if the root estimate is precise enough, after running Bisection.
         if (isRootPrecise(rl, rh, fee)) {
             return rl;
         }
@@ -272,15 +272,6 @@ library LibPriceDiscovery {
         return x.pow(exponent);
     }
 
-    function _computeA(int256 rl, int256 rh)
-        internal
-        returns (int256)
-    {
-        return rl.mul(LibFixedMath.toFixed(int256(4)))
-            .add(rh.mul(LibFixedMath.toFixed(int256(6))))
-            .div(LibFixedMath.toFixed(int256(10)));
-    }
-
     function runBisection(
         IStructs.BondingCurve memory curve,
         int256 rl,
@@ -297,21 +288,27 @@ library LibPriceDiscovery {
             int256 newYh
         )
     {
-        // compute yBis
-        int256 term1 = _computeA(rl, rh);
-        int256 ratio = ONE.div(ONE.sub(curve.slippage));
-        int256 yBis = term1.pow(ratio);
+        // Compute a bisection point (x,y). We weight the lower-bound
+        // at 40% (2/5) and the upper-bound at 60% (3/5).
+        int256 xBis = rl
+            .mul(TWO)
+            .add(rh.mul(THREE))
+            .div(FIVE);
+        int256 yBis = computePointOnTransposedPriceCurve(curve, xBis);
 
-        //
-        int256 term2 = k2.sub(k1.mul(term1));
-        if (yBis <= term2) {
-            newRl = term1;
+        // Use the point of bisection to tighten our upper and lower bound root estimates
+        // (and their respective y values on the transposed price curve).
+        // See Step 15 of section 4.3 in the Whitepaper for the expanded equations.
+        // See 7 of the Whitepaper for a visualization of this step.
+        int256 yBisUpperBound = k2.sub(k1.mul(xBis));
+        if (yBis <= yBisUpperBound) {
+            newRl = xBis;
             newRh = rh;
             newYl = yBis;
-            newYh = rh.pow(ratio);
+            newYh = computePointOnTransposedPriceCurve(curve, rh);
         } else {
             newRl = rl;
-            newRh = term1;
+            newRh = xBis;
             newYl = yl;
             newYh = yBis;
        }

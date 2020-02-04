@@ -4,7 +4,7 @@ pragma experimental ABIEncoderV2;
 
 interface IEvents {
 
-    event Trade(
+    event Fill(
         address taker,
         address takerAsset,
         address makerAsset,
