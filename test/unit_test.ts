@@ -34,25 +34,27 @@ blockchainTests.only('Unit Tests', env => {
                     return;
                 }*/
 
-                const ammFinal = await testContract.runUnitTest(
-                    unitTest.ammInit,
+                const ammFinalFixed = await testContract.runUnitTest(
+                    UnitTestUtils.ammToFixed(unitTest.ammInit),
                     unitTest.trades,
                     false
                 ).callAsync();
 
-                const finalState = {
-                    x: MathUtils.fromFixed(ammFinal.curve.xReserve),
-                    y: MathUtils.fromFixed(ammFinal.curve.yReserve),
-                    pBarX: MathUtils.fromFixed(ammFinal.curve.expectedPrice),
-                    t: MathUtils.fromFixed(ammFinal.blockNumber),
-                }
+                // Parse out the final AMM from fixed-point form.
+                const ammFinal = UnitTestUtils.ammFromFixed(ammFinalFixed);
+
+                // Create normalized AMM's for comparison.
+                const ammFinalNormal = UnitTestUtils.ammToNormalized(ammFinal);
+                const ammFinalNormalExpected = UnitTestUtils.ammToNormalized(unitTest.ammFinal);
+
 
                 //console.log('EXPECTED FINAL STATE:\n', JSON.stringify(unitTest.finalState, null, 4));
                 //console.log('\n\nFINAL STATE:\n', JSON.stringify(finalState, null, 4), '\n\n');
-                expect(MathUtils.toStandard(finalState.x), 'x').to.bignumber.equal(MathUtils.toStandard(unitTest.ammFinal.curve.xReserve));
-                expect(MathUtils.toStandard(finalState.y), 'y').to.bignumber.equal(MathUtils.toStandard(unitTest.ammFinal.curve.yReserve));
-                expect(MathUtils.toStandard(finalState.pBarX), 'pBarX').to.bignumber.equal(MathUtils.toStandard(unitTest.ammFinal.curve.expectedPrice));
-                expect(MathUtils.toStandard(finalState.t), 't').to.bignumber.equal(MathUtils.toStandard(unitTest.ammFinal.blockNumber));
+                expect(ammFinalNormal.curve.xReserve, 'xReserve').to.bignumber.equal(ammFinalNormalExpected.curve.xReserve);
+                expect(ammFinalNormal.curve.yReserve, 'yReserve').to.bignumber.equal(ammFinalNormalExpected.curve.yReserve);
+                expect(ammFinalNormal.curve.expectedPrice, 'expectedPrice').to.bignumber.equal(ammFinalNormalExpected.curve.expectedPrice);
+                expect(ammFinalNormal.blockNumber, 'blockNumber').to.bignumber.equal(ammFinalNormalExpected.blockNumber);
+                //expect(ammFinalNormal, 'catch-all properties').to.deep.equal(ammFinalNormalExpected);
 
                 /*
                 const tx = await testContract.runUnitTest(

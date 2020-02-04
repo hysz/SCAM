@@ -7,8 +7,8 @@ interface IStructs {
     struct AssetPair {
         address xAsset;
         address yAsset;
-        int256 xDecimals;
-        int256 yDecimals;
+        uint8 xDecimals;
+        uint8 yDecimals;
     }
 
     struct BondingCurve {

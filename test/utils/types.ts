@@ -3,8 +3,8 @@ import { BigNumber } from '@0x/utils';
 export interface AssetPair {
     xAsset: string;
     yAsset: string;
-    xDecimals: BigNumber;
-    yDecimals: BigNumber;
+    xDecimals: number;
+    yDecimals: number;
 }
 
 export interface BondingCurve {
