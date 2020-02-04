@@ -23,7 +23,7 @@
         "test:circleci": "yarn test",
         "contracts:gen": "contracts-gen generate",
         "contracts:copy": "contracts-gen copy",
-        "lint-contracts": "solhint -c ../.solhint.json contracts/**/**/**/**/*.sol"
+        "lint-contracts": "solhint -c ./.solhint.json contracts/**/**/**/**/*.sol"
     },
     "repository": {
         "type": "git",
